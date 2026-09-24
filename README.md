@@ -1,12 +1,12 @@
 # 灵阅 · AI 小说阅读平台
 
-[![CI](https://github.com/borgejackson5-ctrl/ai-project/actions/workflows/ci.yml/badge.svg)](https://github.com/borgejackson5-ctrl/ai-project/actions/workflows/ci.yml)
+[![CI](https://github.com/borgejackson5-ctrl/ai-novel/actions/workflows/ci.yml/badge.svg)](https://github.com/borgejackson5-ctrl/ai-novel/actions/workflows/ci.yml)
 ![JDK](https://img.shields.io/badge/JDK-21-437291?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)
 ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8.18-005571?logo=elasticsearch&logoColor=white)
 
-> **仓库**：[Gitee 主仓](https://gitee.com/foreverck/ai-project) · [GitHub 镜像](https://github.com/borgejackson5-ctrl/ai-project)
+> **仓库**：[Gitee 主仓](https://gitee.com/foreverck/ai-novel) · [GitHub 镜像](https://github.com/borgejackson5-ctrl/ai-novel)
 
 一个基于 **Spring Boot 3 + Vue 3** 的前后端分离小说阅读与创作平台：以**内容分发与虚拟币交易链路**（发布审核 / 充值 / 章节解锁 / 订单）为业务核心，以 **AI 能力**（智能搜索 / 书名简介生成 / AI 审核）为增值亮点，叠加 **Elasticsearch 全文检索**、**三级缓存榜单**、**分布式锁防超扣**、**公版书文本导入器** 等后端深度技术点。
 
