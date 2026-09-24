@@ -1,0 +1,54 @@
+# ============================================================
+# 生产环境配置（--spring.profiles.active=prod）
+# 原则：关闭一切面向开发者的门面（接口文档 / knife4j / Druid 监控台 / SQL 日志）
+# ============================================================
+
+# 支付回调验签密钥：生产必须通过环境变量 PAY_NOTIFY_SECRET 注入，严禁在此写明文
+pay:
+  notify-secret: ${PAY_NOTIFY_SECRET:}
+
+app:
+  # 生产默认**不**创建演示账号：admin/admin123、user/user123 是公开写在 README 里的口令，
+  # 用户表为空时自动创建它俩，等于给公网留一个已知口令的管理员。
+  # 若这台机器就是演示站、需要它们登录：在 .env 里设 SEED_DEMO_ACCOUNTS=true，
+  # 并同时设 SEED_ADMIN_PASSWORD / SEED_USER_PASSWORD 为强口令。
+  seed-demo-accounts: ${SEED_DEMO_ACCOUNTS:false}
+
+spring:
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: false
+  web:
+    resources:
+      # 后端没有任何自己的静态资源（无 static/ 目录、未注册 ResourceHandler），
+      # 但依赖 jar 里的会经此下发 —— 典型就是 knife4j UI 的 /doc.html。
+      # 这是**唯一**能真正屏蔽它的开关，理由见文末 knife4j 那段。
+      add-mappings: false
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+# 关闭接口文档，减少攻击面
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# knife4j：这里只关「增强功能」。**不要**改 enable=true，也不要指望 production=true。
+# 出过一回错，记下来免得后人再踩（已反编译 knife4j-autoconfigure 4.6.0 逐条确认）：
+#   ① @ConditionalOnProperty("knife4j.enable") 在**类级**上 —— enable=false 时整个
+#      Knife4jAutoConfiguration 都不生效，production 那条屏蔽过滤器压根不会被创建
+#      ⇒ 实测 enable=false + production=true 时 /doc.html 仍返回 200，是条死配置；
+#   ② 那改成 enable=true？它要注入 SpringDocConfigProperties，而我们已经把 api-docs 关了
+#      ⇒ 启动直接 APPLICATION FAILED TO START（knife4jOpenApiCustomizer 找不到依赖）。
+# 也就是说：在本项目里 knife4j 自己的 production 开关**不可能生效**，
+# 屏蔽 /doc.html 只能靠上面那条 spring.web.resources.add-mappings=false。
+knife4j:
+  enable: false
+
+logging:
+  level:
+    com.ainovel: info

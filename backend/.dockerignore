@@ -1,0 +1,24 @@
+target/
+**/target/
+*.log
+.idea/
+*.iml
+.mvn/
+mvnw
+mvnw.cmd
+.git/
+.gitignore
+
+# ============================================================
+# 本地密钥配置：绝对不能进构建上下文
+# ------------------------------------------------------------
+# 它被 .gitignore 保护、不进仓库 —— 但 `COPY src ./src` 走的是**构建上下文**，
+# 不受 .gitignore 约束，所以不写在这里就会被编进 jar（实测过：
+# BOOT-INF/classes/application-local.yaml 随镜像一起发布，里面是真实
+# OSS AccessKey / 文生图 Key / 数据库口令 / 邮箱授权码）。
+# .gitignore 管仓库，.dockerignore 管镜像，两件事。
+#
+# 生产所需的口令与 Key 一律通过环境变量注入（见 docker-compose.prod.yml 与 .env.example）。
+# ============================================================
+src/main/resources/application-local.yaml
+src/main/resources/application-local.yml

@@ -1,0 +1,107 @@
+# ============================================================
+# 通用 / IDE
+# ============================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Trae / Claude / WorkBuddy / Reasonix 工具产物（不要提交）
+.trae/
+.trae-cn/
+.claude/
+.workbuddy/
+.codebuddy/
+
+# 本地临时文件
+error.txt
+
+# ============================================================
+# Java / Maven 后端
+# ============================================================
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+replay_pid*
+
+# ============================================================
+# 前端 / Node
+# ============================================================
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.pnp.*
+
+# ============================================================
+# 测试报告 / 覆盖率
+# ============================================================
+**/coverage/
+**/.nyc_output/
+*.lcov
+
+# 压测原始数据（结果已汇总进 docs/benchmark/，JTL 体积大不入库）
+scripts/benchmark/*.jtl
+scripts/benchmark/jmeter.log
+scripts/benchmark/rank-report/
+scripts/benchmark/unlock-result.xml
+scripts/benchmark/cpu-*.txt
+
+# AI 视频 mock 素材（22MB 二进制，产品转向小说后视频功能整体移除，不入库）
+frontend/public/videos/ai/
+
+# ============================================================
+# 敏感配置（避免把本地密码/Key 推上去）
+# ============================================================
+# local 里是真实的库密码与第三方 Key（OSS / AI / SMTP），只留本地，绝不入库
+backend/src/main/resources/application-local.yaml
+*.pem
+*.key
+.env
+
+# 注意：application-prod.yaml **必须入库**（2026-09-15 移出忽略）。
+# 它是「生产加固」配置：关接口文档 / 关 Druid 监控台 / 关 SQL 日志 / 关 knife4j，
+# 且不含任何密钥（支付密钥走 ${PAY_NOTIFY_SECRET} 环境变量）。
+# compose 里已设 SPRING_PROFILES_ACTIVE=prod，一旦这个文件缺失，
+# Spring Boot 不会报错 —— 只是这些加固静默失效，生产上把接口文档全暴露出去。
+
+# ============================================================
+# 运行数据（compose 默认相对路径挂载的本地数据目录）
+# ============================================================
+/docker-data/
+
+# 个人资料（本地保留，不公开）
+任务书.txt
+部署云服务器任务书.md
+学习任务清单.md
+
+# 公版书种子数据的未压缩中间产物（提交 sql/seed_novels.sql.gz 即可）
+sql/seed_novels.sql
+
+# Python 缓存（样本与报告要提交，缓存不要）。写通配是因为 scripts/ 与 eval/ 下都有脚本 ——
+# 只写死 eval/__pycache__/ 的话，谁在 scripts 下 import 一次就冒出一个未跟踪目录
+__pycache__/
+# 评测样本作品的「案例映射」：里面是**本地库的雪花 id**（novelId + 每章 id），
+# 换台机器 / 重建库就全失效 —— 它是本地产物，不是配置。
+# 跑 `python eval/review_eval.py setup` 会当场生成。
+eval/reports/.cases-map-*.json

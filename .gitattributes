@@ -1,0 +1,13 @@
+# 换行符统一：Windows 开发 / Linux 部署时的必需项
+#
+# 脚本在服务器上是 Linux 执行的，若带 CRLF 换行会直接报
+# `$'\r': command not found` —— 这个坑在本地完全复现不出来。
+*.sh   text eol=lf
+*.bash text eol=lf
+
+# 切块锚点文件：内容一个字节都不能变。
+# 它有两层用途 —— Java 与 Python 的切块实现都拿它做断言，而哈希是按**原始字节**算的。
+# 一旦被转成 CRLF（Windows 上 core.autocrlf=true 的默认行为），
+# 两边都会失败；更坏的是有人可能「顺手重新生成锚点」把真实的切块变化掩盖掉。
+# 所以这里显式禁止任何换行转换（-text = 不做 CRLF/LF 转换）。
+eval/fixtures/*.txt -text

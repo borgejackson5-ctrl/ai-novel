@@ -1,0 +1,271 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: ai-novel-backend
+  # 架构守护：模块用显式注解声明（@ApplicationModule），而不是按目录层级猜。
+  # 业务模块在 module/<name>/package-info.java 标注；检测与校验见 ModularityTests。
+  modulith:
+    detection-strategy: explicitly-annotated
+  # 本地敏感配置（OSS/文生图密钥），gitignored；不存在时自动忽略
+  config:
+    import: optional:classpath:application-local.yaml
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  # 邮件（邮箱验证码）：敏感项 username/password 由 application-local.yaml 或环境变量注入
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 这里给的是「本机原生 MySQL」的默认值（3306）。仓库自带的一键环境把 MySQL 映射到
+    # **3307**，那份地址由 application-local.yaml 覆盖（import 进来的配置优先于本文件）；
+    # 容器部署则由 SPRING_DATASOURCE_URL 环境变量覆盖。三处都别搞混。
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/ai_drama?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    # 默认值是「克隆后能直接起来」的占位值，与 docker-compose.yml 的默认值同源，不是任何环境的真实口令。
+    # 本机真实口令由上方 config.import 进来的 application-local.yaml 覆盖；容器部署由
+    # SPRING_DATASOURCE_PASSWORD 注入；生产由 docker-compose.prod.yml 的 ${VAR:?} 强制显式提供。
+    password: ${SPRING_DATASOURCE_PASSWORD:dev-local-mysql}
+    druid:
+      initial-size: 5
+      max-active: 20
+      # 监控台默认口令很弱，仅用于本地开发；生产环境通过环境变量注入强口令
+      stat-view-servlet:
+        enabled: true
+        login-username: ${DRUID_USER:druid}
+        login-password: ${DRUID_PASSWORD:druid}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:127.0.0.1}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      # 同 datasource：默认值是占位值，本机真实口令由 application-local.yaml 覆盖
+      password: ${SPRING_DATA_REDIS_PASSWORD:dev-local-redis}
+
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://127.0.0.1:9200}
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:127.0.0.1}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+    # 生产者消息可靠性：confirm 关联模式 + 不可路由退回 + mandatory
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        #手动ack
+        acknowledge-mode: manual
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # 类型别名扫描包：必须与真实根包一致（改项目名时最容易漏）。
+  # 写错不报错，只是别名一个都不注册 —— 等 mapper XML 里用短别名
+  # （resultType="Novel" 这种）才会暴露出来。
+  type-aliases-package: com.ainovel.**.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    # 注意：全量 SQL 日志仅限本地开发，prod profile 已覆盖关闭
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      # 逻辑删除列统一为 is_deleted（实体字段 deleted，BaseEntity 已映射）
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: assign_id
+
+# Sa-Token
+sa-token:
+  token-name: Authorization
+  # ⚠️ 这里**刻意不写** timeout / active-timeout。
+  # 真实时效由 LoginServiceImpl#doLogin 每次登录用 SaLoginModel 显式下发：
+  # 勾「记住我」是 15 天绝对 + 7 天不活跃；不勾是 1 天绝对 + 12 小时不活跃（常量都在那个类里）。
+  # 曾经在这里配过 604800 / 259200 —— 那两个值永远不会生效（每次登录都带 model 覆盖它），
+  # 属于「配了等于没配」的死配置，还容易让人以为线上会话是 7 天。要改时效请改那个类。
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+# AI 服务
+# 每个 key 都必须与 AiProperties 的字段名一一对应；对不上 Spring 会静默忽略，
+# 配了等于没配（这里曾经有三个死配置：ai.timeout / ai.max-tokens / ai.enable-log）
+ai:
+  base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:deepseek-chat}
+  temperature: ${AI_TEMPERATURE:0.8}
+  # 内容生成超时（秒）。注意单位是秒，不是毫秒
+  timeout-seconds: ${AI_TIMEOUT_SECONDS:60}
+  # 搜索意图解析超时（秒）：交互路径 fail-fast，超时立即降级关键词搜索
+  search-timeout-seconds: ${AI_SEARCH_TIMEOUT_SECONDS:5}
+  # 建连（TCP 握手）超时（秒）。JDK 默认不设 = 交给操作系统兜底（Win 约 21s / Linux 约 130s），
+  # 显式设上才能让「地址不通」在几秒内失败，而不是耗掉整个请求超时。
+  connect-timeout-seconds: ${AI_CONNECT_TIMEOUT_SECONDS:5}
+  # 单次回复最大 token，会真的写进请求体
+  max-tokens: ${AI_MAX_TOKENS:2000}
+  # 是否记录调用日志（只记模型 / 耗时 / 字数，不记 Key 与正文）
+  enable-log: ${AI_ENABLE_LOG:true}
+  # 平台未配 Key 时是否走 mock（演示用）
+  mock-enabled: ${AI_MOCK_ENABLED:true}
+  # 单章审查里模型最多能要求调用几轮工具（提示词写的是「2 次左右，最多 3~5 次」）。
+  # 熔断不是优化，是兜底：Spring AI 的内部工具循环没有轮数上限，而单章审查是同步接口 ——
+  # 模型反复调工具时请求会一直挂在 HTTP 线程上（流式那边至少有 SSE 超时兜底）。
+  # 超过上限就不再执行工具，改为让模型拿已有材料收尾，并在结果里写明「这次没审全」。
+  review-max-tool-rounds: ${AI_REVIEW_MAX_TOOL_ROUNDS:5}
+  # 单章审查的总时长预算（秒）：轮数之外再加一道，管「每轮都很慢」的情况。
+  # 单轮已有 timeout-seconds 兜底，这个是所有轮加起来的账。<=0 表示不限时。
+  review-budget-seconds: ${AI_REVIEW_BUDGET_SECONDS:120}
+
+# 支付
+pay:
+  # 回调验签密钥（HMAC-SHA256）：生产环境必须通过环境变量 PAY_NOTIFY_SECRET 注入，勿写死
+  notify-secret: ${PAY_NOTIFY_SECRET:}
+
+# 演示账号保护（密码/昵称不可改，防止上线后被访客改掉测试号/管理员）
+app:
+  protected-accounts: ${APP_PROTECTED_ACCOUNTS:admin,user}
+  # 启动时若用户表为空，是否创建演示账号 admin / user（见 config/DataInitializer）。
+  # 本地开发要它，生产不要 —— application-prod.yaml 里默认关掉；
+  # 若云端就是演示站、需要这两个账号登录，把 SEED_DEMO_ACCOUNTS 置 true，
+  # 并**务必同时**用下面两个变量改掉初始口令。
+  seed-demo-accounts: ${SEED_DEMO_ACCOUNTS:true}
+  seed-admin-password: ${SEED_ADMIN_PASSWORD:admin123}
+  seed-user-password: ${SEED_USER_PASSWORD:user123}
+  # AI 客户端实现：spring-ai（默认，用 Spring AI 1.1.8 的 ChatClient）
+  # 或 handwritten（切回手写 RestClient 版）。两套实现共用同一组契约测试，迁移期留的退路。
+  ai-client: ${APP_AI_CLIENT:spring-ai}
+  # AI 平台 Key 每日调用硬上限（生成/审核/搜索共用，防无限开号白嫖平台 Key）
+  ai-platform-daily-limit: ${AI_PLATFORM_DAILY_LIMIT:100}
+  # 一次 AI 调用的最小计费字数。免费额度按字数扣（每天 3 万字），
+  # 但起名/简介这类调用的可见输入只有几十字 —— 没有下限就等于白送（3 万字能换上千次调用），
+  # 额度这个数字也就没意义了。默认 200 字 ⇒ 短文本类调用约 150 次/天。
+  ai-min-charge-units: ${AI_MIN_CHARGE_UNITS:200}
+  # 全文审查的**单段字数上限**：一章正文超过它就切段、逐段审、再按章归并（清单 1.3 的 map-reduce）。
+  # 不切段的问题是「一次调用喂进去半本书」，输入长度与费用都不可控；切得太碎又会把
+  # 「前后不一致」这类要跨段看的判断人为割断。切点只落在句末标点/换行上，不会劈开句子。
+  ai-review-segment-chars: ${AI_REVIEW_SEGMENT_CHARS:4000}
+  # AI 续写读多少「上文」：取本章末尾这么多字送进模型。
+  # 这个数直接等于扣多少免费额度（送进去多少字就扣多少），所以不能太大；
+  # 太小又接不上前文。1200 字约等于一章的三分之一到一半，够模型找到语感与情节落点。
+  ai-write-context-chars: ${AI_WRITE_CONTEXT_CHARS:1200}
+  # AI 文生图（封面）每日硬上限（图比文本贵，独立且更严）
+  ai-cover-daily-limit: ${AI_COVER_DAILY_LIMIT:20}
+  # 「今天」用哪个时区（额度按自然日重置的那个日界）。
+  # 生产部署形态下（Dockerfile 复制 localtime + compose 设 TZ）本来就等于镜像时区，
+  # 这条配置是为了让**计费口径不依赖宿主机**：直接 java -jar 跑在一台 UTC 机器上时，
+  # 日界会挪到北京时间早上 8 点 —— 用户 23:00 用完额度，凌晨还是「今天已用完」，8 点又回来。
+  # 写错不报错，会退回 Asia/Shanghai 并留 warn（额度是所有 AI 功能的必经之路，
+  # 一个配置项不该让整个模块 500）。
+  billing-zone: ${APP_BILLING_ZONE:Asia/Shanghai}
+  # 接口级限流（common/ratelimit，注解 @RateLimit）的总开关。
+  # 默认开着。留这个开关是为了「万一把自己人限死了」有一个一键退路 ——
+  # 关掉时拦截器**根本不注册**，不是每个请求里判一个布尔值。
+  # 限额本身写在各个接口的注解上（改限额要改代码），能热调的只有这个总开关。
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+  # 流式接口（SSE）的连接超时。**必须给值**：0 表示永不超时，一个卡住的流会一直占着线程。
+  # 超时后按「异步请求超时」处理（503，见 GlobalExceptionHandler）—— 默认语义就是 503，
+  # 但兜底的 Exception handler 会把它吞成 500，所以那边显式收了一条。
+  # 写成配置项的另一半原因：**测超时路径要能把它调到几毫秒**，不然只能干等五分钟。
+  sse:
+    timeout-ms: ${SSE_TIMEOUT_MS:300000}
+  # MQ 出站消息（outbox）：写库与投消息同一事务，投不出去由定时任务补投。
+  # 起因是「接口报错但数据已写入」—— 投递原先挂在事务 afterCommit 里，MQ 连不上时
+  # 异常会抛给调用方，而那时事务已经提交（发布接口返 500、作品却已在库里）。
+  # 表：sql/migration_add_mq_outbox.sql；实现：common/mq/。
+  mq:
+    outbox:
+      # 补投扫描间隔。跑得比搜索对账（每小时）勤，因为「刚发布的书搜不到」作者立刻能感觉到
+      resend-interval-ms: ${MQ_OUTBOX_RESEND_INTERVAL_MS:30000}
+      # 一轮最多补投几条
+      batch-size: ${MQ_OUTBOX_BATCH_SIZE:200}
+      # 重试几次后放弃投递（放弃的记录留在表里并打 ERROR，等人工看）。
+      # 退避 10s → 20s → 40s……封顶 5 分钟，8 次大约覆盖十几分钟的中断
+      max-attempts: ${MQ_OUTBOX_MAX_ATTEMPTS:8}
+      # 已投记录保留几天（补投任务顺手清理，表不会无限涨）
+      retain-days: ${MQ_OUTBOX_RETAIN_DAYS:7}
+  # RAG：审查时把前文摆进提示词的那一层（检索实现在 search 模块）。
+  # 这两个开关原先只写在代码的 @Value 默认值里，yaml 里搜不到、也没法按环境改（2026-09-19 补上）。
+  rag:
+    # 混合检索：向量那一路按语义找，关键词那一路按字面找，RRF 融合。
+    # 关掉退回纯向量。两路的盲区确实互补（实测有查询只有一路能找得到）。
+    hybrid-enabled: ${APP_RAG_HYBRID:true}
+    # 每次审查往提示词里塞几条前文。
+    # 为什么是 5 而不是 3：检索侧单独量过（eval/retrieval_eval.py，不调模型）——
+    # 两路各自都能把「该当依据的那一块」排进 top-5，但**只取前 3 条时融合会各丢一条**
+    # （「两路都排中游」的块压过了「单路很强」的块；不是融合算法错，是取少了）。
+    # 端到端两轮：跨章 9/9 与 8/9、误报 0 条（取 3 条那几轮误报稳定 1 条）。
+    # ⚠️ 别再往上调：试过 8 条，那两章专门用来测误报的干净章开始出误报。
+    max-context-chunks: ${APP_RAG_MAX_CONTEXT_CHUNKS:5}
+  audit:
+    # 敏感词表（逗号/顿号分隔）：作品与章节预审、评论发表共用同一份。
+    # 放配置里是为了改词不必重新发版、不必重建镜像。
+    sensitive-words: ${AUDIT_SENSITIVE_WORDS:赌博,色情,暴力,违法,诈骗}
+
+# 项目自定义
+novel:
+  rank-rate-limit: 60  # 排行榜请求限流（次/分钟）
+  cors:
+    # CORS 白名单（逗号分隔），禁止配置为 *
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # prometheus 是给抓取端用的（/actuator/prometheus，纯文本格式）；
+        # 其余三个是原有的健康检查与自研指标页
+        include: health,info,metrics,prometheus
+  # 打开 HTTP 请求的自动观测：会生成 http_server_requests_* 指标（按 uri/status/outcome 分维度），
+  # 与自研的 WebMetricsInterceptor 互补 —— 后者给后台页面看慢接口，前者给监控体系做告警
+  metrics:
+    tags:
+      application: ai-novel
+
+# Knife4j 接口文档
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: order
+    operations-sorter: order
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: default
+      paths-to-match: /**
+      # 扫描包必须与真实根包一致：写错不会报错，只是这个分组里一个接口都没有
+      # （表现为接口文档页打开是空的）
+      packages-to-scan: com.ainovel
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+logging:
+  level:
+    # 包名要跟着项目走：改名时最容易漏这一处（曾写成旧包名 com.aidrama，
+    # 表现为"明明配了 debug 却什么 debug 日志都没有"）
+    com.ainovel: debug

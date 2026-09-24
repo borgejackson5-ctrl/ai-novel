@@ -1,0 +1,11 @@
+-- ============================================================
+-- 迁移：存量用户 AI 免费额度收敛为 1 次
+-- 背景：为防止演示额度被滥用，后端 DEFAULT_QUOTA 由 5 改为 1；init.sql 与
+--       migration_add_user_ai_config.sql 的列默认值已同步改为 1。
+--       本脚本仅用于「已运行且已有 t_user_ai_config 数据的库」，
+--       把历史已创建的 5 次额度行收敛为 1 次。
+-- 幂等：可重复执行（再次执行仍为 1，无副作用）。
+-- 用法（服务器）：
+--   docker exec -i ai-novel-mysql mysql -uroot -p'<MYSQL_ROOT_PASSWORD>' ai_drama < sql/migration_set_ai_quota_to_1.sql
+-- ============================================================
+UPDATE t_user_ai_config SET quota_limit = 1;

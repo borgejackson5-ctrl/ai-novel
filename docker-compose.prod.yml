@@ -1,0 +1,141 @@
+# ============================================================
+# 生产部署：docker compose -f docker-compose.prod.yml up -d --build
+# 与 docker-compose.yml（本地开发用）的区别 —— 公网安全三改：
+#   1. 中间件（MySQL/Redis/RabbitMQ/ES）不再映射宿主机端口，仅 docker 内网互通；
+#   2. 前端 80:80，对外唯一入口是 http://<公网IP>；
+#   3. 后端激活 prod profile（关 Druid 监控台 / Swagger / SQL 日志，日志降到 info）。
+# 公网唯一入口：前端 nginx 的 80 端口（静态资源 + /api 反代都在这里）。
+# ============================================================
+
+services:
+  # ---------- 数据库 ----------
+  # 口令一律用 ${VAR:?...} 强制显式提供：写成 ${VAR:-默认值} 的话，.env 缺失时 compose 不报错，
+  # 而是用默认值把生产环境跑起来 —— 弱口令暴露到公网属于部署事故，所以两端一起改：
+  # 本地 compose 的默认值降级为占位值，生产 compose 直接要求显式提供。
+  # 先跑 deploy/gen-env.sh 生成随机强口令的 .env，再起服务。
+  mysql:
+    image: mysql:8.0
+    container_name: ai-novel-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?缺少 MYSQL_ROOT_PASSWORD：请在项目根目录按 .env.example 建好 .env（可执行 deploy/gen-env.sh 自动生成随机口令）}
+      MYSQL_DATABASE: ai_drama
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # MySQL 官方镜像按文件名顺序执行 /docker-entrypoint-initdb.d/ 下的
+      # .sql / .sql.gz / .sql.bz2 / .sql.xz / .sql.zst
+      # （仅在该数据卷「首次」初始化时执行一次；已跑过的库要手动导入，见 deploy/部署指南.md）
+      #   01 建表 + 基础种子（角色 / 分类 / 演示用户）
+      #   02 作品数据（公版书正文）—— 由 scripts/export-seed.sh 生成，压缩存放
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./sql/seed_novels.sql.gz:/docker-entrypoint-initdb.d/02-seed-novels.sql.gz
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # ---------- 缓存/会话/锁 ----------
+  redis:
+    image: redis:7-alpine
+    container_name: ai-novel-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?缺少 REDIS_PASSWORD：请在 .env 中设置（可执行 deploy/gen-env.sh）}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?缺少 REDIS_PASSWORD：请在 .env 中设置}", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # ---------- 消息队列 ----------
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: ai-novel-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:?缺少 RABBITMQ_USERNAME：请在 .env 中设置}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?缺少 RABBITMQ_PASSWORD：请在 .env 中设置}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  # ---------- 搜索引擎 ----------
+  elasticsearch:
+    build:
+      context: ./elasticsearch
+    container_name: ai-novel-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.name=ai-novel
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${ES_DATA_DIR:-./docker-data/elasticsearch}:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fs http://localhost:9200/_cluster/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    restart: unless-stopped
+
+  # ---------- 后端 ----------
+  backend:
+    build:
+      context: ./backend
+    container_name: ai-novel-backend
+    environment:
+      # 生产 profile：关闭 Druid 监控台 / Swagger / SQL 日志，减少攻击面
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ai_drama?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:?缺少 MYSQL_ROOT_PASSWORD：请在 .env 中设置}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:?缺少 REDIS_PASSWORD：请在 .env 中设置}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:?缺少 RABBITMQ_USERNAME：请在 .env 中设置}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?缺少 RABBITMQ_PASSWORD：请在 .env 中设置}
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      # AI Key 留空则自动降级 Mock（接真 Key 时在 .env 填 AI_API_KEY）
+      AI_API_KEY: ${AI_API_KEY:-}
+      # 支付回调验签密钥：生产必填强随机值（.env 里 PAY_NOTIFY_SECRET）
+      PAY_NOTIFY_SECRET: ${PAY_NOTIFY_SECRET:-}
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------- 前端（唯一公网入口） ----------
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ai-novel-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  # 显式命名，与目录名解耦（默认会拼成 {目录名}_{卷名}，目录改名就换了空卷）
+  mysql-data:
+    name: ai-novel-mysql-data
+  redis-data:
+    name: ai-novel-redis-data
+  rabbitmq-data:
+    name: ai-novel-rabbitmq-data

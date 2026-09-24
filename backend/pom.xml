@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.ainovel</groupId>
+    <artifactId>ai-novel-backend</artifactId>
+    <version>1.0.0</version>
+    <name>ai-novel-backend</name>
+    <description>灵阅 AI 小说阅读平台 - 后端服务</description>
+
+    <properties>
+        <!-- 与 Dockerfile 的基础镜像、IDEA 的 Project SDK 三处必须一起改 -->
+        <java.version>21</java.version>
+        <mybatis-plus.version>3.5.12</mybatis-plus.version>
+        <druid.version>1.2.25</druid.version>
+        <sa-token.version>1.44.0</sa-token.version>
+        <redisson.version>3.50.0</redisson.version>
+        <hutool.version>5.8.39</hutool.version>
+        <knife4j.version>4.6.0</knife4j.version>
+        <aliyun-oss.version>3.17.4</aliyun-oss.version>
+        <!-- Spring AI 1.1.x 对应 Spring Boot 3.5.x（2.x 要 Boot 4.x，本项目不动 Boot） -->
+        <spring-ai.version>1.1.8</spring-ai.version>
+        <!-- Spring Modulith 1.4.x 对应 Spring Boot 3.5.x（Boot 的 BOM 不管它的版本） -->
+        <spring-modulith.version>1.4.13</spring-modulith.version>
+        <!--
+          集成测试的分组名。默认被排除（见 <build> 里的 surefire 配置），
+          所以日常 `mvn test` 只跑单测；要跑集成测试用 `mvn test -Pintegration`。
+          值存在这里是为了让 profile 能一处改掉：profile 把它置空 = 不再排除任何分组。
+        -->
+        <test.excluded.groups>integration</test.excluded.groups>
+    </properties>
+
+    <dependencies>
+        <!-- Web MVC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- 参数校验 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <!-- AOP（操作日志、防重提交） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!-- Redis（Lettuce） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <!-- Elasticsearch 搜索 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+        <!-- 监控：actuator 提供基础端点，micrometer-registry-prometheus 把指标
+             暴露成 Prometheus 抓取格式（/actuator/prometheus）。
+             没有它的话指标只能自己写页面看，接不进任何监控体系 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <!-- 邮件发送（邮箱验证码） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+        <!-- MyBatis-Plus 分页插件（3.5.9+ 拆分出的 jsqlparser 模块） -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+        <!-- MySQL -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Druid 连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+
+        <!-- Sa-Token 认证鉴权 -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <version>${sa-token.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
+            <version>${sa-token.version}</version>
+        </dependency>
+
+        <!-- Redisson 分布式锁 -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redisson.version}</version>
+        </dependency>
+
+        <!-- Caffeine 本地缓存（L1） -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Hutool 工具库 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- 阿里云 OSS 对象存储（封面图上传）
+             排除 commons-logging：Spring Boot 用 spring-jcl 提供 JCL API 兼容实现，
+             避免 "Standard Commons Logging discovery" 冲突警告 -->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>${aliyun-oss.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Knife4j 接口文档 -->
+        <dependency>
+            <groupId>com.github.xingfudeshi</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>${knife4j.version}</version>
+        </dependency>
+
+        <!-- Spring AI（1.1.8）：只引库，不引 starter。
+             starter 会自动配一个读 spring.ai.openai.* 的 ChatModel bean —— 没配 Key 时
+             要么起不来、要么造出一个不可用的 bean，而本项目的底线是「没配 Key 也要能启动、
+             走 mock 降级」（与不用 ElasticsearchRepository 是同一个理由）。
+             BYOK 场景本来就要按用户动态构建实例，索性全部显式构建，不让自动配置插手。
+             这两个 pom 里的传递依赖都写了明确版本，所以不需要再引 spring-ai-bom。 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+        <!-- ChatClient：把 ChatModel 包成更好用的门面（流式 .stream().content() 比裸 Flux 好读） -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-client-chat</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+          集成测试：用真的中间件跑，而不是 mock。
+          版本由 spring-boot-starter-parent 管（它引入了 testcontainers 的 BOM）。
+
+          为什么需要它：现有 500+ 个单测全是 mock —— 假零件不会犯真零件的错。
+          复测挖出的那个「带 Accept: text/event-stream 时异常处理器自己失败、返回 500 空体」
+          就发生在 HTTP 层（请求头 + 内容协商 + 异常解析器），单测里根本没有这一层。
+
+          容器清单见 support/IntegrationTestBase；默认不跑，见 <build> 里的 surefire 配置。
+          注意：redis 没有官方模块（社区那个是另一个坐标），所以用 GenericContainer 起。
+        -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>rabbitmq</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 架构守护：模块之间必须是单向依赖（无环），校验见 ModularityTests。
+             core 提供主代码 package-info 上要用的 @ApplicationModule 注解；
+             starter-test 提供 ApplicationModules.verify() 的测试支持。 -->
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-core</artifactId>
+            <version>${spring-modulith.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.modulith</groupId>
+            <artifactId>spring-modulith-starter-test</artifactId>
+            <version>${spring-modulith.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>ai-novel-backend</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--
+                      默认排除 integration 分组：集成测试要起 Docker 与 4 个真中间件，
+                      通常一两分钟。如果混在 `mvn test` 里，结果就是日常那条命令又慢又脆
+                      （Docker 没开时直接一片红），最后没人再跑测试。
+
+                      要跑集成测试：mvn test -Pintegration（见下面的 <profiles>）
+                    -->
+                    <excludedGroups>${test.excluded.groups}</excludedGroups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>integration</id>
+            <properties>
+                <!-- 置空 = 不再排除任何分组，单测 + 集成测试一次跑完 -->
+                <test.excluded.groups></test.excluded.groups>
+            </properties>
+        </profile>
+    </profiles>
+</project>
