@@ -1,0 +1,3287 @@
+{
+ "meta": {
+  "at": "2026-09-18 19:23",
+  "chaptersFile": "chapters.jsonl",
+  "queriesFile": "chunk-queries.json",
+  "novelId": 2098335799332089857,
+  "novelTitle": "邪修天王",
+  "chapters": 40,
+  "totalChars": 134728,
+  "minLen": 2733,
+  "maxLen": 4296,
+  "avgLen": 3368,
+  "queryCount": 26,
+  "aCount": 16,
+  "bCount": 10
+ },
+ "results": {
+  "200": {
+   "build": {
+    "chunkCount": 788,
+    "chunkChars": 140865,
+    "indexBytes": 9803240,
+    "buildSeconds": 3.3,
+    "avgChunkLen": 178.8,
+    "chunksPerChapter": 19.7
+   },
+   "summary": {
+    "size": 200,
+    "vHit1": 16,
+    "vHit3": 22,
+    "kHit1": 9,
+    "kHit3": 18,
+    "cover": 16,
+    "useful": 14,
+    "usefulIn3": 19,
+    "coverWhenHit": 14,
+    "coverWhenHitN": 16,
+    "goldSplit": 0,
+    "vHit1_A": 8,
+    "vHit1_A_n": 16,
+    "vHit1_B": 8,
+    "vHit1_B_n": 10,
+    "kHit1_A": 6,
+    "kHit1_B": 3,
+    "avgGap": 0.019,
+    "avgTop1Chars": 175.7,
+    "redundancy": 0.46,
+    "avgVecMs": 12,
+    "avgKwMs": 14,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "q01",
+     "kind": "A",
+     "query": "周无纪在七星大殿外面做什么",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      16,
+      37
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      16,
+      1
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 157,
+     "gap": 0.0073,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q02",
+     "kind": "B",
+     "query": "故事开头是什么季节，天上有什么天象",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      4,
+      21
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 3,
+     "kTop3": [
+      3,
+      20,
+      7
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 157,
+     "gap": 0.0281,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q03",
+     "kind": "A",
+     "query": "方无真长什么样子",
+     "expect": 2,
+     "vTop1": 2,
+     "vTop3": [
+      2,
+      5,
+      6
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      2,
+      5
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 162,
+     "gap": 0.0084,
+     "sameChapterInTop3": 0,
+     "top1Text": "周无纪虔诚祈祷之际，北极天帝神像不语，在周无纪背后却传来了声音。\\n\\n    “师弟、出什么事了？”\\n\\n    大"
+    },
+    {
+     "id": "q04",
+     "kind": "A",
+     "query": "李一元是什么品级的道士",
+     "expect": 2,
+     "vTop1": 2,
+     "vTop3": [
+      2,
+      6,
+      2
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 2,
+     "kTop3": [
+      2,
+      7,
+      1
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 196,
+     "gap": 0.0069,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    李一元作为道观之主，收本县众多大族不少子弟为徒，也是交好县里各家大族的手段。\\n\\n    周无纪虽是李"
+    },
+    {
+     "id": "q05",
+     "kind": "A",
+     "query": "李一元的住所有几间房",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      3,
+      4
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      1,
+      2
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 174,
+     "gap": 0.0721,
+     "sameChapterInTop3": 1,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q06",
+     "kind": "B",
+     "query": "顺着暗道往下走多深才能到地下室",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      16,
+      14
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      36,
+      9
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 186,
+     "gap": 0.0343,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    没有合适工具，外面的人一时半会进不来。\\n\\n    沿着青石台阶下了丈许，就是一间青砖堆砌的地下密室。"
+    },
+    {
+     "id": "q07",
+     "kind": "A",
+     "query": "师父攒下来的金子有多少",
+     "expect": 3,
+     "vTop1": 12,
+     "vTop3": [
+      12,
+      38,
+      12
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      12,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 196,
+     "gap": 0.0044,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    还有学习法术，同样是要交学费的。\\n\\n    想要当藏龙观主，更要上下活动打点。这里面的人情，必须要真"
+    },
+    {
+     "id": "q08",
+     "kind": "A",
+     "query": "修服炁要观想哪一颗星",
+     "expect": 4,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      4,
+      18
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      15,
+      4
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 157,
+     "gap": 0.0005,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q09",
+     "kind": "B",
+     "query": "练气的人跟练武的人正面打起来谁吃亏",
+     "expect": 5,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      4,
+      5
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 27,
+     "kTop3": [
+      27,
+      33,
+      35
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 174,
+     "gap": 0.005,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    要知道武者只有到达六品层次，才能凝炁成海，打通下丹田气海。\\n\\n    直到这一步，武者才能真正超越人"
+    },
+    {
+     "id": "q10",
+     "kind": "A",
+     "query": "张无定是什么品级的武者",
+     "expect": 6,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      4,
+      10
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      26,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 181,
+     "gap": 0.0035,
+     "sameChapterInTop3": 1,
+     "top1Text": "但他手里有七星剑！\\n\\n    七星剑是高阶玉钢锻造，刃长三尺三，柄长九寸，剑柄上镶嵌了七颗金星，代表着北斗七星。全剑"
+    },
+    {
+     "id": "q11",
+     "kind": "A",
+     "query": "张无定的命格是多少",
+     "expect": 7,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      8,
+      19
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      8
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 179,
+     "gap": 0.027,
+     "sameChapterInTop3": 0,
+     "top1Text": "张无定（八品武者），命格：二两三钱，可转为二两三钱本源玄灵……\\n\\n    周无纪通过和北帝天刑书的联系，他自然明白了"
+    },
+    {
+     "id": "q12",
+     "kind": "A",
+     "query": "李如意身边有什么人护着",
+     "expect": 8,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      37,
+      7
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 195,
+     "gap": 0.0164,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    负责保护李如意的中年女子想要跟过来，却被李如意摆手阻止了。\\n\\n    绕过大殿从后门出来，就到了后院"
+    },
+    {
+     "id": "q13",
+     "kind": "A",
+     "query": "画眉河最后汇进哪条江",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      9,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 177,
+     "gap": 0.0793,
+     "sameChapterInTop3": 1,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q14",
+     "kind": "B",
+     "query": "李家那条货船上标着什么字号",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 177,
+     "gap": 0.0144,
+     "sameChapterInTop3": 2,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q15",
+     "kind": "B",
+     "query": "追兵用什么办法招呼远处的人过来",
+     "expect": 10,
+     "vTop1": 10,
+     "vTop3": [
+      10,
+      34,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      3,
+      9
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 200,
+     "gap": 0.0318,
+     "sameChapterInTop3": 0,
+     "top1Text": "四个乱兵并不急着追击，兔子急了还会咬人，更会乱跑。\\n\\n    其中一个乱兵拿起铜哨放在嘴里用力吹响。\\n\\n    "
+    },
+    {
+     "id": "q16",
+     "kind": "A",
+     "query": "小路上到底有几个乱兵",
+     "expect": 11,
+     "vTop1": 27,
+     "vTop3": [
+      27,
+      11,
+      32
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 10,
+     "kTop3": [
+      10,
+      21,
+      11
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 176,
+     "gap": 0.0046,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    被杀的张家车队上下，那就算是苦肉计了，可以撇清张家和乱兵的关系。\\n\\n    周无纪一直在琢磨张心虎会"
+    },
+    {
+     "id": "q17",
+     "kind": "A",
+     "query": "那一队乱兵里穿全铁札甲的是什么品级",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      27,
+      13
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      36,
+      14
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 164,
+     "gap": 0.0403,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    七名乱兵沿着小路向前，前四后三，第五个人呼吸最是悠长平稳，他身上的盔甲撞击声也最明显，分明穿的是全套铁片"
+    },
+    {
+     "id": "q18",
+     "kind": "B",
+     "query": "追来的人里面谁身上穿的甲最重",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      36,
+      13
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      36,
+      35
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 164,
+     "gap": 0.0213,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    七名乱兵沿着小路向前，前四后三，第五个人呼吸最是悠长平稳，他身上的盔甲撞击声也最明显，分明穿的是全套铁片"
+    },
+    {
+     "id": "q19",
+     "kind": "B",
+     "query": "船家为什么不敢连夜开船走",
+     "expect": 12,
+     "vTop1": 12,
+     "vTop3": [
+      12,
+      9,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      9,
+      31
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 171,
+     "gap": 0.0002,
+     "sameChapterInTop3": 0,
+     "top1Text": "白石渡口，李信等人都是一脸焦急的看着树林方向。\\n\\n    有人忍不住低声提议：“二掌柜、要不咱们先开船走？”\\n\\n"
+    },
+    {
+     "id": "q20",
+     "kind": "A",
+     "query": "回春术是怎么练到小成的",
+     "expect": 13,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      32,
+      13
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      13,
+      32
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 190,
+     "gap": 0.0152,
+     "sameChapterInTop3": 1,
+     "top1Text": "回春术：小成。\\n\\n    周无纪看着北帝天刑书上的标注，感觉非常不错。\\n\\n    投入了两个人的命格，就把回春术"
+    },
+    {
+     "id": "q21",
+     "kind": "A",
+     "query": "北帝天刑书被称作什么",
+     "expect": 13,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      3,
+      1
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      3,
+      4
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 177,
+     "gap": 0.0042,
+     "sameChapterInTop3": 0,
+     "top1Text": "…\\n\\n    显然是北帝天刑书的妙用，省去了他沉淀摸索的过程。\\n\\n    其实使用北帝天刑书有诸多讲究，最基本就"
+    },
+    {
+     "id": "q22",
+     "kind": "A",
+     "query": "全铁札甲要卖多少银子",
+     "expect": 14,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      14,
+      11
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      13,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 161,
+     "gap": 0.0266,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    尤其是全铁札甲，上面还有破魔符文。这样一套重甲，市价差不多要一百两。\\n\\n    买卖重甲是大罪。市面"
+    },
+    {
+     "id": "q23",
+     "kind": "B",
+     "query": "赤凤军的兵器甲胄有什么门道",
+     "expect": 14,
+     "vTop1": 14,
+     "vTop3": [
+      14,
+      9,
+      38
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      14,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 175,
+     "gap": 0.025,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    这一队乱兵都是来自赤凤军，盔甲、武器都内蕴玄铁熔炼的符文，能克制妖魔鬼怪，又能增强盔甲武器的威力。\\n\\"
+    },
+    {
+     "id": "q24",
+     "kind": "B",
+     "query": "夜里扑向主角的那只斑点猛兽有多大",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      40,
+      40
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      40,
+      17
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 179,
+     "gap": 0.003,
+     "sameChapterInTop3": 2,
+     "top1Text": "\\n\\n    太阳已经落山，只有一片红霞映照天空。\\n\\n    树林中已经颇为幽暗，周无纪却一眼看到趴在树上的虎妖，"
+    },
+    {
+     "id": "q25",
+     "kind": "A",
+     "query": "主角对付的那只大蛤蟆是几品妖物",
+     "expect": 40,
+     "vTop1": 22,
+     "vTop3": [
+      22,
+      40,
+      21
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 22,
+     "kTop3": [
+      22,
+      40,
+      39
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 158,
+     "gap": 0.0013,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    道门法术神通，重虚不重实。\\n\\n    煞鬼这种虚幻鬼灵，哪怕是七品层次，在道门法术下也不堪一击。\\n"
+    },
+    {
+     "id": "q26",
+     "kind": "B",
+     "query": "这只妖物身上最要命的地方是什么",
+     "expect": 40,
+     "vTop1": 24,
+     "vTop3": [
+      24,
+      22,
+      40
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 39,
+     "kTop3": [
+      39,
+      22,
+      11
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 185,
+     "gap": 0.014,
+     "sameChapterInTop3": 0,
+     "top1Text": "猪妖壮硕如牛身体横在竹林入口处，斗大脑袋则在二十步外。\\n\\n    下院一群道士围着猪妖脑袋啧啧称叹，哪怕猪妖已死，巨"
+    }
+   ]
+  },
+  "400": {
+   "build": {
+    "chunkCount": 405,
+    "chunkChars": 149560,
+    "indexBytes": 5384696,
+    "buildSeconds": 2.1,
+    "avgChunkLen": 369.3,
+    "chunksPerChapter": 10.1
+   },
+   "summary": {
+    "size": 400,
+    "vHit1": 16,
+    "vHit3": 23,
+    "kHit1": 9,
+    "kHit3": 15,
+    "cover": 13,
+    "useful": 13,
+    "usefulIn3": 20,
+    "coverWhenHit": 13,
+    "coverWhenHitN": 16,
+    "goldSplit": 0,
+    "vHit1_A": 8,
+    "vHit1_A_n": 16,
+    "vHit1_B": 8,
+    "vHit1_B_n": 10,
+    "kHit1_A": 6,
+    "kHit1_B": 3,
+    "avgGap": 0.0142,
+    "avgTop1Chars": 370.8,
+    "redundancy": 0.27,
+    "avgVecMs": 10,
+    "avgKwMs": 8,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "q01",
+     "kind": "A",
+     "query": "周无纪在七星大殿外面做什么",
+     "expect": 1,
+     "vTop1": 16,
+     "vTop3": [
+      16,
+      26,
+      1
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      8,
+      16
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 400,
+     "gap": 0.0145,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    下院建在这里，就是为了镇压万鬼地窟。\\n\\n    七品煞鬼放在外面，对他没有威胁。但在地阴之气浓重的地"
+    },
+    {
+     "id": "q02",
+     "kind": "B",
+     "query": "故事开头是什么季节，天上有什么天象",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      26,
+      21
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 3,
+     "kTop3": [
+      3,
+      20,
+      38
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 381,
+     "gap": 0.007,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q03",
+     "kind": "A",
+     "query": "方无真长什么样子",
+     "expect": 2,
+     "vTop1": 21,
+     "vTop3": [
+      21,
+      6,
+      6
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      6,
+      5
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 379,
+     "gap": 0.0004,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    无明杏眼桃腮，肌肤光洁白皙，身段婀娜，头戴黄冠，穿着杏黄道袍，标准的女冠打扮却也掩不住她美艳。\\n\\n "
+    },
+    {
+     "id": "q04",
+     "kind": "A",
+     "query": "李一元是什么品级的道士",
+     "expect": 2,
+     "vTop1": 2,
+     "vTop3": [
+      2,
+      7,
+      15
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 1,
+     "kTop3": [
+      1,
+      4,
+      7
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 370,
+     "gap": 0.0069,
+     "sameChapterInTop3": 0,
+     "top1Text": "周无纪虔诚祈祷之际，北极天帝神像不语，在周无纪背后却传来了声音。\\n\\n    “师弟、出什么事了？”\\n\\n    大"
+    },
+    {
+     "id": "q05",
+     "kind": "A",
+     "query": "李一元的住所有几间房",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      4,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 1,
+     "kTop3": [
+      1,
+      7,
+      2
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 387,
+     "gap": 0.0624,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q06",
+     "kind": "B",
+     "query": "顺着暗道往下走多深才能到地下室",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      16,
+      3
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 23,
+     "kTop3": [
+      23,
+      33,
+      9
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 387,
+     "gap": 0.0225,
+     "sameChapterInTop3": 1,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q07",
+     "kind": "A",
+     "query": "师父攒下来的金子有多少",
+     "expect": 3,
+     "vTop1": 12,
+     "vTop3": [
+      12,
+      38,
+      21
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      12,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 354,
+     "gap": 0.0261,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪也不是多贪财，实在是这箱金子是他传戒受印的关键。\\n\\n    传戒、授印都要开坛，高阶法坛花销很"
+    },
+    {
+     "id": "q08",
+     "kind": "A",
+     "query": "修服炁要观想哪一颗星",
+     "expect": 4,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      1,
+      17
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      15,
+      4
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 393,
+     "gap": 0.0009,
+     "sameChapterInTop3": 0,
+     "top1Text": "时间紧急，周无纪盘膝静坐，他默默以心神引导那一小颗金光落在他眉心深处。\\n\\n    他同时催发北斗天枢经，此法是他最重"
+    },
+    {
+     "id": "q09",
+     "kind": "B",
+     "query": "练气的人跟练武的人正面打起来谁吃亏",
+     "expect": 5,
+     "vTop1": 5,
+     "vTop3": [
+      5,
+      4,
+      28
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 26,
+     "kTop3": [
+      26,
+      27,
+      37
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 354,
+     "gap": 0.0058,
+     "sameChapterInTop3": 0,
+     "top1Text": "武者擅战，道门擅法。\\n\\n    一般来说，道门很难在正面战斗中打败同级武者。\\n\\n    武者手上有武器和没武器，"
+    },
+    {
+     "id": "q10",
+     "kind": "A",
+     "query": "张无定是什么品级的武者",
+     "expect": 6,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      10,
+      6
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      26,
+      5
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 381,
+     "gap": 0.0015,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    武者八品是很能打，对上道门的服炁八品却少了灵活和变化。\\n\\n    要知道武者只有到达六品层次，才能凝"
+    },
+    {
+     "id": "q11",
+     "kind": "A",
+     "query": "张无定的命格是多少",
+     "expect": 7,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      8,
+      8
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      8
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 400,
+     "gap": 0.027,
+     "sameChapterInTop3": 0,
+     "top1Text": "张无定（八品武者），命格：二两三钱，可转为二两三钱本源玄灵……\\n\\n    周无纪通过和北帝天刑书的联系，他自然明白了"
+    },
+    {
+     "id": "q12",
+     "kind": "A",
+     "query": "李如意身边有什么人护着",
+     "expect": 8,
+     "vTop1": 37,
+     "vTop3": [
+      37,
+      7,
+      8
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 386,
+     "gap": 0.0005,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    李如意沉默了一下，二师兄的变化让她感觉有些陌生。\\n\\n    “几天没见就生疏了？”\\n\\n    周"
+    },
+    {
+     "id": "q13",
+     "kind": "A",
+     "query": "画眉河最后汇进哪条江",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      17,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      9,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 376,
+     "gap": 0.0626,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q14",
+     "kind": "B",
+     "query": "李家那条货船上标着什么字号",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 381,
+     "gap": 0.0002,
+     "sameChapterInTop3": 2,
+     "top1Text": "”\\n\\n    “有点急事，咱们要尽快走，没问题吧。”周无纪要是搭顺风船，自然不需要和李如意说。\\n\\n    但他不"
+    },
+    {
+     "id": "q15",
+     "kind": "B",
+     "query": "追兵用什么办法招呼远处的人过来",
+     "expect": 10,
+     "vTop1": 10,
+     "vTop3": [
+      10,
+      9,
+      11
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 23,
+     "kTop3": [
+      23,
+      3,
+      9
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 369,
+     "gap": 0.0266,
+     "sameChapterInTop3": 0,
+     "top1Text": "四个乱兵并不急着追击，兔子急了还会咬人，更会乱跑。\\n\\n    其中一个乱兵拿起铜哨放在嘴里用力吹响。\\n\\n    "
+    },
+    {
+     "id": "q16",
+     "kind": "A",
+     "query": "小路上到底有几个乱兵",
+     "expect": 11,
+     "vTop1": 27,
+     "vTop3": [
+      27,
+      29,
+      11
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 10,
+     "kTop3": [
+      10,
+      11,
+      21
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 388,
+     "gap": 0.0053,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    被杀的张家车队上下，那就算是苦肉计了，可以撇清张家和乱兵的关系。\\n\\n    周无纪一直在琢磨张心虎会"
+    },
+    {
+     "id": "q17",
+     "kind": "A",
+     "query": "那一队乱兵里穿全铁札甲的是什么品级",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      13,
+      27
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      14,
+      13
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 365,
+     "gap": 0.0156,
+     "sameChapterInTop3": 0,
+     "top1Text": "巨大樟树后面，周无纪侧耳听着逐渐靠近的脚步声。\\n\\n    在这个位置，周无纪可不敢探头去看，他也不需要探头。\\n\\n"
+    },
+    {
+     "id": "q18",
+     "kind": "B",
+     "query": "追来的人里面谁身上穿的甲最重",
+     "expect": 11,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      11,
+      36
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      26,
+      36
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 252,
+     "gap": 0.0,
+     "sameChapterInTop3": 0,
+     "top1Text": "”\\n\\n    乱兵是可恨，但他们身上盔甲、弓箭、武器却很值钱。\\n\\n    尤其是全铁札甲，上面还有破魔符文。这样"
+    },
+    {
+     "id": "q19",
+     "kind": "B",
+     "query": "船家为什么不敢连夜开船走",
+     "expect": 12,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      12,
+      9
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      9,
+      21
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 381,
+     "gap": 0.0108,
+     "sameChapterInTop3": 1,
+     "top1Text": "”\\n\\n    江湖险恶，不可不防。\\n\\n    入口的东西最容易出问题。\\n\\n    哪怕李信没这个胆子，也没做"
+    },
+    {
+     "id": "q20",
+     "kind": "A",
+     "query": "回春术是怎么练到小成的",
+     "expect": 13,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      13,
+      33
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      13,
+      13
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 389,
+     "gap": 0.0375,
+     "sameChapterInTop3": 1,
+     "top1Text": "回春术：小成。\\n\\n    周无纪看着北帝天刑书上的标注，感觉非常不错。\\n\\n    投入了两个人的命格，就把回春术"
+    },
+    {
+     "id": "q21",
+     "kind": "A",
+     "query": "北帝天刑书被称作什么",
+     "expect": 13,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      1,
+      3
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      1,
+      13
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 393,
+     "gap": 0.0013,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    主要是他一步迈入八品服炁境界，才沉浸其中不断运转真气，消耗了很多时间。\\n\\n    真炁境界提升，也让"
+    },
+    {
+     "id": "q22",
+     "kind": "A",
+     "query": "全铁札甲要卖多少银子",
+     "expect": 14,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      14,
+      14
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      13,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 252,
+     "gap": 0.0054,
+     "sameChapterInTop3": 0,
+     "top1Text": "”\\n\\n    乱兵是可恨，但他们身上盔甲、弓箭、武器却很值钱。\\n\\n    尤其是全铁札甲，上面还有破魔符文。这样"
+    },
+    {
+     "id": "q23",
+     "kind": "B",
+     "query": "赤凤军的兵器甲胄有什么门道",
+     "expect": 14,
+     "vTop1": 14,
+     "vTop3": [
+      14,
+      9,
+      38
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 374,
+     "gap": 0.0062,
+     "sameChapterInTop3": 0,
+     "top1Text": "“全铁札甲一百两，皮札甲二十两，雁翎刀十两……”\\n\\n    李信给了周无纪一个非常厚道的报价，几乎和市价一样。\\n\\"
+    },
+    {
+     "id": "q24",
+     "kind": "B",
+     "query": "夜里扑向主角的那只斑点猛兽有多大",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      40,
+      23
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 1,
+     "kTop3": [
+      1,
+      4,
+      8
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 379,
+     "gap": 0.002,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    周无纪正有点失望，突然听到树林里传来了细微声音。\\n\\n    为了找东西，他刚才又给自己加持了六阳法眼"
+    },
+    {
+     "id": "q25",
+     "kind": "A",
+     "query": "主角对付的那只大蛤蟆是几品妖物",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      22,
+      24
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 40,
+     "kTop3": [
+      40,
+      22,
+      39
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 377,
+     "gap": 0.0046,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪故技重施，先射爆眼睛，最后以剑断首。\\n\\n    黑鳞巨蟒也有八品，一身鳞片堪比札甲，又力量巨大"
+    },
+    {
+     "id": "q26",
+     "kind": "B",
+     "query": "这只妖物身上最要命的地方是什么",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      24,
+      40
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 39,
+     "kTop3": [
+      39,
+      22,
+      2
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 392,
+     "gap": 0.0162,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    太阳已经落山，只有一片红霞映照天空。\\n\\n    树林中已经颇为幽暗，周无纪却一眼看到趴在树上的虎妖，"
+    }
+   ]
+  },
+  "600": {
+   "build": {
+    "chunkCount": 275,
+    "chunkChars": 151203,
+    "indexBytes": 3867267,
+    "buildSeconds": 1.7,
+    "avgChunkLen": 549.8,
+    "chunksPerChapter": 6.9
+   },
+   "summary": {
+    "size": 600,
+    "vHit1": 19,
+    "vHit3": 22,
+    "kHit1": 10,
+    "kHit3": 18,
+    "cover": 13,
+    "useful": 13,
+    "usefulIn3": 19,
+    "coverWhenHit": 13,
+    "coverWhenHitN": 19,
+    "goldSplit": 0,
+    "vHit1_A": 11,
+    "vHit1_A_n": 16,
+    "vHit1_B": 8,
+    "vHit1_B_n": 10,
+    "kHit1_A": 7,
+    "kHit1_B": 3,
+    "avgGap": 0.0163,
+    "avgTop1Chars": 579.0,
+    "redundancy": 0.38,
+    "avgVecMs": 9,
+    "avgKwMs": 8,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "q01",
+     "kind": "A",
+     "query": "周无纪在七星大殿外面做什么",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      38,
+      15
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 1,
+     "kTop3": [
+      1,
+      4,
+      8
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 576,
+     "gap": 0.0152,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q02",
+     "kind": "B",
+     "query": "故事开头是什么季节，天上有什么天象",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      18,
+      1
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 38,
+     "kTop3": [
+      38,
+      3,
+      8
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 576,
+     "gap": 0.0019,
+     "sameChapterInTop3": 1,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q03",
+     "kind": "A",
+     "query": "方无真长什么样子",
+     "expect": 2,
+     "vTop1": 6,
+     "vTop3": [
+      6,
+      2,
+      21
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      6,
+      5
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 595,
+     "gap": 0.0037,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪注意到众人表情变化，眼下却不是解释的时候。\\n\\n    趁着方无真还没反应过来，周无纪脚下无声向"
+    },
+    {
+     "id": "q04",
+     "kind": "A",
+     "query": "李一元是什么品级的道士",
+     "expect": 2,
+     "vTop1": 2,
+     "vTop3": [
+      2,
+      2,
+      3
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 1,
+     "kTop3": [
+      1,
+      7,
+      2
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 565,
+     "gap": 0.004,
+     "sameChapterInTop3": 1,
+     "top1Text": "周无纪虔诚祈祷之际，北极天帝神像不语，在周无纪背后却传来了声音。\\n\\n    “师弟、出什么事了？”\\n\\n    大"
+    },
+    {
+     "id": "q05",
+     "kind": "A",
+     "query": "李一元的住所有几间房",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      4,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      2,
+      1
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 572,
+     "gap": 0.0921,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q06",
+     "kind": "B",
+     "query": "顺着暗道往下走多深才能到地下室",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      16,
+      16
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 23,
+     "kTop3": [
+      23,
+      33,
+      25
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 572,
+     "gap": 0.0134,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q07",
+     "kind": "A",
+     "query": "师父攒下来的金子有多少",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      12,
+      38
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      13,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 591,
+     "gap": 0.0264,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    折算成他上一世货币，购买力大概等于两百万，说起来也是一大笔钱。\\n\\n    不过，堂堂七品道士积攒一辈"
+    },
+    {
+     "id": "q08",
+     "kind": "A",
+     "query": "修服炁要观想哪一颗星",
+     "expect": 4,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      1,
+      4
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      15,
+      4
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 583,
+     "gap": 0.0013,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    但是，只有生出气感的人才能感应到天地间的炁，才能炼炁为己用。\\n\\n    他正是和天枢星建立了玄妙联系"
+    },
+    {
+     "id": "q09",
+     "kind": "B",
+     "query": "练气的人跟练武的人正面打起来谁吃亏",
+     "expect": 5,
+     "vTop1": 5,
+     "vTop3": [
+      5,
+      34,
+      12
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 27,
+     "kTop3": [
+      27,
+      26,
+      4
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 556,
+     "gap": 0.0049,
+     "sameChapterInTop3": 0,
+     "top1Text": "武者擅战，道门擅法。\\n\\n    一般来说，道门很难在正面战斗中打败同级武者。\\n\\n    武者手上有武器和没武器，"
+    },
+    {
+     "id": "q10",
+     "kind": "A",
+     "query": "张无定是什么品级的武者",
+     "expect": 6,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      6,
+      10
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 26,
+     "kTop3": [
+      26,
+      6,
+      5
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 579,
+     "gap": 0.0029,
+     "sameChapterInTop3": 0,
+     "top1Text": "…\\n\\n    师父的这个梦想，还真在他身上实现了！\\n\\n    周无纪也很是感慨，但他转就想到了刚才逃命的狼狈，心"
+    },
+    {
+     "id": "q11",
+     "kind": "A",
+     "query": "张无定的命格是多少",
+     "expect": 7,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      8,
+      8
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      8,
+      7
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 582,
+     "gap": 0.033,
+     "sameChapterInTop3": 0,
+     "top1Text": "张无定（八品武者），命格：二两三钱，可转为二两三钱本源玄灵……\\n\\n    周无纪通过和北帝天刑书的联系，他自然明白了"
+    },
+    {
+     "id": "q12",
+     "kind": "A",
+     "query": "李如意身边有什么人护着",
+     "expect": 8,
+     "vTop1": 37,
+     "vTop3": [
+      37,
+      37,
+      7
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      37
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 585,
+     "gap": 0.0147,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    无明也跟着上香跪拜，祈求天帝赐福保佑。\\n\\n    不知为什么，和无纪师兄一起跪拜祈祷让她心里甜滋滋的"
+    },
+    {
+     "id": "q13",
+     "kind": "A",
+     "query": "画眉河最后汇进哪条江",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      17,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      7,
+      9
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 598,
+     "gap": 0.0517,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q14",
+     "kind": "B",
+     "query": "李家那条货船上标着什么字号",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 576,
+     "gap": 0.0084,
+     "sameChapterInTop3": 2,
+     "top1Text": "”\\n\\n    “嗯，我要去云阳府一趟。”\\n\\n    周无纪拿出一块玉牌递给李信，“我和如意说了，麻烦二掌柜带我一"
+    },
+    {
+     "id": "q15",
+     "kind": "B",
+     "query": "追兵用什么办法招呼远处的人过来",
+     "expect": 10,
+     "vTop1": 10,
+     "vTop3": [
+      10,
+      9,
+      9
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      3,
+      23
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 572,
+     "gap": 0.0258,
+     "sameChapterInTop3": 0,
+     "top1Text": "四个乱兵并不急着追击，兔子急了还会咬人，更会乱跑。\\n\\n    其中一个乱兵拿起铜哨放在嘴里用力吹响。\\n\\n    "
+    },
+    {
+     "id": "q16",
+     "kind": "A",
+     "query": "小路上到底有几个乱兵",
+     "expect": 11,
+     "vTop1": 27,
+     "vTop3": [
+      27,
+      34,
+      32
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 10,
+     "kTop3": [
+      10,
+      11,
+      21
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 577,
+     "gap": 0.0085,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    粗略数了一下，周无纪判断乱兵至少有三十人。\\n\\n    通过六阳法眼，他能看到乱兵身上的浓重血煞之气。"
+    },
+    {
+     "id": "q17",
+     "kind": "A",
+     "query": "那一队乱兵里穿全铁札甲的是什么品级",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      13,
+      27
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      14,
+      13
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 596,
+     "gap": 0.0048,
+     "sameChapterInTop3": 0,
+     "top1Text": "巨大樟树后面，周无纪侧耳听着逐渐靠近的脚步声。\\n\\n    在这个位置，周无纪可不敢探头去看，他也不需要探头。\\n\\n"
+    },
+    {
+     "id": "q18",
+     "kind": "B",
+     "query": "追来的人里面谁身上穿的甲最重",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      9,
+      13
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      26,
+      40
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 596,
+     "gap": 0.0019,
+     "sameChapterInTop3": 0,
+     "top1Text": "巨大樟树后面，周无纪侧耳听着逐渐靠近的脚步声。\\n\\n    在这个位置，周无纪可不敢探头去看，他也不需要探头。\\n\\n"
+    },
+    {
+     "id": "q19",
+     "kind": "B",
+     "query": "船家为什么不敢连夜开船走",
+     "expect": 12,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      14
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      37,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 572,
+     "gap": 0.0142,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    世上妖魔鬼怪多不胜数，每个人都会带着护身法符。\\n\\n    行船更是危险，船上各处都要贴满法符。\\n\\"
+    },
+    {
+     "id": "q20",
+     "kind": "A",
+     "query": "回春术是怎么练到小成的",
+     "expect": 13,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      12,
+      33
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      13,
+      32
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 583,
+     "gap": 0.0162,
+     "sameChapterInTop3": 0,
+     "top1Text": "回春术：小成。\\n\\n    周无纪看着北帝天刑书上的标注，感觉非常不错。\\n\\n    投入了两个人的命格，就把回春术"
+    },
+    {
+     "id": "q21",
+     "kind": "A",
+     "query": "北帝天刑书被称作什么",
+     "expect": 13,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      6,
+      4
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      3,
+      13
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 582,
+     "gap": 0.0127,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    现在他明白了，因为北帝天刑书需要煞鬼。\\n\\n    法符上的复杂朱红符文在昏暗灯光下默默闪耀，红得有些"
+    },
+    {
+     "id": "q22",
+     "kind": "A",
+     "query": "全铁札甲要卖多少银子",
+     "expect": 14,
+     "vTop1": 14,
+     "vTop3": [
+      14,
+      13,
+      3
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 14,
+     "kTop3": [
+      14,
+      11,
+      13
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 557,
+     "gap": 0.0397,
+     "sameChapterInTop3": 0,
+     "top1Text": "“全铁札甲一百两，皮札甲二十两，雁翎刀十两……”\\n\\n    李信给了周无纪一个非常厚道的报价，几乎和市价一样。\\n\\"
+    },
+    {
+     "id": "q23",
+     "kind": "B",
+     "query": "赤凤军的兵器甲胄有什么门道",
+     "expect": 14,
+     "vTop1": 38,
+     "vTop3": [
+      38,
+      14,
+      11
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      14,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 571,
+     "gap": 0.0008,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    蓑衣称得上水火不侵，也能抵抗刀剑劈砍，。\\n\\n    但是，毕竟是编织物，挡不住剑刃直刺。\\n\\n  "
+    },
+    {
+     "id": "q24",
+     "kind": "B",
+     "query": "夜里扑向主角的那只斑点猛兽有多大",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      23,
+      40
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 34,
+     "kTop3": [
+      34,
+      1,
+      40
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 576,
+     "gap": 0.002,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    虎妖是四爪抱住粗壮树干，长长虎尾柔顺的垂着，它四肢弯曲呈现出饱满到夸张的筋肉线条。\\n\\n    目测虎"
+    },
+    {
+     "id": "q25",
+     "kind": "A",
+     "query": "主角对付的那只大蛤蟆是几品妖物",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      22,
+      40
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 40,
+     "kTop3": [
+      40,
+      40,
+      22
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 590,
+     "gap": 0.0075,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    八品黑豹，也立即出现在北帝天刑书上。\\n\\n    血腥味还是太大了，没一会功夫，又引来一条黑鳞巨蟒。\\"
+    },
+    {
+     "id": "q26",
+     "kind": "B",
+     "query": "这只妖物身上最要命的地方是什么",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      40,
+      24
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 39,
+     "kTop3": [
+      39,
+      22,
+      39
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 576,
+     "gap": 0.0165,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    虎妖是四爪抱住粗壮树干，长长虎尾柔顺的垂着，它四肢弯曲呈现出饱满到夸张的筋肉线条。\\n\\n    目测虎"
+    }
+   ]
+  },
+  "1000": {
+   "build": {
+    "chunkCount": 175,
+    "chunkChars": 152592,
+    "indexBytes": 2692263,
+    "buildSeconds": 1.6,
+    "avgChunkLen": 872.0,
+    "chunksPerChapter": 4.4
+   },
+   "summary": {
+    "size": 1000,
+    "vHit1": 17,
+    "vHit3": 21,
+    "kHit1": 9,
+    "kHit3": 18,
+    "cover": 15,
+    "useful": 14,
+    "usefulIn3": 18,
+    "coverWhenHit": 14,
+    "coverWhenHitN": 17,
+    "goldSplit": 0,
+    "vHit1_A": 10,
+    "vHit1_A_n": 16,
+    "vHit1_B": 7,
+    "vHit1_B_n": 10,
+    "kHit1_A": 6,
+    "kHit1_B": 3,
+    "avgGap": 0.0209,
+    "avgTop1Chars": 893.7,
+    "redundancy": 0.15,
+    "avgVecMs": 9,
+    "avgKwMs": 8,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "q01",
+     "kind": "A",
+     "query": "周无纪在七星大殿外面做什么",
+     "expect": 1,
+     "vTop1": 20,
+     "vTop3": [
+      20,
+      1,
+      37
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 16,
+     "kTop3": [
+      16,
+      4,
+      8
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 974,
+     "gap": 0.0022,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    对于周无纪在术法上展现出的天才，一平道人想了又想还是决定暂时保密。\\n\\n    下院地方太小了，无极这"
+    },
+    {
+     "id": "q02",
+     "kind": "B",
+     "query": "故事开头是什么季节，天上有什么天象",
+     "expect": 1,
+     "vTop1": 1,
+     "vTop3": [
+      1,
+      21,
+      18
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 35,
+     "kTop3": [
+      35,
+      38,
+      3
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 967,
+     "gap": 0.0172,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉山，藏龙观。\\n\\n    七星大殿外，周无纪手握拂尘来回踱步，他不时抬头看看头顶深邃星空。\\n\\n    正是深秋"
+    },
+    {
+     "id": "q03",
+     "kind": "A",
+     "query": "方无真长什么样子",
+     "expect": 2,
+     "vTop1": 2,
+     "vTop3": [
+      2,
+      7,
+      6
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 6,
+     "kTop3": [
+      6,
+      6,
+      5
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 983,
+     "gap": 0.0078,
+     "sameChapterInTop3": 0,
+     "top1Text": "周无纪虔诚祈祷之际，北极天帝神像不语，在周无纪背后却传来了声音。\\n\\n    “师弟、出什么事了？”\\n\\n    大"
+    },
+    {
+     "id": "q04",
+     "kind": "A",
+     "query": "李一元是什么品级的道士",
+     "expect": 2,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      2,
+      1
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      1,
+      2
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 990,
+     "gap": 0.0045,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q05",
+     "kind": "A",
+     "query": "李一元的住所有几间房",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      14,
+      4
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 27,
+     "kTop3": [
+      27,
+      7,
+      7
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 990,
+     "gap": 0.0905,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q06",
+     "kind": "B",
+     "query": "顺着暗道往下走多深才能到地下室",
+     "expect": 3,
+     "vTop1": 3,
+     "vTop3": [
+      3,
+      16,
+      14
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 36,
+     "kTop3": [
+      36,
+      23,
+      33
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 990,
+     "gap": 0.0056,
+     "sameChapterInTop3": 0,
+     "top1Text": "李一元的住所是后院正房，共有三间，分别是卧室、书房和静室。\\n\\n    周无纪对这里非常熟悉，他径直进了卧室，熟练扭动"
+    },
+    {
+     "id": "q07",
+     "kind": "A",
+     "query": "师父攒下来的金子有多少",
+     "expect": 3,
+     "vTop1": 14,
+     "vTop3": [
+      14,
+      4,
+      4
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      13,
+      3
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 961,
+     "gap": 0.0095,
+     "sameChapterInTop3": 0,
+     "top1Text": "当晚好好睡了一觉。\\n\\n    从箱子里取出一百两金子，放入腰带。道袍宽大，金子呈圆饼状，放在腰带里外人也看不出什么。"
+    },
+    {
+     "id": "q08",
+     "kind": "A",
+     "query": "修服炁要观想哪一颗星",
+     "expect": 4,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      1,
+      17
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 4,
+     "kTop3": [
+      4,
+      15,
+      21
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 991,
+     "gap": 0.0053,
+     "sameChapterInTop3": 0,
+     "top1Text": "时间紧急，周无纪盘膝静坐，他默默以心神引导那一小颗金光落在他眉心深处。\\n\\n    他同时催发北斗天枢经，此法是他最重"
+    },
+    {
+     "id": "q09",
+     "kind": "B",
+     "query": "练气的人跟练武的人正面打起来谁吃亏",
+     "expect": 5,
+     "vTop1": 5,
+     "vTop3": [
+      5,
+      32,
+      4
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 27,
+     "kTop3": [
+      27,
+      27,
+      26
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 991,
+     "gap": 0.0106,
+     "sameChapterInTop3": 0,
+     "top1Text": "武者擅战，道门擅法。\\n\\n    一般来说，道门很难在正面战斗中打败同级武者。\\n\\n    武者手上有武器和没武器，"
+    },
+    {
+     "id": "q10",
+     "kind": "A",
+     "query": "张无定是什么品级的武者",
+     "expect": 6,
+     "vTop1": 6,
+     "vTop3": [
+      6,
+      10,
+      7
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 26,
+     "kTop3": [
+      26,
+      6,
+      21
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 964,
+     "gap": 0.0041,
+     "sameChapterInTop3": 0,
+     "top1Text": "大殿上血雨飞扬，持剑而立的周无纪却还是神色平静。\\n\\n    十多年来他跟着师父斩妖除魔，也是见过血的。\\n\\n   "
+    },
+    {
+     "id": "q11",
+     "kind": "A",
+     "query": "张无定的命格是多少",
+     "expect": 7,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      6,
+      2
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      7,
+      12
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 979,
+     "gap": 0.0459,
+     "sameChapterInTop3": 0,
+     "top1Text": "张无定（八品武者），命格：二两三钱，可转为二两三钱本源玄灵……\\n\\n    周无纪通过和北帝天刑书的联系，他自然明白了"
+    },
+    {
+     "id": "q12",
+     "kind": "A",
+     "query": "李如意身边有什么人护着",
+     "expect": 8,
+     "vTop1": 7,
+     "vTop3": [
+      7,
+      8,
+      37
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 8,
+     "kTop3": [
+      8,
+      20,
+      7
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 996,
+     "gap": 0.0289,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    “无意，你过来我有话和你说。”\\n\\n    众人目光都看向李如意，李如意是位十七岁少女，肤色白皙明眸清"
+    },
+    {
+     "id": "q13",
+     "kind": "A",
+     "query": "画眉河最后汇进哪条江",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      36,
+      4
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 7,
+     "kTop3": [
+      7,
+      9,
+      15
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 982,
+     "gap": 0.0688,
+     "sameChapterInTop3": 0,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q14",
+     "kind": "B",
+     "query": "李家那条货船上标着什么字号",
+     "expect": 9,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      9,
+      14
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 982,
+     "gap": 0.0134,
+     "sameChapterInTop3": 1,
+     "top1Text": "画眉河穿山过岭来到画眉山脚下，汇入九源江。\\n\\n    四明县就在江河交汇之处，这里水运发达，小小码头上停靠了不少中小"
+    },
+    {
+     "id": "q15",
+     "kind": "B",
+     "query": "追兵用什么办法招呼远处的人过来",
+     "expect": 10,
+     "vTop1": 10,
+     "vTop3": [
+      10,
+      9,
+      21
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 26,
+     "kTop3": [
+      26,
+      9,
+      23
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 990,
+     "gap": 0.0165,
+     "sameChapterInTop3": 0,
+     "top1Text": "四个乱兵并不急着追击，兔子急了还会咬人，更会乱跑。\\n\\n    其中一个乱兵拿起铜哨放在嘴里用力吹响。\\n\\n    "
+    },
+    {
+     "id": "q16",
+     "kind": "A",
+     "query": "小路上到底有几个乱兵",
+     "expect": 11,
+     "vTop1": 11,
+     "vTop3": [
+      11,
+      32,
+      11
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      10,
+      11
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 306,
+     "gap": 0.0065,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    在三人后面，横七竖八躺着十多具尸体，看衣着应该都是村民。\\n\\n    周无纪虽然自觉不算什么好人，见状"
+    },
+    {
+     "id": "q17",
+     "kind": "A",
+     "query": "那一队乱兵里穿全铁札甲的是什么品级",
+     "expect": 11,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      11,
+      26
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      14,
+      13
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 354,
+     "gap": 0.016,
+     "sameChapterInTop3": 0,
+     "top1Text": "道服的血迹还残存一些淡淡痕迹，不仔细看却也看不出来。\\n\\n    周无纪颇为满意，他穿着中衣在船上还行，下船就太不方便"
+    },
+    {
+     "id": "q18",
+     "kind": "B",
+     "query": "追来的人里面谁身上穿的甲最重",
+     "expect": 11,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      9,
+      10
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      26,
+      14
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 354,
+     "gap": 0.0081,
+     "sameChapterInTop3": 0,
+     "top1Text": "道服的血迹还残存一些淡淡痕迹，不仔细看却也看不出来。\\n\\n    周无纪颇为满意，他穿着中衣在船上还行，下船就太不方便"
+    },
+    {
+     "id": "q19",
+     "kind": "B",
+     "query": "船家为什么不敢连夜开船走",
+     "expect": 12,
+     "vTop1": 9,
+     "vTop3": [
+      9,
+      14,
+      2
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 12,
+     "kTop3": [
+      12,
+      21,
+      9
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 996,
+     "gap": 0.0355,
+     "sameChapterInTop3": 0,
+     "top1Text": "他可不敢得罪。\\n\\n    船提前走一会，也不过是船夫、伙计辛苦一些，不算什么。\\n\\n    在李信的张罗下，船很快"
+    },
+    {
+     "id": "q20",
+     "kind": "A",
+     "query": "回春术是怎么练到小成的",
+     "expect": 13,
+     "vTop1": 13,
+     "vTop3": [
+      13,
+      33,
+      12
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 13,
+     "kTop3": [
+      13,
+      13,
+      32
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 973,
+     "gap": 0.0468,
+     "sameChapterInTop3": 0,
+     "top1Text": "回春术：小成。\\n\\n    周无纪看着北帝天刑书上的标注，感觉非常不错。\\n\\n    投入了两个人的命格，就把回春术"
+    },
+    {
+     "id": "q21",
+     "kind": "A",
+     "query": "北帝天刑书被称作什么",
+     "expect": 13,
+     "vTop1": 4,
+     "vTop3": [
+      4,
+      3,
+      18
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 3,
+     "kTop3": [
+      3,
+      6,
+      4
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 983,
+     "gap": 0.0228,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    所谓服炁，就是服炁饮霞的简称。\\n\\n    自此，他就能不断汲取天地灵炁淬炼精神、身体。\\n\\n   "
+    },
+    {
+     "id": "q22",
+     "kind": "A",
+     "query": "全铁札甲要卖多少银子",
+     "expect": 14,
+     "vTop1": 14,
+     "vTop3": [
+      14,
+      13,
+      14
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 11,
+     "kTop3": [
+      11,
+      14,
+      13
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 994,
+     "gap": 0.0291,
+     "sameChapterInTop3": 1,
+     "top1Text": "“全铁札甲一百两，皮札甲二十两，雁翎刀十两……”\\n\\n    李信给了周无纪一个非常厚道的报价，几乎和市价一样。\\n\\"
+    },
+    {
+     "id": "q23",
+     "kind": "B",
+     "query": "赤凤军的兵器甲胄有什么门道",
+     "expect": 14,
+     "vTop1": 38,
+     "vTop3": [
+      38,
+      13,
+      11
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 9,
+     "kTop3": [
+      9,
+      9,
+      14
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 616,
+     "gap": 0.0076,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    还有师父留下的蓑衣，这蓑衣用多种材料混编，其中最重要是一只六品妖物的毛发。\\n\\n    蓑衣称得上水火"
+    },
+    {
+     "id": "q24",
+     "kind": "B",
+     "query": "夜里扑向主角的那只斑点猛兽有多大",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      23,
+      21
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 34,
+     "kTop3": [
+      34,
+      22,
+      40
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 972,
+     "gap": 0.0028,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    目测虎妖不算尾巴身长也有八尺，粗壮身躯却呈现出一种漂亮筋肉线条，浑身上下都充满了强大到狂暴的力量。\\n\\"
+    },
+    {
+     "id": "q25",
+     "kind": "A",
+     "query": "主角对付的那只大蛤蟆是几品妖物",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      24,
+      22
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 40,
+     "kTop3": [
+      40,
+      40,
+      22
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 985,
+     "gap": 0.0067,
+     "sameChapterInTop3": 0,
+     "top1Text": "北帝天刑书上，出现了七品妖物金蟾。\\n\\n    周无纪确定金蟾已死，这才过去粗略检查了一下金蟾尸体。\\n\\n    这"
+    },
+    {
+     "id": "q26",
+     "kind": "B",
+     "query": "这只妖物身上最要命的地方是什么",
+     "expect": 40,
+     "vTop1": 40,
+     "vTop3": [
+      40,
+      24,
+      40
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 39,
+     "kTop3": [
+      39,
+      3,
+      40
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 972,
+     "gap": 0.0302,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    目测虎妖不算尾巴身长也有八尺，粗壮身躯却呈现出一种漂亮筋肉线条，浑身上下都充满了强大到狂暴的力量。\\n\\"
+    }
+   ]
+  }
+ }
+}

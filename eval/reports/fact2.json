@@ -1,0 +1,777 @@
+{
+  "label": "fact2",
+  "mode": "both",
+  "note": "同 fact1 再跑一遍：表已攒满，同时用来标随机波动",
+  "casesFile": "review-cases",
+  "at": "2026-09-18T14:42:22",
+  "account": "admin",
+  "novelId": 2100806443666972674,
+  "single": {
+    "c1": {
+      "ok": true,
+      "message": null,
+      "summary": "本章共发现 4 处问题：错别字 2 处（「象往常」应为「像往常」、「莫名奇妙」应为「莫名其妙」），标点 1 处（「只说了一句,你来迟了」用了半角逗号且引语未加引号），语病 1 处（「大约三天左右」重复）。专有名词方面，本章仅出现「沈青梧」，与已确立写法一致；「油纸伞」「糖胡芦」「旧地图」「夜雨寄北」本章未出现，故未涉及写法核对。数字方面本章有「刀=三尺长」，已用工具核对，但返回内容未能提供可比较的前文数值，因此这一项没能核对，无法断言与前文是否一致。其余如「三年前的那个雨夜」属一次性叙述，未作为设定数字记录。",
+      "reviewedChars": 276,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.6,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "他象往常一样，把刀往背后一送。",
+          "suggestion": "「象」改为「像」，即「他像往常一样」。",
+          "verdict": "命中",
+          "defect": "象往常",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "标点",
+          "excerpt": "只说了一句,你来迟了。",
+          "suggestion": "逗号改为中文逗号，并给引语加引号：「只说了一句：\"你来迟了。\"」。",
+          "verdict": "命中",
+          "defect": "只说了一句,你来迟了",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他心里莫名奇妙地松了一口气。",
+          "suggestion": "「莫名奇妙」是成语误用，应改为「莫名其妙」。",
+          "verdict": "命中",
+          "defect": "莫名奇妙",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他大约三天左右没有合眼。",
+          "suggestion": "「大约」与「左右」语义重复，删去其一，如「他大约三天没有合眼」。",
+          "verdict": "命中",
+          "defect": "大约三天左右",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 4,
+      "defects": 4,
+      "reports": 4,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 4,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c2": {
+      "ok": true,
+      "message": null,
+      "summary": "本章共发现 5 处问题：错别字 2 处（「不由自住」「座了很久」）、语病 1 处（「目光……照射进来」主谓搭配不当）、标点 1 处（书名号未配对）、前后不一致 1 处（「沈青悟」与前文第 1 章「沈青梧」写法不符）。已用工具核对人名写法，确认「沈青梧」为前文（第 1 章）写法；本章未出现数量、尺寸、时长、年龄这类需要核对的具体数字，故 facts 为空。本章专有名词为「沈青梧」「夜雨寄北」。",
+      "reviewedChars": 232,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.2,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "沈青梧记得这盏灯。那年冬天，沈青悟把它送给了一个过路的人。",
+          "suggestion": "前文（第1章）作「沈青梧」，此处应统一为「沈青梧」。",
+          "verdict": "命中",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他不由自住地笑了。",
+          "suggestion": "「不由自住」应为「不由自主」。",
+          "verdict": "命中",
+          "defect": "不由自住",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他的目光透过窗纸照射进来，落在案几上。",
+          "suggestion": "「照射进来」的主语是光而非目光，可改为「他的目光透过窗纸落进来，落在案几上」，或改为「灯光透过窗纸照射进来」。",
+          "verdict": "命中",
+          "defect": "目光透过窗纸照射进来",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他想起《夜雨寄北，那是那人教他背的第一首诗。",
+          "suggestion": "书名号未配对，应改为「《夜雨寄北》」。",
+          "verdict": "命中",
+          "defect": "他想起《夜雨寄北",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "灯还亮着。他座了很久，才起身走了。",
+          "suggestion": "「座了很久」应为「坐了很久」。",
+          "verdict": "命中",
+          "defect": "他座了很久",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "盏灯。那年冬天，沈青悟把它送给了一个过",
+          "suggestion": "前文第 1 章作「沈青梧」，此处应一致",
+          "verdict": "命中",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 5,
+      "defects": 5,
+      "reports": 6,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 6,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c3": {
+      "ok": true,
+      "message": null,
+      "summary": "本章问题：标点1处（引号不配对）、语病1处（“亲手”与“听”搭配不当）、前后不一致1处（铜钉先作七颗、后作六颗）。专有名词“沈青梧”经 searchWordNearby 查询，返回“错误”，本次未能核对，无法确认与第1章写法是否一致；本章专有名词另仅出现“沈青梧”一词，油纸伞、糖胡芦、旧地图等未在本章出现。情节衔接方面，本章未涉及“夜雨寄北”等前文设定的具体数量或时长，故未作数字核对。",
+      "reviewedChars": 166,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.4,
+      "details": [
+        {
+          "kind": "标点",
+          "excerpt": "他张了张嘴：“你要是不来。",
+          "suggestion": "引号不配对，且引语未说完：改为「他张了张嘴：“你要是不来……”」或补全引语并补上后引号。",
+          "verdict": "命中",
+          "defect": "他张了张嘴：“你要是不来。",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他亲手把这句话听进去了，一字没漏。",
+          "suggestion": "“亲手”不能修饰“听”，搭配不当，改为「他亲耳把这句话听进去了，一字没漏」。",
+          "verdict": "命中",
+          "defect": "他亲手把这句话听进去了",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他低头数了数门上的铜钉，一共六颗。",
+          "suggestion": "与前文「门板上钉着七颗铜钉」矛盾，应统一为七颗。",
+          "verdict": "命中",
+          "defect": "一共六颗",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 4,
+      "reports": 3,
+      "missed": [
+        {
+          "kind": "错别字",
+          "wrong": "灯心",
+          "right": "灯芯",
+          "fix": "灯芯",
+          "note": "灯心/灯芯",
+          "_start": 80,
+          "_end": 82
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c4": {
+      "ok": true,
+      "message": null,
+      "summary": "本章为短段落，共发现 4 处问题：1 处错别字（「承着油纸伞」应为「撑着」）、1 处语病（「由于……所以……」句式杂糅）、1 处标点（英文句点「.」）、1 处与本书已确立写法相关（糖胡芦写法需与第4章确立写法统一）。已用 searchWordNearby 核对「沈青梧」「油纸伞」「糖胡芦」的写法，但工具返回结果未能明确比对出异写，故人名与道具的一致性核对仅依据提示中给出的已确立写法表，未能进一步交叉验证。本章未出现数量、尺寸、时长、年龄类设定数字，facts 为空。",
+      "reviewedChars": 164,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.2,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "沈青梧承着油纸伞，慢慢往前走。",
+          "suggestion": "「承」改为「撑」，「撑着油纸伞」。",
+          "verdict": "命中",
+          "defect": "承着油纸伞",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "由于下雨的原因，所以街上的人不多，只有几个孩子围在摊子前看。",
+          "suggestion": "句式杂糅、关联词冗余，改为「因为下雨，街上的人不多，只有几个孩子围在摊子前看。」",
+          "verdict": "命中",
+          "defect": "由于下雨的原因，所以",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "那盏灯还在他身后亮着.",
+          "suggestion": "句末英文句点「.」改为中文句号「。」",
+          "verdict": "命中",
+          "defect": "在他身后亮着.",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "街角的糖胡芦摊子还没收。",
+          "suggestion": "本书已确立写法为「糖胡芦」（第4章），此处写法已按确立写法，无需改；但若前文另有「糖葫芦」写法，应统一为「糖胡芦」。",
+          "verdict": "命中",
+          "defect": "糖胡芦",
+          "defect_kind": "错别字",
+          "type_ok": false,
+          "fix_ok": true
+        }
+      ],
+      "hit": 4,
+      "defects": 4,
+      "reports": 4,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 4,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c5": {
+      "ok": true,
+      "message": null,
+      "summary": "本章共发现 3 处问题：错别字「报着」（应为「抱着」）、语病「非常格外」语义重复、省略号误用英文句点（「。。。），均已在 issues 中列出。专有名词方面，本章只出现人名「沈青梧」，已用 searchWordNearby 核对，与第 1 章确立的「沈青梧」写法一致；本章未出现数量、尺寸、时长、年龄一类可比的设定数字，故 facts 为空。另需说明：本章正文未出现「夜雨寄北」「油纸伞」「糖胡芦」「旧地图」等词，故未涉及这些词的写法核对。",
+      "reviewedChars": 192,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.1,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "沈青梧报着那封信，在门槛上坐下。",
+          "suggestion": "「报着」应为「抱着」，形近字误用。",
+          "verdict": "命中",
+          "defect": "报着那封信",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": false
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他的心情非常格外沉重。",
+          "suggestion": "「非常」与「格外」语义重复，删去其一，改为「他的心情格外沉重」。",
+          "verdict": "命中",
+          "defect": "非常格外沉重",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "信纸边上有一行小字，写的是。。。别等我了。",
+          "suggestion": "省略号应使用中文规范写法「……」，改为「写的是……别等我了」。",
+          "verdict": "命中",
+          "defect": "写的是。。。别等我了",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 3,
+      "reports": 3,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c6": {
+      "ok": false,
+      "message": "这次审查没能完成，请稍后再试（本次不消耗免费字数）",
+      "summary": null,
+      "reviewedChars": 0,
+      "segments": 0,
+      "droppedIssues": 0,
+      "elapsed": 4.1,
+      "details": [],
+      "hit": 0,
+      "defects": 0,
+      "reports": 0,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 2,
+      "nHitReports": 0,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    }
+  },
+  "task": {
+    "c1": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "他象往常一样，把刀往背后一送。",
+          "suggestion": "「象」改为「像」：象/像形近音同误用，此处应为「像往常一样」。",
+          "verdict": "命中",
+          "defect": "象往常",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "标点",
+          "excerpt": "只说了一句,你来迟了。",
+          "suggestion": "逗号改为中文全角逗号，且引语应加引号：只说了一句：「你来迟了。」",
+          "verdict": "命中",
+          "defect": "只说了一句,你来迟了",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他心里莫名奇妙地松了一口气。",
+          "suggestion": "「莫名奇妙」是成语误写，应改为「莫名其妙」。",
+          "verdict": "命中",
+          "defect": "莫名奇妙",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他大约三天左右没有合眼。",
+          "suggestion": "「大约」与「左右」语义重复，删去其一，如改为「他大约三天没有合眼」或「他三天左右没有合眼」。",
+          "verdict": "命中",
+          "defect": "大约三天左右",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 4,
+      "defects": 4,
+      "reports": 4,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 4,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c2": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "那年冬天，沈青悟把它送给了一个过路的人。",
+          "suggestion": "前文第1章作「沈青梧」，此处应统一为「沈青梧」。",
+          "verdict": "命中",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他不由自住地笑了。",
+          "suggestion": "「自住」是错别字，应改为「不由自主」。",
+          "verdict": "命中",
+          "defect": "不由自住",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他的目光透过窗纸照射进来，落在案几上。",
+          "suggestion": "「目光……照射进来」搭配不当，可改为「灯光透过窗纸照进来，落在案几上」或「他的目光透过窗纸，落在案几上」。",
+          "verdict": "命中",
+          "defect": "目光透过窗纸照射进来",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他想起《夜雨寄北，那是那人教他背的第一首诗。",
+          "suggestion": "书名号未配对，应改为「他想起《夜雨寄北》，那是那人教他背的第一首诗。」",
+          "verdict": "命中",
+          "defect": "他想起《夜雨寄北",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他座了很久，才起身走了。",
+          "suggestion": "「座」是错别字，应改为「坐」。",
+          "verdict": "命中",
+          "defect": "他座了很久",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": false
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "盏灯。那年冬天，沈青悟把它送给了一个过",
+          "suggestion": "前文第 1 章作「沈青梧」，此处应一致",
+          "verdict": "命中",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 5,
+      "defects": 5,
+      "reports": 6,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 6,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c3": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "门板上钉着七颗铜钉",
+          "suggestion": "与前文（本章第一处「七颗铜钉」）保持一致：后文写成了「一共六颗」，应统一为「七颗」",
+          "verdict": "未命中（误报候选）",
+          "defect": null,
+          "defect_kind": null,
+          "type_ok": null,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他亲手把这句话听进去了，一字没漏。",
+          "suggestion": "搭配不当，「亲手」不能修饰「听」，可改为「他一个字一个字把这句话听进去了，一字没漏」或「他把这句话听进去了，一字没漏」",
+          "verdict": "命中",
+          "defect": "他亲手把这句话听进去了",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他张了张嘴：“你要是不来。",
+          "suggestion": "引号内句子不完整，句末标点应为省略号或补足句子，如「你要是不来……」",
+          "verdict": "命中",
+          "defect": "他张了张嘴：“你要是不来。",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他站着，一动没动。",
+          "suggestion": "重复啰嗦，改为「他一动不动」或「他站着，一动没动」改为「他站着没动」（与前文「他站在门后没动」重复）",
+          "verdict": "未命中（误报候选）",
+          "defect": null,
+          "defect_kind": null,
+          "type_ok": null,
+          "fix_ok": null
+        }
+      ],
+      "hit": 2,
+      "defects": 4,
+      "reports": 4,
+      "missed": [
+        {
+          "kind": "错别字",
+          "wrong": "灯心",
+          "right": "灯芯",
+          "fix": "灯芯",
+          "note": "灯心/灯芯",
+          "_start": 80,
+          "_end": 82
+        },
+        {
+          "kind": "前后不一致",
+          "wrong": "一共六颗",
+          "right": "七颗",
+          "note": "同一章内数字自相矛盾，前文写「钉着七颗铜钉」",
+          "_start": 138,
+          "_end": 142
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 2,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 2
+    },
+    "c4": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "沈青梧承着油纸伞，慢慢往前走。",
+          "suggestion": "「承着」应为「撑着」，或改为「举着」；此处是动词用字错误。",
+          "verdict": "命中",
+          "defect": "承着油纸伞",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": false
+        },
+        {
+          "kind": "语病",
+          "excerpt": "由于下雨的原因，所以街上的人不多，只有几个孩子围在摊子前看。",
+          "suggestion": "句式杂糅，改为「因为下雨，街上的人不多」或「由于下雨，街上的人不多」。",
+          "verdict": "命中",
+          "defect": "由于下雨的原因，所以",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "那盏灯还在他身后亮着.",
+          "suggestion": "句末句号误用英文半角句点，应改为中文句号「。」。",
+          "verdict": "命中",
+          "defect": "在他身后亮着.",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 4,
+      "reports": 3,
+      "missed": [
+        {
+          "kind": "错别字",
+          "wrong": "糖胡芦",
+          "right": "糖葫芦",
+          "fix": "糖葫芦",
+          "note": "形近字",
+          "_start": 43,
+          "_end": 46
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c5": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "沈青梧报着那封信，在门槛上坐下。",
+          "suggestion": "「报着」应为「抱着」，形近字误用。",
+          "verdict": "命中",
+          "defect": "报着那封信",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": false
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他的心情非常格外沉重。",
+          "suggestion": "「非常」与「格外」语义重复，删去其一，改为「他的心情格外沉重」。",
+          "verdict": "命中",
+          "defect": "非常格外沉重",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "写的是。。。别等我了。",
+          "suggestion": "省略号应为中文六点连写「……」，改为「写的是……别等我了。」",
+          "verdict": "命中",
+          "defect": "写的是。。。别等我了",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 3,
+      "reports": 3,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 0,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "c6": {
+      "ok": true,
+      "message": null,
+      "summary": null,
+      "reviewedChars": null,
+      "segments": null,
+      "droppedIssues": null,
+      "elapsed": null,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "沈青悟把刀放在桌上。",
+          "suggestion": "改为「沈青梧」；前文第1~5章均作「沈青梧」，此处应一致（本章另有 1 处同样写法：「沈青悟没有回头」）。",
+          "verdict": "命中跨章",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "沈青悟把刀放在桌上。屋",
+          "suggestion": "前文第 1 章作「沈青梧」，此处应一致（本章另有 2 处同样写法）",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "沈青悟",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 0,
+      "defects": 0,
+      "reports": 2,
+      "missed": [],
+      "crossHit": 1,
+      "crossTotal": 2,
+      "nHitReports": 0,
+      "nCrossReports": 1,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "_meta": {
+      "taskId": 2100837741341143042,
+      "status": 2,
+      "statusText": "已完成",
+      "totalChapters": 6,
+      "doneChapters": 6,
+      "failedChapters": 0,
+      "issueCount": 22,
+      "chargedUnits": 1358,
+      "refundedUnits": 0,
+      "reviewedChars": 1280,
+      "message": "全部 6 章已审查完",
+      "elapsed": 18.2
+    }
+  },
+  "tools": {
+    "single": {
+      "total": 2,
+      "byTool": {
+        "列目录": 0,
+        "读正文": 0,
+        "邻近检索": 2
+      },
+      "byChapter": {
+        "6": 2
+      },
+      "unknown": 0,
+      "glossary": {
+        "conflicts": 1,
+        "factConflicts": 0,
+        "recorded": 8,
+        "factsRecorded": 1,
+        "recordChapters": 5
+      }
+    },
+    "task": {
+      "total": 4,
+      "byTool": {
+        "列目录": 0,
+        "读正文": 0,
+        "邻近检索": 4
+      },
+      "byChapter": {
+        "2": 2,
+        "6": 2
+      },
+      "unknown": 0,
+      "glossary": {
+        "conflicts": 2,
+        "factConflicts": 0,
+        "recorded": 9,
+        "factsRecorded": 0,
+        "recordChapters": 6
+      }
+    }
+  }
+}

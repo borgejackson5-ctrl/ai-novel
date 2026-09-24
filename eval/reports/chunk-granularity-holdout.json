@@ -1,0 +1,1653 @@
+{
+ "meta": {
+  "at": "2026-09-18 19:23",
+  "chaptersFile": "chapters-holdout.jsonl",
+  "queriesFile": "chunk-queries-holdout.json",
+  "novelId": 2098335799332089857,
+  "novelTitle": "邪修天王",
+  "chapters": 40,
+  "totalChars": 154435,
+  "minLen": 2713,
+  "maxLen": 8083,
+  "avgLen": 3860,
+  "queryCount": 26,
+  "aCount": 16,
+  "bCount": 10
+ },
+ "results": {
+  "400": {
+   "build": {
+    "chunkCount": 464,
+    "chunkChars": 170546,
+    "indexBytes": 6145183,
+    "buildSeconds": 2.4,
+    "avgChunkLen": 367.6,
+    "chunksPerChapter": 11.6
+   },
+   "summary": {
+    "size": 400,
+    "vHit1": 11,
+    "vHit3": 16,
+    "kHit1": 13,
+    "kHit3": 17,
+    "cover": 9,
+    "useful": 9,
+    "usefulIn3": 14,
+    "coverWhenHit": 9,
+    "coverWhenHitN": 11,
+    "goldSplit": 0,
+    "vHit1_A": 8,
+    "vHit1_A_n": 16,
+    "vHit1_B": 3,
+    "vHit1_B_n": 10,
+    "kHit1_A": 11,
+    "kHit1_B": 2,
+    "avgGap": 0.0165,
+    "avgTop1Chars": 376.3,
+    "redundancy": 0.31,
+    "avgVecMs": 9,
+    "avgKwMs": 6,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "h01",
+     "kind": "A",
+     "query": "那群人用什么把阴灵聚成一体",
+     "expect": 42,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      45,
+      44
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 42,
+     "kTop3": [
+      42,
+      44,
+      46
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 396,
+     "gap": 0.0077,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    其他信众也是如此，不分男女，只要被百鬼扑到就会被吸食精血神魂，区别只在于死得快慢。\\n\\n    眨眼之"
+    },
+    {
+     "id": "h02",
+     "kind": "B",
+     "query": "追赶的那一方估计自己多久能追上",
+     "expect": 43,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      46,
+      54
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 46,
+     "kTop3": [
+      46,
+      78,
+      54
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 355,
+     "gap": 0.0028,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    跑是跑不掉，对方一声不吭，显然也没有谈条件的可能。\\n\\n    方靖并不喜欢拼命，但到了这一步也只能拼"
+    },
+    {
+     "id": "h03",
+     "kind": "B",
+     "query": "那个人是不是杀不死",
+     "expect": 44,
+     "vTop1": 74,
+     "vTop3": [
+      74,
+      71,
+      80
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 57,
+     "kTop3": [
+      57,
+      43,
+      79
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 387,
+     "gap": 0.0132,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    陈大钩摆弄了一会吴镝，他才有些无奈对张云凤说道：「阴灵尽灭，看不出是哪家的手段。\\n\\n    「这人死"
+    },
+    {
+     "id": "h04",
+     "kind": "A",
+     "query": "阴阳百灵幡是什么来头",
+     "expect": 45,
+     "vTop1": 45,
+     "vTop3": [
+      45,
+      45,
+      68
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 45,
+     "kTop3": [
+      45,
+      45,
+      45
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 369,
+     "gap": 0.06,
+     "sameChapterInTop3": 1,
+     "top1Text": "阴阳百灵幡，是阴阳道最著名的法器。\\n\\n    修炼阴阳真经的修者，就能自己炼制阴阳百灵幡。\\n\\n    通过收集各"
+    },
+    {
+     "id": "h05",
+     "kind": "A",
+     "query": "五道阴灵为什么毁不掉",
+     "expect": 48,
+     "vTop1": 42,
+     "vTop3": [
+      42,
+      42,
+      44
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 46,
+     "kTop3": [
+      46,
+      48,
+      60
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 398,
+     "gap": 0.0112,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    五阴兜对高手应该没什么用，对付金环毒蜂这种弱小妖物却极其合适。\\n\\n    还有一点，就是平时装个东西"
+    },
+    {
+     "id": "h06",
+     "kind": "A",
+     "query": "李成安是什么品级的武者",
+     "expect": 49,
+     "vTop1": 59,
+     "vTop3": [
+      59,
+      49,
+      63
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 49,
+     "kTop3": [
+      49,
+      59,
+      59
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 400,
+     "gap": 0.0056,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    无争知道李成安有事找周无纪，却担心李家玩什么花样，所以在一旁陪着。\\n\\n    李成安见过周无纪，只是"
+    },
+    {
+     "id": "h07",
+     "kind": "B",
+     "query": "来围杀主角的那批帮手有多少",
+     "expect": 52,
+     "vTop1": 79,
+     "vTop3": [
+      79,
+      79,
+      52
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 62,
+     "kTop3": [
+      62,
+      68,
+      52
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 2,
+     "top1Chars": 360,
+     "gap": 0.0008,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    周无纪所以这麽敢这麽判断，是因为对方身上有那种熟悉蛊虫味道。\\n\\n    五龙帮很大，但是，就他所知五"
+    },
+    {
+     "id": "h08",
+     "kind": "A",
+     "query": "王启是什么时候晋升七品的",
+     "expect": 52,
+     "vTop1": 52,
+     "vTop3": [
+      52,
+      53,
+      54
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 53,
+     "kTop3": [
+      53,
+      53,
+      53
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 383,
+     "gap": 0.0098,
+     "sameChapterInTop3": 0,
+     "top1Text": "王启十年前已经晋级七品，在军队里历经多场大战，一身武功打磨得极其精纯。\\n\\n    他虽然还没能凝聚真炁，身体内外筋肉"
+    },
+    {
+     "id": "h09",
+     "kind": "A",
+     "query": "打通七窍以后周无纪有什么变化",
+     "expect": 53,
+     "vTop1": 59,
+     "vTop3": [
+      59,
+      47,
+      48
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 47,
+     "kTop3": [
+      47,
+      79,
+      68
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 377,
+     "gap": 0.0082,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪这才打开北帝天刑书，把三两八钱虎妖转为本源玄精。\\n\\n    浓厚青光落下，周无纪身体内部热流涌"
+    },
+    {
+     "id": "h10",
+     "kind": "B",
+     "query": "挡住那一剑的护甲是什么",
+     "expect": 54,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      59,
+      45
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 72,
+     "kTop3": [
+      72,
+      80,
+      54
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 399,
+     "gap": 0.0091,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    方靖也没时间去想，他看到周无纪已经御剑而来，剑刃上闪耀寒光让他浑身发凉。\\n\\n    他再没别的手段，"
+    },
+    {
+     "id": "h11",
+     "kind": "A",
+     "query": "一真道人在下院是什么身份",
+     "expect": 57,
+     "vTop1": 57,
+     "vTop3": [
+      57,
+      57,
+      58
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 57,
+     "kTop3": [
+      57,
+      57,
+      58
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 378,
+     "gap": 0.0002,
+     "sameChapterInTop3": 1,
+     "top1Text": "”\\n\\n    一真道人推门进去，他微笑说道：“看你房间还有灯光，就过来看看。”\\n\\n    周无纪略微有点意外，这"
+    },
+    {
+     "id": "h12",
+     "kind": "B",
+     "query": "这一带的人跟那个大家族是什么关系",
+     "expect": 60,
+     "vTop1": 74,
+     "vTop3": [
+      74,
+      60,
+      75
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 73,
+     "kTop3": [
+      73,
+      62,
+      57
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 368,
+     "gap": 0.0148,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    张家能这麽厉害，在於他们是楚南张家的旁支。\\n\\n    楚南张家是千年世家，历代都有人朝廷中枢担任要职"
+    },
+    {
+     "id": "h13",
+     "kind": "A",
+     "query": "张家上下有多少口人",
+     "expect": 60,
+     "vTop1": 60,
+     "vTop3": [
+      60,
+      74,
+      57
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 60,
+     "kTop3": [
+      60,
+      62,
+      62
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 372,
+     "gap": 0.0583,
+     "sameChapterInTop3": 0,
+     "top1Text": "张家是大族，上下加起来足有数百口。\\n\\n    整个张家占据了四明县东南角，占地二十亩，前后五进，左右还有跨院。\\n\\"
+    },
+    {
+     "id": "h14",
+     "kind": "A",
+     "query": "五虎拳对剑法有什么用",
+     "expect": 61,
+     "vTop1": 63,
+     "vTop3": [
+      63,
+      61,
+      76
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 61,
+     "kTop3": [
+      61,
+      71,
+      63
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 385,
+     "gap": 0.0005,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    把五虎拳总体做标注的话，则会显示已经达到精通境界。\\n\\n    周无纪在房间里打了一遍五虎拳，周身皮肉"
+    },
+    {
+     "id": "h15",
+     "kind": "B",
+     "query": "练到这个层次的劲力是怎么发出来的",
+     "expect": 63,
+     "vTop1": 63,
+     "vTop3": [
+      63,
+      63,
+      63
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 63,
+     "kTop3": [
+      63,
+      50,
+      62
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 2,
+     "top1Chars": 379,
+     "gap": 0.0056,
+     "sameChapterInTop3": 2,
+     "top1Text": "\\n\\n    武道九品明劲，是皮肉发力。八品暗劲，是筋骨发力。\\n\\n    七品化劲，皮肉、筋骨、脏腑统合成一体，同"
+    },
+    {
+     "id": "h16",
+     "kind": "B",
+     "query": "主角年底是什么时候回到道观的",
+     "expect": 65,
+     "vTop1": 65,
+     "vTop3": [
+      65,
+      73,
+      64
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 57,
+     "kTop3": [
+      57,
+      67,
+      58
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 390,
+     "gap": 0.0127,
+     "sameChapterInTop3": 0,
+     "top1Text": "十二月二十九，周无纪回到藏龙观。\\n\\n    在四明群山转了十天，杀了几只八品妖物和一些不入流阴灵、厉鬼。\\n\\n  "
+    },
+    {
+     "id": "h17",
+     "kind": "A",
+     "query": "号称天鹰的那个人眼睛怎么样",
+     "expect": 66,
+     "vTop1": 69,
+     "vTop3": [
+      69,
+      44,
+      43
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 66,
+     "kTop3": [
+      66,
+      74,
+      48
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 394,
+     "gap": 0.0,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪甚至能看到大黑暗天母身上飘扬的长袍线条，看到她赤裸双足，看到她左脚脚踝上戴着一个铃铛状饰物。\\n\\"
+    },
+    {
+     "id": "h18",
+     "kind": "A",
+     "query": "周无纪对付那只六品鬼兵用了什么办法",
+     "expect": 69,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      68,
+      74
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 69,
+     "kTop3": [
+      69,
+      69,
+      46
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 397,
+     "gap": 0.0028,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    方靖是老江湖，看到周无纪不断接近就知道不对劲。\\n\\n    他心里暗骂一句：“小崽子真他么的无耻！”\\"
+    },
+    {
+     "id": "h19",
+     "kind": "A",
+     "query": "本源玄炁现在用掉会有什么后果",
+     "expect": 74,
+     "vTop1": 74,
+     "vTop3": [
+      74,
+      78,
+      55
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 74,
+     "kTop3": [
+      74,
+      47,
+      47
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 398,
+     "gap": 0.058,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    如此直接当做消耗品，的确是很浪费。\\n\\n    好在都是白来的东西，也不会太在意。\\n\\n    北帝"
+    },
+    {
+     "id": "h20",
+     "kind": "A",
+     "query": "五龙帮是怎么来的",
+     "expect": 75,
+     "vTop1": 75,
+     "vTop3": [
+      75,
+      79,
+      79
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 75,
+     "kTop3": [
+      75,
+      77,
+      75
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 365,
+     "gap": 0.0618,
+     "sameChapterInTop3": 0,
+     "top1Text": "五龙帮是由一群船夫自发汇聚到一起的组织，靠着湘江潇江为生，有着悠久历史。\\n\\n    所以叫五龙帮，是因为第一任帮主精"
+    },
+    {
+     "id": "h21",
+     "kind": "A",
+     "query": "杨树岭的孙子多大年纪",
+     "expect": 76,
+     "vTop1": 76,
+     "vTop3": [
+      76,
+      78,
+      77
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 76,
+     "kTop3": [
+      76,
+      78,
+      76
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 364,
+     "gap": 0.004,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    「我孙儿铁英正是修炼关键时刻，有此红花蜜相助，冲击暗劲的把握大增。」\\n\\n    杨树岭拱手对周无纪致"
+    },
+    {
+     "id": "h22",
+     "kind": "B",
+     "query": "炼出来的那种丹药能卖多少钱",
+     "expect": 78,
+     "vTop1": 78,
+     "vTop3": [
+      78,
+      66,
+      64
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 78,
+     "kTop3": [
+      78,
+      64,
+      66
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 394,
+     "gap": 0.0333,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪越想越觉得有问题，但他心有静气，还是熬到黄昏把紫气丹炼成。\\n\\n    一炉丹丸也就十几颗，耗费"
+    },
+    {
+     "id": "h23",
+     "kind": "B",
+     "query": "吃了那味药以后能多活多久",
+     "expect": 78,
+     "vTop1": 43,
+     "vTop3": [
+      43,
+      44,
+      76
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 42,
+     "kTop3": [
+      42,
+      49,
+      47
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 225,
+     "gap": 0.023,
+     "sameChapterInTop3": 0,
+     "top1Text": "…\\n\\n    好在寿命增加两年，身体状态的提升也非常明显。\\n\\n    就是那黑乎乎红叶岭，看着都清晰了一些……\\"
+    },
+    {
+     "id": "h24",
+     "kind": "A",
+     "query": "周无纪是怎么把陈辉制住的",
+     "expect": 80,
+     "vTop1": 80,
+     "vTop3": [
+      80,
+      80,
+      77
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 79,
+     "kTop3": [
+      79,
+      80,
+      79
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 395,
+     "gap": 0.0131,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    何况对方应该是擅长驾驭阴鬼之类的魔修，更会被阳光克制。\\n\\n    周无纪话锋一转又道：「这里面却有个"
+    },
+    {
+     "id": "h25",
+     "kind": "B",
+     "query": "主角让对手一下子昏过去的办法是什么",
+     "expect": 80,
+     "vTop1": 71,
+     "vTop3": [
+      71,
+      44,
+      54
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 64,
+     "kTop3": [
+      64,
+      66,
+      75
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 393,
+     "gap": 0.0007,
+     "sameChapterInTop3": 0,
+     "top1Text": "对方想要他的命，那就没什麽可谈的了。\\n\\n    吴镝、张云凤都是铁衣卫，不好惹。这也是他选择修炼天傀经的重要原因。\\"
+    },
+    {
+     "id": "h26",
+     "kind": "A",
+     "query": "那个七品魔修被剑气打中以后怎么样",
+     "expect": 80,
+     "vTop1": 69,
+     "vTop3": [
+      69,
+      80,
+      54
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 79,
+     "kTop3": [
+      79,
+      68,
+      51
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 363,
+     "gap": 0.0111,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    一旦魔修意识到他有着七品武者威能，必然会改变战斗策略。\\n\\n    周无纪观想赤红心虎，以心虎神意掌控"
+    }
+   ]
+  },
+  "600": {
+   "build": {
+    "chunkCount": 317,
+    "chunkChars": 173626,
+    "indexBytes": 4441509,
+    "buildSeconds": 1.9,
+    "avgChunkLen": 547.7,
+    "chunksPerChapter": 7.9
+   },
+   "summary": {
+    "size": 600,
+    "vHit1": 13,
+    "vHit3": 17,
+    "kHit1": 11,
+    "kHit3": 16,
+    "cover": 12,
+    "useful": 11,
+    "usefulIn3": 15,
+    "coverWhenHit": 11,
+    "coverWhenHitN": 13,
+    "goldSplit": 0,
+    "vHit1_A": 7,
+    "vHit1_A_n": 16,
+    "vHit1_B": 6,
+    "vHit1_B_n": 10,
+    "kHit1_A": 10,
+    "kHit1_B": 1,
+    "avgGap": 0.0149,
+    "avgTop1Chars": 539.1,
+    "redundancy": 0.46,
+    "avgVecMs": 8,
+    "avgKwMs": 6,
+    "n": 26
+   },
+   "rows": [
+    {
+     "id": "h01",
+     "kind": "A",
+     "query": "那群人用什么把阴灵聚成一体",
+     "expect": 42,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      47,
+      46
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 42,
+     "kTop3": [
+      42,
+      80,
+      69
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 574,
+     "gap": 0.0024,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    其他信众也是如此，不分男女，只要被百鬼扑到就会被吸食精血神魂，区别只在于死得快慢。\\n\\n    眨眼之"
+    },
+    {
+     "id": "h02",
+     "kind": "B",
+     "query": "追赶的那一方估计自己多久能追上",
+     "expect": 43,
+     "vTop1": 69,
+     "vTop3": [
+      69,
+      54,
+      78
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 78,
+     "kTop3": [
+      78,
+      46,
+      76
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 595,
+     "gap": 0.0012,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    瞬息之间，他身体数据就从三百三十七提升到三百八十二，直接提升了四十五点。\\n\\n    熊妖的强悍生命力"
+    },
+    {
+     "id": "h03",
+     "kind": "B",
+     "query": "那个人是不是杀不死",
+     "expect": 44,
+     "vTop1": 44,
+     "vTop3": [
+      44,
+      64,
+      72
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 43,
+     "kTop3": [
+      43,
+      79,
+      57
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 2,
+     "top1Chars": 393,
+     "gap": 0.0036,
+     "sameChapterInTop3": 0,
+     "top1Text": "他毕竟也是肉体凡胎，被捅一枪也会死。\\n\\n    周无纪决定等等，看看有没有合适的动手机会。\\n\\n    在土石堆积"
+    },
+    {
+     "id": "h04",
+     "kind": "A",
+     "query": "阴阳百灵幡是什么来头",
+     "expect": 45,
+     "vTop1": 45,
+     "vTop3": [
+      45,
+      45,
+      46
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 45,
+     "kTop3": [
+      45,
+      68,
+      45
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 594,
+     "gap": 0.062,
+     "sameChapterInTop3": 1,
+     "top1Text": "阴阳百灵幡，是阴阳道最著名的法器。\\n\\n    修炼阴阳真经的修者，就能自己炼制阴阳百灵幡。\\n\\n    通过收集各"
+    },
+    {
+     "id": "h05",
+     "kind": "A",
+     "query": "五道阴灵为什么毁不掉",
+     "expect": 48,
+     "vTop1": 42,
+     "vTop3": [
+      42,
+      42,
+      42
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 48,
+     "kTop3": [
+      48,
+      46,
+      54
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 564,
+     "gap": 0.0004,
+     "sameChapterInTop3": 2,
+     "top1Text": "\\n\\n    对于他来说，阴阳道手段阴险难测，还是不能小觑。\\n\\n    趁着还有时间，周无纪决定先炼成五阴兜。\\n"
+    },
+    {
+     "id": "h06",
+     "kind": "A",
+     "query": "李成安是什么品级的武者",
+     "expect": 49,
+     "vTop1": 59,
+     "vTop3": [
+      59,
+      73,
+      63
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 49,
+     "kTop3": [
+      49,
+      59,
+      73
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 555,
+     "gap": 0.019,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    上信跑来报信，说是李家家主李成安过来拜访。\\n\\n    昨天周无纪看到李成安了，这位李家家主也主动和他"
+    },
+    {
+     "id": "h07",
+     "kind": "B",
+     "query": "来围杀主角的那批帮手有多少",
+     "expect": 52,
+     "vTop1": 79,
+     "vTop3": [
+      79,
+      77,
+      77
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 74,
+     "kTop3": [
+      74,
+      62,
+      68
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 583,
+     "gap": 0.0025,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    现在主房里却有三道强大生命气息，其中一位明显是七品魔修。\\n\\n    周无纪所以这麽敢这麽判断，是因为"
+    },
+    {
+     "id": "h08",
+     "kind": "A",
+     "query": "王启是什么时候晋升七品的",
+     "expect": 52,
+     "vTop1": 52,
+     "vTop3": [
+      52,
+      53,
+      54
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 53,
+     "kTop3": [
+      53,
+      54,
+      53
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 580,
+     "gap": 0.0279,
+     "sameChapterInTop3": 0,
+     "top1Text": "王启十年前已经晋级七品，在军队里历经多场大战，一身武功打磨得极其精纯。\\n\\n    他虽然还没能凝聚真炁，身体内外筋肉"
+    },
+    {
+     "id": "h09",
+     "kind": "A",
+     "query": "打通七窍以后周无纪有什么变化",
+     "expect": 53,
+     "vTop1": 47,
+     "vTop3": [
+      47,
+      47,
+      59
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 47,
+     "kTop3": [
+      47,
+      79,
+      53
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 592,
+     "gap": 0.0032,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    眉心神窍和五官七窍同时吐纳真炁，眉心神窍作为中枢统御八窍真炁，按照北斗天枢经运行真炁流转全身。\\n\\n "
+    },
+    {
+     "id": "h10",
+     "kind": "B",
+     "query": "挡住那一剑的护甲是什么",
+     "expect": 54,
+     "vTop1": 46,
+     "vTop3": [
+      46,
+      59,
+      45
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 72,
+     "kTop3": [
+      72,
+      72,
+      59
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 2,
+     "top1Chars": 585,
+     "gap": 0.0021,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    周无纪心念电转，还是决定用五阴兜试试。\\n\\n    他左掌上符文闪耀，五阴兜化作一片淡淡黑纱从头罩住鬼"
+    },
+    {
+     "id": "h11",
+     "kind": "A",
+     "query": "一真道人在下院是什么身份",
+     "expect": 57,
+     "vTop1": 57,
+     "vTop3": [
+      57,
+      57,
+      57
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 57,
+     "kTop3": [
+      57,
+      57,
+      57
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 595,
+     "gap": 0.0039,
+     "sameChapterInTop3": 2,
+     "top1Text": "一真道人作为下院殿主，在下院地位仅次于主持至愿。\\n\\n    他原本并不在意周无纪的事情，直到接到无争的传讯，才知道藏"
+    },
+    {
+     "id": "h12",
+     "kind": "B",
+     "query": "这一带的人跟那个大家族是什么关系",
+     "expect": 60,
+     "vTop1": 60,
+     "vTop3": [
+      60,
+      59,
+      74
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 73,
+     "kTop3": [
+      73,
+      66,
+      62
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 587,
+     "gap": 0.0032,
+     "sameChapterInTop3": 0,
+     "top1Text": "张家是大族，上下加起来足有数百口。\\n\\n    整个张家占据了四明县东南角，占地二十亩，前后五进，左右还有跨院。\\n\\"
+    },
+    {
+     "id": "h13",
+     "kind": "A",
+     "query": "张家上下有多少口人",
+     "expect": 60,
+     "vTop1": 60,
+     "vTop3": [
+      60,
+      59,
+      62
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 62,
+     "kTop3": [
+      62,
+      60,
+      62
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 587,
+     "gap": 0.0552,
+     "sameChapterInTop3": 0,
+     "top1Text": "张家是大族，上下加起来足有数百口。\\n\\n    整个张家占据了四明县东南角，占地二十亩，前后五进，左右还有跨院。\\n\\"
+    },
+    {
+     "id": "h14",
+     "kind": "A",
+     "query": "五虎拳对剑法有什么用",
+     "expect": 61,
+     "vTop1": 62,
+     "vTop3": [
+      62,
+      61,
+      63
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 61,
+     "kTop3": [
+      61,
+      63,
+      71
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 78,
+     "gap": 0.0187,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    剑法臻于化境，让他对于身体、真炁操控达到极高层次。\\n\\n    反过来再修炼铁虎拳这样硬功，就变得非常"
+    },
+    {
+     "id": "h15",
+     "kind": "B",
+     "query": "练到这个层次的劲力是怎么发出来的",
+     "expect": 63,
+     "vTop1": 63,
+     "vTop3": [
+      63,
+      62,
+      63
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 72,
+     "kTop3": [
+      72,
+      63,
+      61
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 553,
+     "gap": 0.022,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    主要还是得益于他身体强韧，远胜普通八品暗劲武者。这让他有着深厚强大基础能充分发力。\\n\\n    但是，"
+    },
+    {
+     "id": "h16",
+     "kind": "B",
+     "query": "主角年底是什么时候回到道观的",
+     "expect": 65,
+     "vTop1": 65,
+     "vTop3": [
+      65,
+      50,
+      48
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 57,
+     "kTop3": [
+      57,
+      67,
+      76
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 589,
+     "gap": 0.0207,
+     "sameChapterInTop3": 0,
+     "top1Text": "十二月二十九，周无纪回到藏龙观。\\n\\n    在四明群山转了十天，杀了几只八品妖物和一些不入流阴灵、厉鬼。\\n\\n  "
+    },
+    {
+     "id": "h17",
+     "kind": "A",
+     "query": "号称天鹰的那个人眼睛怎么样",
+     "expect": 66,
+     "vTop1": 66,
+     "vTop3": [
+      66,
+      79,
+      43
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 66,
+     "kTop3": [
+      66,
+      66,
+      74
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 2,
+     "top1Chars": 589,
+     "gap": 0.0151,
+     "sameChapterInTop3": 0,
+     "top1Text": "他号称天鹰，一双眼睛锐利之极。”\\n\\n    “其次就是咱们主持，五品经师，道法高妙。再次是金叶寺主持五品武僧心觉和尚"
+    },
+    {
+     "id": "h18",
+     "kind": "A",
+     "query": "周无纪对付那只六品鬼兵用了什么办法",
+     "expect": 69,
+     "vTop1": 68,
+     "vTop3": [
+      68,
+      46,
+      68
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 69,
+     "kTop3": [
+      69,
+      46,
+      69
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 177,
+     "gap": 0.0028,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    周无纪立即感受到了巨大压力，有法器加持的鬼兵有着源源不绝力量，就算暂时摧毁也难以彻底杀死。\\n\\n   "
+    },
+    {
+     "id": "h19",
+     "kind": "A",
+     "query": "本源玄炁现在用掉会有什么后果",
+     "expect": 74,
+     "vTop1": 73,
+     "vTop3": [
+      73,
+      74,
+      55
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 55,
+     "kTop3": [
+      55,
+      42,
+      74
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 598,
+     "gap": 0.0024,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    通过金川试验，也证明了天傀的确好用。\\n\\n    缺点就是太过消耗真神识，以他现在修为，驾驭天傀也有些"
+    },
+    {
+     "id": "h20",
+     "kind": "A",
+     "query": "五龙帮是怎么来的",
+     "expect": 75,
+     "vTop1": 75,
+     "vTop3": [
+      75,
+      77,
+      79
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 75,
+     "kTop3": [
+      75,
+      77,
+      79
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 598,
+     "gap": 0.0682,
+     "sameChapterInTop3": 0,
+     "top1Text": "五龙帮是由一群船夫自发汇聚到一起的组织，靠着湘江潇江为生，有着悠久历史。\\n\\n    所以叫五龙帮，是因为第一任帮主精"
+    },
+    {
+     "id": "h21",
+     "kind": "A",
+     "query": "杨树岭的孙子多大年纪",
+     "expect": 76,
+     "vTop1": 77,
+     "vTop3": [
+      77,
+      77,
+      76
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 76,
+     "kTop3": [
+      76,
+      78,
+      80
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 570,
+     "gap": 0.0068,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    杨树岭躺在房檐下躺椅上，他右手拿着本书，不时还看眼院子里练拳的一众年轻弟子0\\n\\n    作为四明县最"
+    },
+    {
+     "id": "h22",
+     "kind": "B",
+     "query": "炼出来的那种丹药能卖多少钱",
+     "expect": 78,
+     "vTop1": 78,
+     "vTop3": [
+      78,
+      64,
+      66
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 78,
+     "kTop3": [
+      78,
+      70,
+      64
+     ],
+     "kHit1": true,
+     "kHit3": true,
+     "cover": true,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 565,
+     "gap": 0.03,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    如此行为，形同挑衅。\\n\\n    以杨树岭的老练通达，绝不会犯这种低级错误。\\n\\n    周无纪越想"
+    },
+    {
+     "id": "h23",
+     "kind": "B",
+     "query": "吃了那味药以后能多活多久",
+     "expect": 78,
+     "vTop1": 78,
+     "vTop3": [
+      78,
+      78,
+      47
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 42,
+     "kTop3": [
+      42,
+      47,
+      49
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 571,
+     "gap": 0.0017,
+     "sameChapterInTop3": 1,
+     "top1Text": "\\n\\n    他现在三五天就断食一次，通过辟谷丹调理身体。\\n\\n    加上紫气丹、天元丹、金华丹三种丹药，分别对应"
+    },
+    {
+     "id": "h24",
+     "kind": "A",
+     "query": "周无纪是怎么把陈辉制住的",
+     "expect": 80,
+     "vTop1": 80,
+     "vTop3": [
+      80,
+      80,
+      77
+     ],
+     "vHit1": true,
+     "vHit3": true,
+     "kTop1": 79,
+     "kTop3": [
+      79,
+      80,
+      80
+     ],
+     "kHit1": false,
+     "kHit3": true,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 573,
+     "gap": 0.0049,
+     "sameChapterInTop3": 1,
+     "top1Text": "」\\n\\n    「他叫陈辉，五龙帮青龙使。给我孙子种入蛊虫，胁迫我对付道长。\\n\\n    「北帝在上，我对道长绝无恶"
+    },
+    {
+     "id": "h25",
+     "kind": "B",
+     "query": "主角让对手一下子昏过去的办法是什么",
+     "expect": 80,
+     "vTop1": 52,
+     "vTop3": [
+      52,
+      54,
+      46
+     ],
+     "vHit1": false,
+     "vHit3": false,
+     "kTop1": 59,
+     "kTop3": [
+      59,
+      66,
+      64
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": false,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 587,
+     "gap": 0.0044,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    要是地形开阔，还能拉开距离逐一击杀。在大殿这么个封闭房间里，密集枪阵反而很难破解。\\n\\n    当然，"
+    },
+    {
+     "id": "h26",
+     "kind": "A",
+     "query": "那个七品魔修被剑气打中以后怎么样",
+     "expect": 80,
+     "vTop1": 58,
+     "vTop3": [
+      58,
+      69,
+      80
+     ],
+     "vHit1": false,
+     "vHit3": true,
+     "kTop1": 68,
+     "kTop3": [
+      68,
+      68,
+      79
+     ],
+     "kHit1": false,
+     "kHit3": false,
+     "cover": false,
+     "usefulIn3": true,
+     "singleChunkCovers": true,
+     "coveringBlocks": 1,
+     "top1Chars": 585,
+     "gap": 0.0022,
+     "sameChapterInTop3": 0,
+     "top1Text": "\\n\\n    不止是施法时间太长，还有就是威力也不够。对于八品武者都没有太大威胁。\\n\\n    七星诛魔剑和北斗天枢"
+    }
+   ]
+  }
+ }
+}

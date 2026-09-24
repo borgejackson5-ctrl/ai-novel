@@ -1,0 +1,807 @@
+{
+  "label": "hold12-ctx5-d",
+  "mode": "single",
+  "note": "",
+  "casesFile": "holdout",
+  "at": "2026-09-19T15:55:04",
+  "account": "admin",
+  "quota": {
+    "userId": "2098415050340380674",
+    "key": "ai:user:usage:2098415050340380674:2026-09-19",
+    "usedAtStart": 0,
+    "limitAssumed": 30000,
+    "estimatedNeed": 1761
+  },
+  "complete": true,
+  "incompleteReasons": [],
+  "novelId": 2100807172083359746,
+  "single": {
+    "h1": {
+      "ok": true,
+      "message": null,
+      "summary": "共报出5处问题：错别字2处（「不竟」应为「不禁」，「按耐不住」应为「按捺不住」），语病1处（「通过……让……」主语残缺），前后不一致2处（「灰布巾」与「白布巾」同章混用，且第1章另有「青布巾」写法）。标点方面未发现中英文混用、引号不配对等问题。数量核对方面：本章「九根伞骨」这一数字尝试用工具核对前文设定，但检索未能返回可用的前文依据，故伞骨数量这一项没能与前文核对；人名方面，本章作「柳砚秋」，与第1章写法一致（第2章另作「柳砚邱」，两种写法本书都用过，未在本章出现，故未报）。",
+      "reviewedChars": 245,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 4.8,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "他不竟愣住了。",
+          "suggestion": "「不竟」是错别字，应改为「不禁」。",
+          "verdict": "命中",
+          "defect": "不竟愣住",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他按耐不住，上前问了一句。",
+          "suggestion": "「按耐不住」是成语误用，规范写法是「按捺不住」。",
+          "verdict": "命中",
+          "defect": "按耐不住",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "通过这次的事，让他明白了一个道理：有些话不必问出口。",
+          "suggestion": "「通过……让……」造成主语残缺，可改为「这次的事让他明白了一个道理」或「通过这次的事，他明白了一个道理」。",
+          "verdict": "命中",
+          "defect": "通过这次的事，让他明白了",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他肩上搭着一条灰布巾，手里那把伞有九根伞骨。",
+          "suggestion": "布巾写法前后不一致：第1章已出现「灰布巾」，同章又写作「白布巾」，第7章作「青布巾」，此处应统一（具体取哪一种请对照设定）。",
+          "verdict": "命中跨章",
+          "defect": "青布巾",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他把那条白布巾解下来，搭在她肩上，转身走了。",
+          "suggestion": "第1章前文已用「灰布巾」，此处写作「白布巾」，同章内写法不一致，应与前文统一。",
+          "verdict": "命中",
+          "defect": "白布巾",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "口。\n\n他把那条白布巾解下来，搭在她肩",
+          "suggestion": "本书两种写法并存：前文第 1 章作「灰布巾」，另一处作「白布巾（第1章）／青布巾（第7章）」，请统一为其中一种",
+          "verdict": "命中",
+          "defect": "白布巾",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 4,
+      "defects": 5,
+      "reports": 6,
+      "missed": [
+        {
+          "kind": "标点",
+          "wrong": "来的?",
+          "right": "来的？",
+          "note": "半角问号，中英文标点混用",
+          "_start": 151,
+          "_end": 154
+        }
+      ],
+      "crossHit": 1,
+      "crossTotal": 5,
+      "nHitReports": 5,
+      "nCrossReports": 1,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "h2": {
+      "ok": true,
+      "message": null,
+      "summary": "共发现3处问题，均为前后不一致：①人名「柳砚邱」与前文第1章「柳砚秋」不一致（本章另有3处同样写法，仅报首次）；②「七根伞骨」与前文第1章「九根伞骨」矛盾；③「布巾」指称不明，前文第1章为「灰布巾」「白布巾」两种写法并用（第7章又出现「青布巾」），无法判断本章指哪一条，未断言哪种正确，仅提示作者明确。错别字、语病、标点三项逐句看过，未发现其他问题。已用相关前文（第1章）核对数量、人名写法与称谓；伞骨数目一项已核对，确与前文不符。",
+      "reviewedChars": 233,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.1,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "柳砚邱把伞靠在门边，坐下来喝了一碗凉水。",
+          "suggestion": "前文第1章作「柳砚秋」，此处应统一为「柳砚秋」；本章另有3处同样写法（「柳砚邱接过来」「柳砚邱把伞靠在门边」等）。",
+          "verdict": "命中跨章",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他把那把七根伞骨的伞拿起来",
+          "suggestion": "前文第1章作「那把伞有九根伞骨」，此处应改为「九根伞骨」。",
+          "verdict": "命中跨章",
+          "defect": "七根伞骨的伞",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "她把布巾还给他，布巾是洗净了的。",
+          "suggestion": "前文第1章出现的是「灰布巾」和「白布巾」（第7章又有「青布巾」），此处「布巾」指称不明，建议明确写成与前文一致的具体写法。",
+          "verdict": "未命中（误报候选）",
+          "defect": null,
+          "defect_kind": null,
+          "type_ok": null,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "柳砚邱把伞靠在门边，坐",
+          "suggestion": "本书两种写法并存：前文第 1 章作「柳砚秋」，另一处作「柳砚邱（第2章）」，请统一为其中一种（本章另有 1 处同样写法）",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他把那把七根伞骨的伞拿起来，抖了",
+          "suggestion": "前文第 1 章写「伞骨九根」，本章写「伞骨七根」，请确认以哪个为准",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "七根伞骨的伞",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他把那把七根伞骨的伞拿起来，抖",
+          "suggestion": "前文第 1 章写「伞九根」，本章写「伞七根」，请确认以哪个为准",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "七根伞骨的伞",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 0,
+      "defects": 0,
+      "reports": 6,
+      "missed": [],
+      "crossHit": 2,
+      "crossTotal": 5,
+      "nHitReports": 0,
+      "nCrossReports": 2,
+      "nDupReports": 3,
+      "nUnmatched": 1
+    },
+    "h3": {
+      "ok": true,
+      "message": null,
+      "summary": "本章未发现人名写法与已确立写法冲突之处（柳砚秋、北边的人、苏均与表一致，灰布巾/白布巾本章未涉及）。核对结果：①正文先说院角堆着「三只陶罐」，随即写「一共六只」，数目自相矛盾，已按前后不一致报出；②第 1 章写伞有九根伞骨、第 2 章写七根伞骨，本章未出现伞骨数目，故未报，但两章写法本身不一致，建议作者统一；③标点方面「...」应为「……」；④用词方面「成份」应为「成分」，且「灯油泼出来一点，成份是极淡的菜油味」搭配不当。另外，柳砚秋与柳砚邱两种写法本书都用过（第 1、2 章），本章用「柳砚秋」，按提示要求不作对错断言。",
+      "reviewedChars": 186,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.6,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "他记得这几只罐子一共六只，一只都没少。",
+          "suggestion": "前文未交代过陶罐的数目，此处先说「院角堆着三只陶罐」，紧接着又说「一共六只」，自相矛盾；建议统一为同一数目，或补写另外三只的所在。",
+          "verdict": "命中",
+          "defect": "一共六只",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他想了很久...",
+          "suggestion": "省略号应写作「……」，改为「他想了很久……」；本章另有 1 处同样写法（「他想了很久...」）。",
+          "verdict": "命中",
+          "defect": "想了很久...",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他起身的时候衣袖带倒了灯盏，灯油泼出来一点，成份是极淡的菜油味。",
+          "suggestion": "「成份」是异体写法，规范词形为「成分」；且「灯油泼出来一点」与「是极淡的菜油味」搭配不当，可改为「灯油泼出来一点，散出极淡的菜油味」。",
+          "verdict": "命中",
+          "defect": "成份",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        }
+      ],
+      "hit": 3,
+      "defects": 4,
+      "reports": 3,
+      "missed": [
+        {
+          "kind": "语病",
+          "wrong": "大约看了一炷香左右",
+          "right": "看了一炷香左右 或 大约看了一炷香",
+          "note": "重复赘余：「大约」与「左右」语义重复",
+          "_start": 43,
+          "_end": 52
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "h4": {
+      "ok": true,
+      "message": null,
+      "summary": "本章共发现6处问题：错别字1处（记念→纪念）、标点1处（陈述句误用问号）、语病2处（「加快了锅里的水」搭配不当、「添了把柴」量词使用不当）、前后不一致2处（同院中植物先作「梨树」后作「桃树」）。人名写法方面，本章「柳砚秋」与第1章一致，第2章另有「柳砚邱」写法，按提示属两种写法并用，未断言对错；「苏姑娘」为本章首次出现，与书中写法表一致。本章未出现数量、尺寸、年龄等数字，facts 为空。情节时间与称谓方面，已对照系统提供的前文片段，本章未涉及具体时间交代，暂未发现其他矛盾。",
+      "reviewedChars": 140,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.2,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "小院的门虚掩着。柳砚秋推门进去，院里种着一株梨树",
+          "suggestion": "前文第1章写柳砚秋在镇上遇见女子，本章「苏姑娘」为首次出现，但「梨树」与本章结尾的「桃树」自相矛盾，应统一为梨树。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "临走时他回头看了一眼那株桃树，枝条伸过了墙头。",
+          "suggestion": "本章开头写「院里种着一株梨树」，此处应为「梨树」，前后统一。",
+          "verdict": "命中",
+          "defect": "桃树",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "他说想记念一个人，所以来问一句话。",
+          "suggestion": "「记念」应为「纪念」。",
+          "verdict": "命中",
+          "defect": "记念",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他不知道自己该不该说出口？",
+          "suggestion": "此句为陈述句，句末问号应改为句号。",
+          "verdict": "命中",
+          "defect": "说出口？",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "火不旺，他随手添了把柴，加快了锅里的水。",
+          "suggestion": "「加快」与「水」搭配不当，应改为「加快了烧水的速度」或「让锅里的水快点开」。",
+          "verdict": "命中",
+          "defect": "加快了锅里的水",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 4,
+      "defects": 4,
+      "reports": 5,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 4,
+      "nCrossReports": 0,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "h5": {
+      "ok": true,
+      "message": null,
+      "summary": "本章篇幅很短，四类问题各过一遍：错别字1处（涵蓄→含蓄）；标点1处（书名号未配对）；语病未发现明显问题；前后不一致1处——本章写「晌午到的镇上，天还亮着」，与第1章「柳砚秋到镇上的时候，天已经黑透了」相矛盾；另据第1章，柳砚秋所持为「灰布巾」，本章未出现布巾，无冲突。本章未给出任何数量、尺寸、年龄，故 facts 为空；本章出现的具体数字（读《镇志》读到一半）不构成可核对的设定数字。人名/专有名词写法方面，本章未出现与【本书已确立的写法】表中不一致的写法（柳砚邱、青布巾、旧袍子、十二文等均未在本章出现）。需要说明：本章未涉及兵器尺寸、道具数量等需跨章核对的情节数字，故未就此调用检索工具；如作者另有设定，请以本章为准复核第1章的时间描写。",
+      "reviewedChars": 113,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.1,
+      "details": [
+        {
+          "kind": "标点",
+          "excerpt": "他读《镇志，读到一半就合上了。",
+          "suggestion": "书名号应配对，改为「他读《镇志》，读到一半就合上了」。",
+          "verdict": "命中",
+          "defect": "《镇志，读到一半",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "书里的话写得很涵蓄，看不出是谁的手笔。",
+          "suggestion": "「涵蓄」应为「含蓄」。",
+          "verdict": "命中",
+          "defect": "涵蓄",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他是晌午到的镇上，天还亮着。",
+          "suggestion": "第1章作「柳砚秋到镇上的时候，天已经黑透了」，此处「晌午到、天还亮着」与第1章的时间相矛盾，请统一。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 2,
+      "defects": 3,
+      "reports": 3,
+      "missed": [
+        {
+          "kind": "语病",
+          "wrong": "一路上的芦苇和野草",
+          "right": "一路都是芦苇和野草",
+          "note": "成分残缺：整句没有谓语",
+          "_start": 26,
+          "_end": 35
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 2,
+      "nCrossReports": 0,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "h6": {
+      "ok": true,
+      "message": null,
+      "summary": "本章篇幅极短，未出现数量、尺寸、年龄一类的数字，故无需与「设定数字」核对；但已按提示核对写法：本章人名用「柳砚秋」，与第1章一致，而第2章作「柳砚邱」，属本书两种写法并用，已按「前后不一致」报出该处（首次出现于本章的「柳砚秋走得很慢」）。标点方面，全章句末标点、逗号均为中文规范写法，未见中英文混用、引号书名号不配对、省略号或破折号误写；错别字与语病方面，逐句读来未发现形近字、同音字、成语误用、成分残缺、搭配不当、语序不当或啰嗦重复。另需说明：本章未给出任何可核对的具体时间点（只写「月亮出来了」），与前文第5章「晌午到镇上」「傍晚去还伞」不构成冲突，故未报时间矛盾；相关前文中第1章「九根伞骨」、第2章「七根伞骨的伞」、第3章「三只陶罐／记得一共六只」、第4章「梨树／桃树」等矛盾均发生在别章，本章正文未涉及，未予报出。",
+      "reviewedChars": 129,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.2,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "柳砚秋走得很慢，伞收在手里，伞尖点着地。",
+          "suggestion": "第2章作「柳砚邱」，第1章作「柳砚秋」，本书两种写法都用过，此处与第1章一致；若要统一，请全书择一（两种写法各见第1章、第2章）。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 0,
+      "defects": 0,
+      "reports": 1,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 0,
+      "nCrossReports": 0,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "h7": {
+      "ok": true,
+      "message": null,
+      "summary": "本章篇幅很短，逐类检查结果：错别字方面未发现明显形近/同音误用；语病方面有“折了三遍，反复地折了好几次”重复啰嗦一处；标点方面“她说：\"这是我洗净的。”引号不配对一处；前后不一致方面，布巾本章作“青布巾”，而第1章同时出现过“灰布巾”与“白布巾”（本书两种写法并用），另有本章“女子把洗净的布巾送来、他接过来”与第2章“她把布巾还给他，布巾是洗净了的”情节疑似重复/时间对不上，已据第1、2章报出。本章未给出任何数量、尺寸、年龄等数字，故 facts 为空；情节与数字一项仅能就系统提供的前文片段（第1、2、3、4章）核对，更早或更后的章节未能逐一核验。",
+      "reviewedChars": 118,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.9,
+      "details": [
+        {
+          "kind": "标点",
+          "excerpt": "这是我洗净的。",
+          "suggestion": "引号不配对，句末缺后引号，应改为：她说：“这是我洗净的。”",
+          "verdict": "命中",
+          "defect": "“这是我洗净的。",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他把布巾折了三遍，反复地折了好几次，才放回肩上。",
+          "suggestion": "“折了三遍”与“反复地折了好几次”语义重复，删去一处，如改为：他把布巾折了三遍，才放回肩上。",
+          "verdict": "命中",
+          "defect": "反复地折了好几次",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "女子把那条青布巾送来，叠得方方正正。",
+          "suggestion": "本书布巾有“灰布巾”（第1章）与“白布巾”（第1章）两种写法，此处又作“青布巾”，三种写法并存，请统一（第1章用过灰布巾、白布巾）。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "青布巾",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他接过来，觉得比原来软了些。他请她进屋就坐，她没有推辞。",
+          "suggestion": "第1章、第2章中这条布巾是“洗净后归还”给男主的，本章又写“女子把布巾送来……这是我洗净的……他接过来”，与此前“她把布巾还给他，布巾是洗净了的”情节重复且衔接不清，建议核对是否同一件事、避免前后矛盾。",
+          "verdict": "命中",
+          "defect": "就坐",
+          "defect_kind": "错别字",
+          "type_ok": false,
+          "fix_ok": false
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "女子把那条青布巾送来，叠得方方正",
+          "suggestion": "本书两种写法并存：前文第 1 章作「灰布巾」，另一处作「白布巾（第1章）／青布巾（第7章）」，请统一为其中一种",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "青布巾",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 3,
+      "reports": 5,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 2,
+      "nUnmatched": 0
+    },
+    "h8": {
+      "ok": true,
+      "message": null,
+      "summary": "本章审出6处问题：①人名「柳砚秋」与第2章「柳砚邱」两种写法并存（本书两种都用过，未断言对错）；②「虽然……但是」半角逗号+关联词赘余；③同船人数前后矛盾（两人→三人）；④「上船之前」句缺主语；⑤「含胡」应为「含糊」。本章未出现具体数量、尺寸或年龄，故无可核对的数字项；已按提示中的相关前文逐条核对名字、时间与称谓，除上述人名外未见其他出入。情节时间线方面，本章只交代「天已经亮了」，与第1章「天已经黑透了」、第5章「晌午到镇上」不构成同一件事，未发现矛盾。",
+      "reviewedChars": 145,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 3.5,
+      "details": [
+        {
+          "kind": "前后不一致",
+          "excerpt": "柳砚秋到的时候，岸边只系着一条小船。",
+          "suggestion": "本书第1章作「柳砚秋」、第2章作「柳砚邱」，两种写法都用过，此处用了「柳砚秋」，请与全书统一（不断言哪种正确）。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "虽然天已经亮了,但是他还是看不清对岸。",
+          "suggestion": "逗号用了半角英文逗号，应改为全角中文逗号「，」。",
+          "verdict": "命中",
+          "defect": "天已经亮了,但是",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "虽然天已经亮了,但是他还是看不清对岸。",
+          "suggestion": "「虽然……但是……」关联词赘余，可改为「天已经亮了，他却还是看不清对岸」。",
+          "verdict": "命中",
+          "defect": "天已经亮了,但是",
+          "defect_kind": "标点",
+          "type_ok": false,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "船上只有两个人。船到江心的时候，船上一共三个人。",
+          "suggestion": "同一艘船的人数前后矛盾（先是两人、到江心又成三人），请统一，或补写第三人上船的交代。",
+          "verdict": "命中",
+          "defect": "船上一共三个人",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "语病",
+          "excerpt": "上船之前，在岸边站了很久。",
+          "suggestion": "缺主语，应补出主语，如「他上船之前，在岸边站了很久」。",
+          "verdict": "命中",
+          "defect": "上船之前，在岸边站了很久",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "错别字",
+          "excerpt": "船夫说得含胡，只说往北走，别再问。",
+          "suggestion": "「含胡」应作「含糊」。",
+          "verdict": "命中",
+          "defect": "含胡",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        }
+      ],
+      "hit": 4,
+      "defects": 4,
+      "reports": 6,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 5,
+      "nCrossReports": 0,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "h9": {
+      "ok": true,
+      "message": null,
+      "summary": "本章篇幅很短，逐句检查了错别字、语病、标点与前后不一致四类。发现三处问题：错别字「迫不急待」（应为「迫不及待」）、语病「独自一个人」重复、标点「笔，墨，纸，砚」并列词语间误用逗号（应为顿号）。写法方面，本章只出现「柳砚秋」，与第1章一致，未使用第2章的「柳砚邱」写法；本章未出现布巾、伞等道具，也无任何数量、尺寸、年龄或时间交代，故无可核对的数字与情节项，facts 为空。相关前文片段（第1、2、3、4章）中未发现与本章内容相抵触之处。",
+      "reviewedChars": 109,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.9,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "他迫不急待地想把白天听到的事记下来。",
+          "suggestion": "「迫不急待」是错别字，应改为「迫不及待」。",
+          "verdict": "命中",
+          "defect": "迫不急待",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "他独自一个人坐在灯下，直到雨停。",
+          "suggestion": "「独自」与「一个人」语义重复，删去其一，改为「他独自坐在灯下」或「他一个人坐在灯下」。",
+          "verdict": "命中",
+          "defect": "独自一个人",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "桌上摆着笔，墨，纸，砚，都蒙了一层灰。",
+          "suggestion": "并列词语之间应使用顿号，改为「桌上摆着笔、墨、纸、砚，都蒙了一层灰」。",
+          "verdict": "命中",
+          "defect": "笔，墨，纸，砚",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 3,
+      "reports": 3,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    },
+    "h10": {
+      "ok": true,
+      "message": null,
+      "summary": "本章发现四类问题：错别字1处（胡涂→糊涂）；标点2处（英文问号、英文句点混用）；前后不一致1处（人物指称由「柳砚秋」变为「他」）。本章未出现数量、尺寸、年龄等设定数字，无需核对；人物姓氏「舒」与已确立写法无冲突（前文未出现该姓）。情节与时间衔接方面，本章「往南边去了」与第8章「渡口在镇子南边」方向一致，未发现矛盾；但受限于本章内容较短，未能对全部前文设定（如伞骨数、布巾颜色等）逐一核对。",
+      "reviewedChars": 105,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 2.9,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "他越想越胡涂。",
+          "suggestion": "「胡涂」应写作「糊涂」。",
+          "verdict": "命中",
+          "defect": "胡涂",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "标点",
+          "excerpt": "“你为什么不去问清楚?”她问他。",
+          "suggestion": "问号应改为中文全角「？」，即「你为什么不去问清楚？」。",
+          "verdict": "命中",
+          "defect": "问清楚?”",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他不知道自己要去哪里.",
+          "suggestion": "句末的英文句点应改为中文句号「。」。",
+          "verdict": "命中",
+          "defect": "去哪里.",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "第二天他起了个早，一个人往南边去了。",
+          "suggestion": "第1章作「柳砚秋」，此处「他」与前文写法不一致，应统一为「柳砚秋」；本章另有2处同样以「他」指代（「他听了」「他不知道自己要去哪里」）。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 3,
+      "reports": 4,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 3,
+      "nCrossReports": 0,
+      "nDupReports": 1,
+      "nUnmatched": 0
+    },
+    "h11": {
+      "ok": true,
+      "message": null,
+      "summary": "本段共发现错别字1处（雕谢→凋谢）、语病1处（「那是一件他的旧袍子」重复）、标点2处（英文半角逗号、句号）。前后不一致方面：本章「九根伞骨」与第2章「七根伞骨的伞」矛盾（第1章也作九根）；「柳砚秋」与第2章「柳砚邱」两种写法并存；布巾的写法（灰/白/青）与第1、7章不一致，均按前后不一致报出。数字方面已核对：本章「十二文」「二十文」在前文未见相反设定。另：系统仅给出片段，未能通读第11章全文，其余情节衔接未能核对。",
+      "reviewedChars": 115,
+      "segments": 1,
+      "droppedIssues": 1,
+      "elapsed": 3.5,
+      "details": [
+        {
+          "kind": "错别字",
+          "excerpt": "院子里的花都雕谢了。",
+          "suggestion": "「雕谢」应作「凋谢」。",
+          "verdict": "命中",
+          "defect": "雕谢",
+          "defect_kind": "错别字",
+          "type_ok": true,
+          "fix_ok": true
+        },
+        {
+          "kind": "语病",
+          "excerpt": "柳砚秋把旧袍子翻出来，那是一件他的旧袍子。",
+          "suggestion": "语义重复且语序别扭，可改为「柳砚秋把那件旧袍子翻了出来」。",
+          "verdict": "命中",
+          "defect": "那是一件他的旧袍子",
+          "defect_kind": "语病",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "标点",
+          "excerpt": "他说,他不等了。",
+          "suggestion": "此处逗号用了英文半角，应改为中文全角逗号。",
+          "verdict": "命中",
+          "defect": "他说,他不等了",
+          "defect_kind": "标点",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "数出十二文。",
+          "suggestion": "第1章写他手里那把伞有九根伞骨，第2章写的是「七根伞骨的伞」，本章（第11章）又作「九根伞骨」；同一把伞的伞骨数前后不一致，请统一。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "七根伞骨的伞",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "柳砚秋把旧袍子翻出来",
+          "suggestion": "第1章作「柳砚秋」，第2章作「柳砚邱」，本章用了前者；两种写法都用过，请按既定写法统一，不要两种混用。",
+          "verdict": "重复报告（同一处跨章问题）",
+          "defect": "柳砚邱",
+          "defect_kind": "前后不一致",
+          "type_ok": true,
+          "fix_ok": null
+        },
+        {
+          "kind": "前后不一致",
+          "excerpt": "他说,他不等了。",
+          "suggestion": "第1章作「灰布巾／白布巾」，第7章作「青布巾」；本章若再出现布巾，请与前文统一，不要另起写法。",
+          "verdict": "命中",
+          "defect": "他说,他不等了",
+          "defect_kind": "标点",
+          "type_ok": false,
+          "fix_ok": null
+        }
+      ],
+      "hit": 3,
+      "defects": 4,
+      "reports": 6,
+      "missed": [
+        {
+          "kind": "前后不一致",
+          "wrong": "还剩二十文",
+          "right": "十二文",
+          "note": "同一章内钱数自相矛盾，前文写「数出十二文」",
+          "_start": 73,
+          "_end": 78
+        }
+      ],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 4,
+      "nCrossReports": 0,
+      "nDupReports": 2,
+      "nUnmatched": 0
+    },
+    "h12": {
+      "ok": true,
+      "message": null,
+      "summary": "本章正文极短，未发现错别字、语病、标点或前后不一致问题。人名「柳砚秋」与本书确立写法一致（表中「柳砚邱」为另一种已用过的写法，本章未使用）；「早点铺子」与第12章确立写法一致。本章未出现任何数量、尺寸、年龄或时间交代，无需核对数字类前文；相关前文片段（第1、4、5、6、7章）中亦无与本章冲突的数字、名字、颜色、时间或称谓。names 与 facts 均无可列内容。",
+      "reviewedChars": 123,
+      "segments": 1,
+      "droppedIssues": 0,
+      "elapsed": 1.5,
+      "details": [],
+      "hit": 0,
+      "defects": 0,
+      "reports": 0,
+      "missed": [],
+      "crossHit": 0,
+      "crossTotal": 5,
+      "nHitReports": 0,
+      "nCrossReports": 0,
+      "nDupReports": 0,
+      "nUnmatched": 0
+    }
+  },
+  "task": {},
+  "tools": {
+    "single": {
+      "total": 0,
+      "byTool": {
+        "列目录": 0,
+        "读正文": 0,
+        "邻近检索": 0
+      },
+      "byChapter": {},
+      "unknown": 0,
+      "glossary": {
+        "conflicts": 5,
+        "factConflicts": 2,
+        "recorded": 31,
+        "factsRecorded": 6,
+        "recordChapters": 11
+      }
+    }
+  }
+}
