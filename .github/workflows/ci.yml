@@ -1,0 +1,76 @@
+# CI：编译 + 单测 + 打包，外加两项「能否构建出来」的检查。
+#
+# 使用 GitHub Actions 而非 Gitee Go 的原因：Gitee Go 的托管构建插件无法编译本项目。
+# 官方文档中 build@maven 支持的 JDK 为「6、7、8、9、10、11、13、17」八个版本
+# （help.gitee.com/gitee-go/plugin/ci-build），不含 21；而本项目的 pom、Dockerfile
+# 均要求 JDK 21，低于该版本无法编译。使用 Gitee Go 需挂载自建执行器（将 agent 装在自己的机器上）。
+#
+# 构建逻辑均放在 ci/run-ci.sh 中：更换平台只需修改该文件，逻辑不变。
+name: ci
+
+on:
+  # 不限定分支：feature 分支推送后也需执行，否则需等到合并至 master 才能发现失败
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  backend:
+    name: 后端（编译 + 单测 + 打包）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # temurin 21：与 pom 的 java.version、Dockerfile 的基础镜像三处保持一致
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: 编译 + 单测 + 打包
+        run: bash ci/run-ci.sh
+
+      # 报告仅在失败时上传：成功时无需查看，避免占用存储
+      - name: 失败时上传单测报告
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: backend/target/surefire-reports/
+          if-no-files-found: ignore
+
+  frontend:
+    name: 前端（构建）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # 前端没有单测，这一步仅用于验证能否构建成功。
+      # 拦截的是「只有 npm run build 才会暴露的错误」，例如模板中的语法错误、
+      # 组件引用路径错误；这些问题在 vite dev 下通常不会报出，打包时才出现。
+      - name: 安装依赖
+        run: npm ci
+        working-directory: frontend
+
+      - name: 构建
+        run: npm run build
+        working-directory: frontend
+
+  docker-image:
+    name: 后端镜像（只验证能不能构建出来）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 后端 Dockerfile 为多阶段构建（镜像内自行执行 mvn 打包），因此不需要预先提供 jar。
+      # 此处仅构建、不推送，目的是避免 Dockerfile 变更后长期无人发现：
+      # 它平时只在部署时被使用，一旦失效，会在最不适宜出问题的时候才暴露。
+      - name: 构建后端镜像
+        run: docker build -t ai-novel-backend:ci backend/

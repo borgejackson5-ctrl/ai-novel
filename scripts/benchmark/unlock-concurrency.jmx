@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  并发解锁幂等性压测计划（Redisson 分布式锁 + 幂等双检 + 原子扣减）
+  使用：
+    1. 启动全栈：docker compose up -d (带 build)（后端映射宿主机 8081）
+    2. 重置测试状态（在宿主机执行，user 的 userId 是雪花 ID，按 username 定位）：
+       docker exec ai-novel-mysql mysql -uroot -p"$(grep '^MYSQL_ROOT_PASSWORD=' .env | cut -d= -f2)" ai_drama -e "
+         DELETE FROM t_subscribe_order WHERE user_id=(SELECT id FROM t_user WHERE username='user') AND novel_id=1;
+         DELETE FROM t_coin_log WHERE user_id=(SELECT id FROM t_user WHERE username='user') AND type='UNLOCK';
+         UPDATE t_user SET coin_balance=10000 WHERE username='user';"
+    3. 登录拿 token：
+       curl -s -X POST http://localhost:8081/auth/login -H "Content-Type: application/json" \
+         -d '{"identifier":"user","password":"user123"}'
+    4. 命令行跑（token 填上一步返回的 data.token）：
+       jmeter -n -t unlock-concurrency.jmx -Jtoken=<token> -Jport=8081 -l unlock-run.jtl
+    5. 校验（应只有 1 条 UNLOCK 流水 / 1 个订单 / 余额 9995）：
+       docker exec ai-novel-mysql mysql -uroot -p"$(grep '^MYSQL_ROOT_PASSWORD=' .env | cut -d= -f2)" ai_drama -e "
+         SELECT COUNT(*) FROM t_coin_log WHERE user_id=(SELECT id FROM t_user WHERE username='user') AND type='UNLOCK';
+         SELECT COUNT(*) FROM t_subscribe_order WHERE user_id=(SELECT id FROM t_user WHERE username='user') AND novel_id=1;
+         SELECT coin_balance FROM t_user WHERE username='user';"
+  结果分类（HTTP 状态 + 响应体 code）：
+    200 + code 200  = 首次解锁或幂等返回（首次数以 DB 流水为准 = 1）
+    400 + code 500  = 锁等待超时（SYSTEM_ERROR，预期内）
+  线程模型：100 线程 x 10 次循环 = 1000 个请求同时压同一章节。
+  不用 1000 独立线程：Windows 临时端口会在瞬时万级 TCP 建连时耗尽（BindException），
+  压的是本机 TCP 栈而不是后端。100 线程复用 keep-alive 连接，服务端锁竞争强度不变。
+-->
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="并发解锁幂等性压测" enabled="true">
+      <stringProp name="TestPlan.comments">1000 请求瞬时洪峰解锁同一章节，验证 0 重复扣费</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="HOST" elementType="Argument">
+            <stringProp name="Argument.name">HOST</stringProp>
+            <stringProp name="Argument.value">${__P(host,localhost)}</stringProp>
+          </elementProp>
+          <elementProp name="PORT" elementType="Argument">
+            <stringProp name="Argument.name">PORT</stringProp>
+            <stringProp name="Argument.value">${__P(port,8081)}</stringProp>
+          </elementProp>
+          <elementProp name="TOKEN" elementType="Argument">
+            <stringProp name="Argument.name">TOKEN</stringProp>
+            <stringProp name="Argument.value">${__P(token,)}</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="100线程x10次瞬时洪峰" enabled="true">
+        <intProp name="ThreadGroup.num_threads">100</intProp>
+        <intProp name="ThreadGroup.ramp_time">0</intProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">10</stringProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="登录态与JSON头" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Authorization</stringProp>
+              <stringProp name="Header.value">${TOKEN}</stringProp>
+            </elementProp>
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /subscribe/unlock" enabled="true">
+          <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+          <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/subscribe/unlock</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;novelId&quot;:1,&quot;chapterId&quot;:1}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="聚合报告" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
