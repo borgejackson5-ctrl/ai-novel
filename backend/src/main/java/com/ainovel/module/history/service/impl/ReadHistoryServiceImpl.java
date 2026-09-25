@@ -16,7 +16,6 @@ import com.ainovel.module.novel.spi.ChapterReaderStats;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +35,12 @@ import com.ainovel.module.history.service.ReadHistoryService;
 @RequiredArgsConstructor
 public class ReadHistoryServiceImpl implements ReadHistoryService, ChapterReaderStats {
 
-    /** 去重前先扫多少条历史（按小说去重要有足够窗口；不得大于 MybatisPlusConfig.MAX_LIMIT） */
+    /**
+     * 去重前先扫多少条历史。
+     *
+     * <p>取值需保证「按小说去重」有足够窗口：单本作品多次阅读只占一行，窗口过小会使
+     * 最近阅读列表缺失靠后的作品。窗口由本常量独占决定，不经分页插件（见 {@link #page}）。
+     */
     private static final int SCAN_LIMIT = 200;
 
     private final ReadHistoryMapper readHistoryMapper;
@@ -72,6 +76,10 @@ public class ReadHistoryServiceImpl implements ReadHistoryService, ChapterReader
      *
      * <p>窗口上限 {@link #SCAN_LIMIT}（200）即本接口可回溯的范围上限，满足「最近阅读」
      * 语义，同时避免将全表读入内存。时间筛选走 SQL，会进一步收窄窗口。
+     *
+     * <p>窗口查询使用 {@code LIMIT} 而非分页插件：插件会在拦截器层把 size 截断到全局上限
+     * （{@code MybatisPlusConfig.MAX_LIMIT}），一旦该上限被调低到 {@link #SCAN_LIMIT} 以下，
+     * 回溯范围会静默缩小且无任何报错。改用 LIMIT 后窗口只由本类的常量决定，两者不再耦合。
      */
     public PageResult<ReadHistoryVO> page(int pageNum, int pageSize,
                                           LocalDateTime startTime, LocalDateTime endTime) {
@@ -79,16 +87,16 @@ public class ReadHistoryServiceImpl implements ReadHistoryService, ChapterReader
         int safePageNum = Math.max(1, pageNum);
         int safePageSize = (int) Math.min(Math.max(1, pageSize), PageParam.MAX_PAGE_SIZE);
 
-        Page<ReadHistory> window = readHistoryMapper.selectPage(
-                new Page<>(1, SCAN_LIMIT),
+        List<ReadHistory> window = readHistoryMapper.selectList(
                 new LambdaQueryWrapper<ReadHistory>()
                         .eq(ReadHistory::getUserId, userId)
                         .ge(startTime != null, ReadHistory::getCreateTime, startTime)
                         .lt(endTime != null, ReadHistory::getCreateTime, endTime)
-                        .orderByDesc(ReadHistory::getId));
+                        .orderByDesc(ReadHistory::getId)
+                        .last("LIMIT " + SCAN_LIMIT));
 
         Map<Long, ReadHistory> dedup = new LinkedHashMap<>();
-        for (ReadHistory r : window.getRecords()) {
+        for (ReadHistory r : window) {
             dedup.putIfAbsent(r.getNovelId(), r);
         }
         List<ReadHistoryVO> all = filterReadable(dedup.values().stream()
