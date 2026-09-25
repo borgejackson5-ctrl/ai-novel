@@ -53,8 +53,23 @@ public interface ChapterService extends IService<Chapter> {
     /**
      * 单章元数据（标题/字数/价格），供阅读器锁卡片与当前章展示。
      * 正文接口 {@link #getContent} 对付费章会拒绝返回，故锁章需单独取元数据。
+     *
+     * <p>面向读者，因此包含可见性判定：所属作品不可读或本章未过审（非作者/管理员）时抛
+     * {@code NOT_FOUND}。返回对象含审核状态与驳回理由，缺少该判定即可按 id 递增枚举未过审章节。
      */
     public ChapterVO getChapterVO(Long id);
+
+    /**
+     * 单章元数据，**不做可见性判定**（与 {@link #getChapterVO} 的唯一差别）。
+     *
+     * <p>供「数据范围已由调用方限定」的内部调用使用，理由同
+     * {@link #pageChapterMetaByNovel}：AI 审查任务运行于 MQ 消费线程，
+     * 该线程没有登录上下文，复用读者侧方法会把未公开作品的章节判为不存在，
+     * 而调用方把「章节不存在」当作该章未审成记录 —— 表现为审核结果静默缺失。
+     *
+     * <p>调用方必须自行保证 id 可信（来自任务上下文，而非外部输入）。
+     */
+    public ChapterVO getChapterMetaById(Long id);
 
     /**
      * 全书章节的**轻量目录**（仅投影 id / 章号 / 标题 / 字数，不含正文），按章号升序。

@@ -398,7 +398,7 @@ class AiReviewTaskServiceTest {
     void processChapter_success_recordsIssues() {
         when(taskMapper.selectById(TASK_ID)).thenReturn(task(AiReviewTask.STATUS_RUNNING, 3, 0, 0));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 7));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 7));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenReturn(new ChapterReviewResult(true, null, "总评",
                         List.of(new ChapterReviewResult.Issue(1, "错别字", "沉重要", "改成沉重")),
@@ -419,7 +419,7 @@ class AiReviewTaskServiceTest {
     void processChapter_failed_recordsRefund() {
         when(taskMapper.selectById(TASK_ID)).thenReturn(task(AiReviewTask.STATUS_RUNNING, 3, 0, 0));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 7));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 7));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenReturn(ChapterReviewResult.failedAfterRefund("这次审查没能完成", 3000));
 
@@ -439,7 +439,7 @@ class AiReviewTaskServiceTest {
     void processChapter_quotaExhausted_abortsTask() {
         when(taskMapper.selectById(TASK_ID)).thenReturn(task(AiReviewTask.STATUS_RUNNING, 60, 10, 0));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 11));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 11));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenThrow(new BusinessException(ErrorCode.AI_QUOTA_EXHAUSTED, "今天的免费字数已经用完了"));
 
@@ -456,7 +456,7 @@ class AiReviewTaskServiceTest {
     void processChapter_chapterGone_recordsFailureAndContinues() {
         when(taskMapper.selectById(TASK_ID)).thenReturn(task(AiReviewTask.STATUS_RUNNING, 3, 0, 0));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID))
+        when(chapterService.getChapterMetaById(CHAPTER_ID))
                 .thenThrow(new BusinessException(ErrorCode.NOT_FOUND, "章节不存在"));
 
         service.processChapter(TASK_ID, CHAPTER_ID);
@@ -476,7 +476,7 @@ class AiReviewTaskServiceTest {
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 3, 0, 0))
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 3, 3, 0));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 3));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 3));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenReturn(new ChapterReviewResult(true, null, "总评", List.of(), 3000, 1, 0, 3000, 0));
 
@@ -495,7 +495,7 @@ class AiReviewTaskServiceTest {
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 2, 0, 0))
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 2, 1, 1));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 1));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 1));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenReturn(ChapterReviewResult.failed("这一章没审成"));
 
@@ -511,7 +511,7 @@ class AiReviewTaskServiceTest {
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 2, 0, 0))
                 .thenReturn(task(AiReviewTask.STATUS_RUNNING, 2, 2, 2));
         when(chapterMapper.selectOne(any())).thenReturn(null);
-        when(chapterService.getChapterVO(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 2));
+        when(chapterService.getChapterMetaById(CHAPTER_ID)).thenReturn(chapter(CHAPTER_ID, 2));
         when(chapterReviewService.reviewChapterForTask(CHAPTER_ID, USER_ID, "测试书"))
                 .thenReturn(ChapterReviewResult.failed("这一章没审成"));
 

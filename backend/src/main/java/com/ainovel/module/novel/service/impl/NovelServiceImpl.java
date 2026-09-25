@@ -267,19 +267,14 @@ public class NovelServiceImpl implements NovelService {
      *   <li>待审 / 已拒绝 → 仅作者本人与管理员可见，其余一律 404
      *       （返回 404 而非 403，避免把「这个 id 存在一本未过审的书」这一信息暴露出去）。</li>
      * </ul>
+     *
+     * <p>判定本身收敛在 {@link NovelVisibility#isDetailReadable}：章节元数据、章节目录、章节正文
+     * 走同一口径，避免任一路径遗漏校验而成为绕过入口。
      */
     private void assertDetailReadable(Novel row) {
-        if (row == null) {
+        if (!NovelVisibility.isDetailReadable(row, LoginUserUtil.getUserIdOrNull(), LoginUserUtil.isAdmin())) {
             throw new BusinessException(ErrorCode.NOVEL_NOT_FOUND);
         }
-        if (NovelVisibility.isAuditVisible(row.getAuditStatus()) || LoginUserUtil.isAdmin()) {
-            return;
-        }
-        Long userId = LoginUserUtil.getUserIdOrNull();
-        if (userId != null && userId.equals(row.getUserId())) {
-            return;
-        }
-        throw new BusinessException(ErrorCode.NOVEL_NOT_FOUND);
     }
 
     /**

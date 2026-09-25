@@ -4,7 +4,9 @@ import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.MqConstant;
 import com.ainovel.common.message.ChapterChunkSyncMessage;
 import com.ainovel.common.domain.PageResult;
+import com.ainovel.common.enums.AuditStatusEnum;
 import com.ainovel.common.enums.ChapterAuditStatusEnum;
+import com.ainovel.common.enums.CommonStatusEnum;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.mq.MqSender;
 import com.ainovel.common.util.CacheHelper;
@@ -83,6 +85,19 @@ class ChapterServiceTest {
         return novel;
     }
 
+    /**
+     * 可读的作品：审核通过 + 已上架，任何人（含未登录）都能通过可见性判定。
+     *
+     * <p>与 {@link #ownerNovel} 分开：后者不带审核状态，仅供归属校验类用例使用，
+     * 在可见性判定下等同「未过审」，会先于归属校验被拒。
+     */
+    private Novel readableNovel(Long novelId, Long ownerId) {
+        Novel novel = ownerNovel(novelId, ownerId);
+        novel.setStatus(CommonStatusEnum.ENABLED.getCode());
+        novel.setAuditStatus(AuditStatusEnum.PASS.getCode());
+        return novel;
+    }
+
     @Test
     @DisplayName("分页目录 → 缓存 key 含页/条数 + 回源分页映射")
     void pageVOByNovel_maps() {
@@ -96,6 +111,7 @@ class ChapterServiceTest {
         page.setRecords(List.of(c1));
         page.setTotal(101);
         when(chapterMapper.selectPage(any(), any())).thenReturn(page);
+        when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
 
         PageResult<ChapterVO> result = chapterService.pageVOByNovel(100L, 2, 50);
 
@@ -111,11 +127,14 @@ class ChapterServiceTest {
     void getChapterVO_maps() {
         Chapter c = new Chapter();
         c.setId(200L);
+        c.setNovelId(100L);
         c.setChapterNo(3);
         c.setTitle("第三回");
         c.setWordCount(300);
         c.setUnlockCoin(5);
+        c.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
         when(chapterMapper.selectById(200L)).thenReturn(c);
+        when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
 
         ChapterVO vo = chapterService.getChapterVO(200L);
 
@@ -134,7 +153,100 @@ class ChapterServiceTest {
     }
 
     @Test
-    @DisplayName("正文 → 免费章填充上/下一章 ID（不查订单），可见章不查 novel")
+    @DisplayName("单章元数据 → 所属作品查不到（含逻辑删除）时 404")
+    void getChapterVO_novelGone_throws() {
+        Chapter c = new Chapter();
+        c.setId(200L);
+        c.setNovelId(100L);
+        c.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
+        when(chapterMapper.selectById(200L)).thenReturn(c);
+        when(novelMapper.selectById(100L)).thenReturn(null);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> chapterService.getChapterVO(200L));
+        assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("单章元数据 → 未过审章节对非作者 404（否则驳回理由可按 id 递增枚举）")
+    void getChapterVO_unpublished_hiddenFromOthers() {
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserIdOrNull).thenReturn(1L);
+            mocked.when(LoginUserUtil::isAdmin).thenReturn(false);
+            Chapter c = new Chapter();
+            c.setId(200L);
+            c.setNovelId(100L);
+            c.setAuditStatus(ChapterAuditStatusEnum.REJECT.getCode());
+            c.setAuditResult("拒绝:存在违规内容");
+            when(chapterMapper.selectById(200L)).thenReturn(c);
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L)); // 作者 9，非当前用户 1
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> chapterService.getChapterVO(200L));
+            assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    @DisplayName("单章元数据 → 未过审章节作者本人可读（否则看不到驳回理由）")
+    void getChapterVO_unpublished_visibleToOwner() {
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserIdOrNull).thenReturn(1L);
+            mocked.when(LoginUserUtil::isAdmin).thenReturn(false);
+            Chapter c = new Chapter();
+            c.setId(200L);
+            c.setNovelId(100L);
+            c.setAuditStatus(ChapterAuditStatusEnum.REJECT.getCode());
+            c.setAuditResult("拒绝:存在违规内容");
+            when(chapterMapper.selectById(200L)).thenReturn(c);
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 1L)); // 作者即当前用户
+
+            assertEquals("拒绝:存在违规内容", chapterService.getChapterVO(200L).getAuditResult());
+        }
+    }
+
+    @Test
+    @DisplayName("章节目录 → 所属作品不可读时 404，且判定在缓存之前")
+    void pageVOByNovel_novelNotReadable_throws() {
+        when(novelMapper.selectById(100L)).thenReturn(null);
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> chapterService.pageVOByNovel(100L, 1, 50));
+
+        assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
+        // 判定在缓存之外：放进回源函数会让作者视角的一次访问把结果写进公共缓存，
+        // 之后匿名请求直接命中缓存绕过判定
+        verify(cacheHelper, never()).get(anyString(), any(), any(), anyLong(), any());
+    }
+
+    @Test
+    @DisplayName("正文 → 所属作品已删除时 404（此前只校验章节自身状态，已删作品的正文可匿名读取）")
+    void getContent_novelGone_throws() {
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserIdOrNull).thenReturn(null);
+            mocked.when(LoginUserUtil::isAdmin).thenReturn(false);
+            Chapter free = new Chapter();
+            free.setId(200L);
+            free.setNovelId(100L);
+            free.setChapterNo(1);
+            free.setUnlockCoin(0);
+            free.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
+            when(chapterMapper.selectOne(any(), anyBoolean())).thenReturn(free);
+            when(novelMapper.selectById(100L)).thenReturn(null);
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> chapterService.getContent(200L));
+
+            assertEquals(ErrorCode.NOT_FOUND, ex.getErrorCode());
+            // 仅断言 404 不够：正文回源返回 null 时也是 404，那样本用例在「去掉作品可见性判定」的
+            // 变异下仍会通过（假测试）。加这两条把 404 的来源钉在可见性门上
+            verify(chapterAccessChecker, never()).canRead(any(), anyLong(), anyLong());
+            verify(cacheHelper, never()).get(anyString(), any(), any(), anyLong(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("正文 → 免费章填充上/下一章 ID（不查订单）；作品可见性只查一次作品")
     void getContent_fillsNeighbors() {
         try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
             mocked.when(LoginUserUtil::getUserIdOrNull).thenReturn(1L);
@@ -146,9 +258,10 @@ class ChapterServiceTest {
             cur.setContent("正文");
             cur.setWordCount(300);
             cur.setUnlockCoin(0); // 免费章，跳过解锁校验
-            cur.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode()); // 已通过，跳过 novel 可见性校验
+            cur.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
             // 回源取正文走 getById → selectById
             when(chapterMapper.selectById(200L)).thenReturn(cur);
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
 
             Chapter prev = new Chapter();
             prev.setId(199L);
@@ -163,7 +276,8 @@ class ChapterServiceTest {
             assertEquals("正文", vo.getContent());
             assertEquals(199L, vo.getPrevChapterId());
             assertEquals(201L, vo.getNextChapterId());
-            verify(novelMapper, never()).selectById(anyLong());
+            // 章节可见不等于作品可读：此处必须查一次作品（主键查询），且不因填充上/下章而重复查
+            verify(novelMapper, times(1)).selectById(100L);
         }
     }
 
@@ -181,7 +295,8 @@ class ChapterServiceTest {
             cur.setAuditStatus(ChapterAuditStatusEnum.WAIT.getCode());
             // 权限判断走元数据投影查询（selectOne 两参重载）
             when(chapterMapper.selectOne(any(), anyBoolean())).thenReturn(cur);
-            when(novelMapper.selectById(100L)).thenReturn(ownerNovel(100L, 9L)); // 作者是 9，非当前用户 1
+            // 作品已过审（可读），但作者是 9，与当前用户 1 不同 → 由章节级「待审」检查拦下
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
 
             BusinessException ex = assertThrows(BusinessException.class,
                     () -> chapterService.getContent(200L));
@@ -206,6 +321,7 @@ class ChapterServiceTest {
             free.setUnlockCoin(0);
             free.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
             when(chapterMapper.selectById(200L)).thenReturn(free);
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
             // 第一次是权限判定的元数据投影；后两次是 fillNeighbors 找上下章
             when(chapterMapper.selectOne(any(), anyBoolean()))
                     .thenReturn(free).thenReturn(null).thenReturn(null);
@@ -231,6 +347,7 @@ class ChapterServiceTest {
             paid.setUnlockCoin(5);
             paid.setAuditStatus(ChapterAuditStatusEnum.PASS.getCode());
             when(chapterMapper.selectOne(any(), anyBoolean())).thenReturn(paid);
+            when(novelMapper.selectById(100L)).thenReturn(readableNovel(100L, 9L));
 
             BusinessException ex = assertThrows(BusinessException.class,
                     () -> chapterService.getContent(200L));

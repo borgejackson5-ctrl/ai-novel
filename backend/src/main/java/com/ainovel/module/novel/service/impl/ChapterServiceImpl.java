@@ -18,6 +18,7 @@ import com.ainovel.module.novel.dao.ChapterMapper;
 import com.ainovel.module.novel.dao.NovelMapper;
 import com.ainovel.module.novel.domain.entity.Chapter;
 import com.ainovel.module.novel.domain.entity.Novel;
+import com.ainovel.module.novel.domain.NovelVisibility;
 import com.ainovel.module.novel.domain.form.ChapterSaveForm;
 import com.ainovel.module.novel.domain.vo.ChapterContentVO;
 import com.ainovel.module.novel.domain.vo.ChapterVO;
@@ -89,11 +90,43 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
     /**
      * 分页目录（读者视角）：只投影元信息列，按「书:页:条数」缓存。
      * 大书（上千章）不再一次性拉全量，主页目录/阅读器抽屉按页拉取。
+     *
+     * <p>作品可见性判定在缓存之前：缓存只按「书:页:条数」存值，不含调用方身份，
+     * 若把判定放进回源函数，一次作者视角的访问会把结果写进公共缓存，之后匿名请求直接命中。
      */
     public PageResult<ChapterVO> pageVOByNovel(Long novelId, long pageNum, long pageSize) {
+        requireReadableNovel(novelId);
         return cacheHelper.get(CHAPTER_PAGE_KEY_PREFIX + novelId + ":" + pageNum + ":" + pageSize,
                 CHAPTER_PAGE_TYPE, () -> queryChapterPage(novelId, pageNum, pageSize),
                 CHAPTER_LIST_TTL_MINUTES, TimeUnit.MINUTES);
+    }
+
+    /**
+     * 所属作品可读性门：章节元数据、章节目录、章节正文三条读者侧读路径共用。
+     *
+     * <p>判据与作品详情一致（{@link NovelVisibility#isDetailReadable}）：未过审仅作者与管理员可读，
+     * 查不到（含逻辑删除）对所有人不可读。章节自身状态另有各自的过滤（目录与元数据按章节审核状态、
+     * 正文按章节审核状态与解锁情况），两者是「且」的关系。
+     *
+     * <p>抛 404 而非 403，理由同作品详情：不暴露「这个 id 存在一本未过审的书」。
+     *
+     * @return 所属作品实体，供调用方复用，避免二次查询
+     */
+    private Novel requireReadableNovel(Long novelId) {
+        Novel novel = novelMapper.selectById(novelId);
+        if (!NovelVisibility.isDetailReadable(novel, LoginUserUtil.getUserIdOrNull(), LoginUserUtil.isAdmin())) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "章节不存在");
+        }
+        return novel;
+    }
+
+    /** 当前用户是否为该作品作者本人或管理员（未过审章节的放行条件） */
+    private static boolean isOwnerOrAdmin(Novel novel) {
+        if (LoginUserUtil.isAdmin()) {
+            return true;
+        }
+        Long userId = LoginUserUtil.getUserIdOrNull();
+        return userId != null && userId.equals(novel.getUserId());
     }
 
     private PageResult<ChapterVO> queryChapterPage(Long novelId, long pageNum, long pageSize) {
@@ -104,7 +137,7 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
                         .in("audit_status", ChapterAuditStatusEnum.PASS.getCode(), ChapterAuditStatusEnum.MODIFY_WAIT.getCode())
                         .orderByAsc("chapter_no"));
         List<ChapterVO> voList = result.getRecords().stream()
-                .map(c -> BeanUtil.copyProperties(c, ChapterVO.class)).toList();
+                .map(ChapterServiceImpl::toChapterVO).toList();
         return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), voList);
     }
 
@@ -137,19 +170,46 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
                         .eq("novel_id", novelId)
                         .orderByAsc("chapter_no"));
         List<ChapterVO> voList = result.getRecords().stream()
-                .map(c -> BeanUtil.copyProperties(c, ChapterVO.class)).toList();
+                .map(ChapterServiceImpl::toChapterVO).toList();
         return PageResult.of(result.getTotal(), safePageNum, safePageSize, voList);
     }
 
     /**
      * 单章元数据（标题/字数/价格），供阅读器锁卡片与当前章展示。
      * 正文接口 {@link #getContent} 对付费章会拒绝返回，故锁章需单独取元数据。
+     *
+     * <p>返回对象含 {@code auditStatus} 与 {@code auditResult}（驳回理由），因此必须同时判两层：
+     * 所属作品可见性，以及章节自身的审核状态。缺少后一层时，未过审章节的审核结论可按 id 递增枚举。
+     * 未过审章节对作者本人与管理员放行，与 {@link #getContent} 一致，否则作者无法预览自己的待审章。
      */
     public ChapterVO getChapterVO(Long id) {
         Chapter chapter = getById(id);
         if (chapter == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "章节不存在");
         }
+        Novel novel = requireReadableNovel(chapter.getNovelId());
+        if (!ChapterAuditStatusEnum.isVisible(chapter.getAuditStatus()) && !isOwnerOrAdmin(novel)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "章节不存在");
+        }
+        return toChapterVO(chapter);
+    }
+
+    /**
+     * 单章元数据，不做可见性判定，供内部调用（接口上有与 {@link #getChapterVO} 的差异说明）。
+     *
+     * <p>写路径也走本方法：作者正在编辑的章可能尚未过审，若复用读者侧方法，
+     * 未公开作品下的章节会被判为不存在，而写操作此前已成功，表现为「改完却报错」。
+     */
+    public ChapterVO getChapterMetaById(Long id) {
+        Chapter chapter = getById(id);
+        if (chapter == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "章节不存在");
+        }
+        return toChapterVO(chapter);
+    }
+
+    /** 章节实体到 VO 的映射，不做任何可见性判定（判定由各调用入口各自承担） */
+    private static ChapterVO toChapterVO(Chapter chapter) {
         return BeanUtil.copyProperties(chapter, ChapterVO.class);
     }
 
@@ -166,7 +226,7 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
                 .select("id", "chapter_no", "title", "word_count")
                 .eq("novel_id", novelId)
                 .orderByAsc("chapter_no"));
-        return list.stream().map(c -> BeanUtil.copyProperties(c, ChapterVO.class)).toList();
+        return list.stream().map(ChapterServiceImpl::toChapterVO).toList();
     }
 
     /**
@@ -203,14 +263,12 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
         if (meta == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "章节不存在");
         }
+        // 所属作品不可读（逻辑删除 / 未过审且非作者）时整本章节都不可读，返回 404。
+        // 该判定与目录、元数据接口共用同一实现，避免任一路径成为绕过入口。
+        Novel novel = requireReadableNovel(meta.getNovelId());
         // 待审/拒绝章（读者不可见）：仅作者本人/管理员放行，其余拒绝
-        if (!ChapterAuditStatusEnum.isVisible(meta.getAuditStatus())) {
-            Novel novel = novelMapper.selectById(meta.getNovelId());
-            boolean owner = userId != null && novel != null && novel.getUserId() != null
-                    && novel.getUserId().equals(userId);
-            if (!owner && !LoginUserUtil.isAdmin()) {
-                throw new BusinessException(ErrorCode.FORBIDDEN, "该章节待审核");
-            }
+        if (!ChapterAuditStatusEnum.isVisible(meta.getAuditStatus()) && !isOwnerOrAdmin(novel)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "该章节待审核");
         }
         boolean free = meta.getUnlockCoin() == null || meta.getUnlockCoin() == 0;
         // 付费章：作者本人 / 管理员免付费直读，或本章/整本已解锁
@@ -370,7 +428,8 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
         // 不重算会出现「单章已调价、整本包价仍为旧值」的折扣漏洞。
         afterChapterChange(chapter.getNovelId(), chapter.getId(), true);
         sendChapterAudit(id);
-        return getChapterVO(id);
+        // 写路径取无判定变体：本章此刻大概率是待审状态，走读者侧方法会自我拒绝
+        return getChapterMetaById(id);
     }
 
     /**

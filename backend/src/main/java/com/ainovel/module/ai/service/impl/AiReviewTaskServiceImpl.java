@@ -706,7 +706,9 @@ public class AiReviewTaskServiceImpl implements AiReviewTaskService {
 
     private ChapterVO chapterOf(Long chapterId) {
         try {
-            return chapterService.getChapterVO(chapterId);
+            // 用无可见性判定的变体：本方法运行于 MQ 消费线程，无登录上下文，
+            // 读者侧方法会把未公开作品的章节判为不存在，而此处的 null 会被记成「该章未审成」
+            return chapterService.getChapterMetaById(chapterId);
         } catch (BusinessException e) {
             return null;   // 章节已删除：非故障，按「该章未审成」记录一条
         }
