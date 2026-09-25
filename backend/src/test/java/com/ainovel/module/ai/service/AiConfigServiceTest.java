@@ -102,7 +102,7 @@ class AiConfigServiceTest {
     }
 
     @Test
-    @DisplayName("额度不够这一次 → 抛 AI_QUOTA_EXHAUSTED，且不留下占用痕迹")
+    @DisplayName("额度不够这一次 → 抛 AI_QUOTA_EXHAUSTED，并归还刚占用的平台配额")
     void getActiveConfigForUser_notEnough_throws() {
         when(aiConfigMapper.selectById(1L)).thenReturn(platformConfig());
         when(userAiConfigMapper.selectOne(any())).thenReturn(userConfig(30000));
@@ -117,6 +117,13 @@ class AiConfigServiceTest {
             BusinessException ex = assertThrows(BusinessException.class,
                     () -> service.getActiveConfigForUser(5L, 30000));
             assertEquals(ErrorCode.AI_QUOTA_EXHAUSTED, ex.getErrorCode());
+
+            // 平台计数器记的是「实际发生的模型调用次数」，本分支一次模型都没调。
+            // 不归还则每次重试都白吃一次全局配额，当日额度已用尽的账号反复请求即可
+            // 把平台配额清空，此后所有用户都收到 AI_PLATFORM_BUSY
+            verify(dailyQuotaLimiter).release("ai:platform:usage:", 1);
+            // 用户额度这一次根本没占用成功，不能归还（否则凭空增加额度）
+            verify(dailyQuotaLimiter, never()).release(startsWith("ai:user:usage:"), anyLong());
         }
     }
 

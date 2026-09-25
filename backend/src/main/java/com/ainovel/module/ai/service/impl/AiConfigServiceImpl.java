@@ -208,6 +208,11 @@ public class AiConfigServiceImpl implements AiConfigService {
             platform.setQuotaChargedUnits(units);
             return platform;
         }
+        // 用户额度不足时归还刚才占用的平台配额。平台计数器记录的是「实际发生的模型调用次数」，
+        // 而此处尚未调用模型：不归还则该次请求白白消耗一次全局配额，当日额度已用尽的账号
+        // 反复重试即可把平台配额耗尽，此后所有用户都收到「AI 服务繁忙」。
+        // 归还与占用之间非严格原子，但归还方向偏保守（最多减至 0，不会放大配额）。
+        dailyQuotaLimiter.release(PLATFORM_USAGE_KEY_PREFIX, 1);
         throw new BusinessException(ErrorCode.AI_QUOTA_EXHAUSTED, QUOTA_EXHAUSTED_MSG);
     }
 
