@@ -10,9 +10,19 @@ spring:
   # 业务模块在 module/<name>/package-info.java 标注；检测与校验见 ModularityTests。
   modulith:
     detection-strategy: explicitly-annotated
-  # 本地敏感配置（OSS/文生图密钥），gitignored；不存在时自动忽略
+  # 本地敏感配置（库口令、Redis 口令、邮箱授权码、OSS 与文生图密钥）：含真实凭据，
+  # 由 .gitignore 保护，且被 pom 的 <resources> 排除出 classpath，因此只能按文件路径加载。
+  #
+  # 若改回 optional:classpath: 形式，一旦该文件被放回 src/main/resources，它会随
+  # `mvn package` 进入 jar 的 BOOT-INF/classes，随产物外泄。
+  #
+  # 列出多个候选路径是为了不依赖启动时的工作目录：从 backend/ 启动（IDEA 默认与
+  # mvn spring-boot:run）命中前两条，从仓库根启动命中第三条。均不存在时全部跳过。
   config:
-    import: optional:classpath:application-local.yaml
+    import:
+      - optional:file:src/main/resources/application-local.yaml
+      - optional:file:application-local.yaml
+      - optional:file:backend/src/main/resources/application-local.yaml
   servlet:
     multipart:
       max-file-size: 20MB

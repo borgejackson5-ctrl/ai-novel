@@ -248,6 +248,27 @@
 
     <build>
         <finalName>ai-novel-backend</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!--
+                  排掉本地密钥配置：它含数据库口令、Redis 口令、邮箱授权码、OSS 与文生图密钥。
+                  .gitignore 让它不进仓库、.dockerignore 让它不进镜像，但 `mvn package` 直接
+                  按 src/main/resources 打包，两者都管不到 —— 打包出的 jar 里确实带着这个文件
+                  （BOOT-INF/classes/application-local.yaml）。
+
+                  排除后该文件不在 classpath 上，运行时改从工作目录按 file: 路径加载
+                  （见 application.yaml 的 spring.config.import），因此本地开发不受影响；
+                  文件不存在时该项为 optional，直接跳过。
+
+                  新增资源目录时注意：本元素一旦声明即覆盖 Maven 默认值，需显式包含。
+                -->
+                <excludes>
+                    <exclude>application-local.yaml</exclude>
+                    <exclude>application-local.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
