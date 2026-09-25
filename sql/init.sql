@@ -386,6 +386,8 @@ CREATE TABLE `t_bookshelf` (
 
 -- ----------------------------
 -- 阅读历史表（追加写，书名/章名冗余）
+-- uk_user_chapter 是 upsertIgnoreDuplicate 的依据：缺少该唯一键时 ON DUPLICATE KEY UPDATE
+-- 不报错也不更新，而是插入新行，表现为同一章在历史里重复出现且无任何异常
 -- ----------------------------
 DROP TABLE IF EXISTS `t_read_history`;
 CREATE TABLE `t_read_history` (
@@ -400,6 +402,7 @@ CREATE TABLE `t_read_history` (
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `is_deleted`  TINYINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_chapter` (`user_id`, `chapter_id`),
     KEY `idx_user` (`user_id`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='阅读历史表';
 
