@@ -14,9 +14,14 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -47,8 +52,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>后续发现这是整族问题：{@code @RestControllerAdvice} 的异常解析器注册顺序在
  * Spring 自带的 {@code DefaultHandlerExceptionResolver} 之前，因此凡未被此处显式接收的
  * 标准异常，都不会由该解析器映射为 4xx，而是落入兜底变成 500。
- * 八种「调用方自己写错」的请求（请求体损坏、缺参数、id 不是数字、Content-Type 不正确等）
- * 全部返回 500「系统繁忙」。最后一节是针对该性质的结构性断言。
+ * 「调用方自己写错」的请求（请求体损坏、缺参数、id 不是数字、Content-Type 不正确、
+ * 文件接口收到非 multipart 请求、上传超过大小上限等）全部返回 500「系统繁忙」。
+ * 最后一节是针对该性质的结构性断言，逐个类型约束覆盖情况。
  */
 class GlobalExceptionHandlerTest {
 
@@ -200,6 +206,81 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("上传接口收到非 multipart 请求 → 400，不是 500")
+    void notMultipartRequest_returns400() {
+        // Spring 6.2 在解析 MultipartFile 参数、而请求不是 multipart 时抛出该异常
+        // （RequestParamMethodArgumentResolver#handleMissingValueInternal）。
+        // 未显式接收时落入兜底分支，调用方拿到「系统繁忙」，会去查服务端故障
+        MultipartException e = new MultipartException("Current request is not a multipart request");
+
+        ResponseEntity<ResponseDTO<Void>> resp = handler.handleMultipart(e, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
+        assertEquals(ErrorCode.PARAM_ERROR.getCode(), resp.getBody().getCode());
+        assertFalse(resp.getBody().getMsg().contains("multipart request"),
+                "异常原话是英文实现细节，不进给调用方的提示");
+    }
+
+    @Test
+    @DisplayName("上传超过大小上限 → 413，且带上限值")
+    void uploadTooLarge_returns413WithLimit() {
+        MaxUploadSizeExceededException e = new MaxUploadSizeExceededException(20L * 1024 * 1024);
+
+        ResponseEntity<ResponseDTO<Void>> resp = handler.handleUploadTooLarge(e, request);
+
+        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, resp.getStatusCode(),
+                "文件过大不是请求格式错误：报 400 会把排查方向引向 multipart 写法");
+        assertTrue(resp.getBody().getMsg().contains("20MB"),
+                "上限取自异常携带的配置值，改 spring.servlet.multipart.max-file-size 时文案自动跟上");
+    }
+
+    @Test
+    @DisplayName("上限由容器判定（异常携带 -1 表示未知）→ 回退配置值，不能渲染成「最大 0MB」")
+    void uploadTooLarge_unknownLimit_fallsBackToConfiguredSize() {
+        // 实测：上限由 Tomcat 的 Servlet Part 实现判定时，Spring 传入 -1
+        MaxUploadSizeExceededException e = new MaxUploadSizeExceededException(-1);
+
+        ResponseEntity<ResponseDTO<Void>> resp = handler.handleUploadTooLarge(e, request);
+
+        assertEquals(HttpStatus.PAYLOAD_TOO_LARGE, resp.getStatusCode());
+        assertTrue(resp.getBody().getMsg().contains("20MB"),
+                "-1 是「未知」而非上限，直接相除会得到「单个文件最大 0MB」。实际：" + resp.getBody().getMsg());
+    }
+
+    @Test
+    @DisplayName("表单字段类型绑定失败 → 中性文案，不透出 Spring 的转换诊断")
+    void bindingFailure_usesNeutralMessage() {
+        // 该 FieldError 的默认消息就是 Spring 在类型转换失败时生成的诊断文本，
+        // 含 Java 类名与属性名。绑定失败由 bindingFailure=true 标记
+        FieldError fieldError = new FieldError("novelQueryForm", "pageNum", "abc", true,
+                new String[]{"typeMismatch"}, null,
+                "Failed to convert property value of type 'java.lang.String' to required type "
+                        + "'java.lang.Long' for property 'pageNum'");
+        BeanPropertyBindingResult binding = new BeanPropertyBindingResult(new Object(), "novelQueryForm");
+        binding.addError(fieldError);
+
+        ResponseEntity<ResponseDTO<Void>> resp = handler.handleValid(new BindException(binding), request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
+        assertTrue(resp.getBody().getMsg().contains("pageNum"), "字段名要留，否则定位不到是哪个参数");
+        assertFalse(resp.getBody().getMsg().contains("java.lang"),
+                "Java 类名属实现细节，不进给调用方的提示");
+    }
+
+    @Test
+    @DisplayName("注解校验失败仍透出开发者写的消息（中性化不能把有用信息一起抹掉）")
+    void annotationValidation_keepsCustomMessage() {
+        FieldError fieldError = new FieldError("ResumeSerialForm", "reason", "略", false,
+                new String[]{"Size"}, null, "理由需在 10~500 字之间");
+        BeanPropertyBindingResult binding = new BeanPropertyBindingResult(new Object(), "ResumeSerialForm");
+        binding.addError(fieldError);
+
+        ResponseEntity<ResponseDTO<Void>> resp = handler.handleValid(new BindException(binding), request);
+
+        assertEquals("理由需在 10~500 字之间", resp.getBody().getMsg());
+    }
+
+    @Test
     @DisplayName("Content-Type 不是接口要的 → 415（不是 500）")
     void mediaTypeNotSupported_returns415() {
         HttpMediaTypeNotSupportedException e = new HttpMediaTypeNotSupportedException(
@@ -281,6 +362,8 @@ class GlobalExceptionHandlerTest {
                 MissingServletRequestParameterException.class,   // 缺必填查询参数
                 MethodArgumentTypeMismatchException.class,       // 路径变量或参数不是合法类型
                 MissingServletRequestPartException.class,        // multipart 缺文件
+                MultipartException.class,                        // 文件接口收到非 multipart 请求体
+                MaxUploadSizeExceededException.class,            // 上传超过大小上限（须与父类分开声明）
                 HttpMediaTypeNotSupportedException.class,        // Content-Type 不支持
                 HttpMediaTypeNotAcceptableException.class,       // Accept 谈不拢
                 HttpRequestMethodNotSupportedException.class,    // 方法用错
@@ -293,7 +376,32 @@ class GlobalExceptionHandlerTest {
             assertTrue(covered, t.getSimpleName() + " 没有在 GlobalExceptionHandler 里被显式收下 —— "
                     + "它会掉进兜底的 Exception 分支变成 500「系统繁忙」"
                     + "（原因：advice 的解析器注册顺序在 Spring 自带的前面）。"
-                    + "实测八种「调用方写错」的请求全中，别把已收的那几条删了。");
+                    + "上传相关的两类已实测：非 multipart 请求与超过 20MB 的文件，原先都是 500。");
         }
+    }
+
+    /**
+     * 守门：上传超限必须与父类分开声明。
+     *
+     * <p>覆盖性断言用的是 {@code isAssignableFrom}，因此声明父类 {@link MultipartException} 会让
+     * {@link MaxUploadSizeExceededException} 在上一测试里「看起来已覆盖」。实际两者语义不同：
+     * 前者是请求格式不对（400），后者是文件过大（413）。只声明父类时超限上传被答复为
+     * 「请以 multipart/form-data 形式上传文件」，把「文件太大」说成「格式不对」。
+     */
+    @Test
+    @DisplayName("守门：超限上传有独立处理器，不被父类的处理器吞掉")
+    void uploadTooLarge_hasOwnHandler() {
+        boolean exact = false;
+        for (Method m : GlobalExceptionHandler.class.getDeclaredMethods()) {
+            ExceptionHandler ann = m.getAnnotation(ExceptionHandler.class);
+            if (ann == null) {
+                continue;
+            }
+            if (Arrays.asList(ann.value()).contains(MaxUploadSizeExceededException.class)) {
+                exact = true;
+            }
+        }
+        assertTrue(exact, "MaxUploadSizeExceededException 必须单独声明：Spring 按最具体类型选择处理器，"
+                + "与 MultipartException 合并声明时超限上传会走错分支");
     }
 }

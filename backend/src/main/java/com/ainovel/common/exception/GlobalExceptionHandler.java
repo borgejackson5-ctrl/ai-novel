@@ -9,11 +9,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpConnectException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -42,6 +46,15 @@ import java.io.IOException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 单文件上传上限，与 {@code spring.servlet.multipart.max-file-size} 同源。
+     *
+     * <p>字段自带默认值：无 Spring 上下文的单测中 {@code @Value} 不会被注入，
+     * 此时仍为 20MB，不会退化为 0。
+     */
+    @Value("${spring.servlet.multipart.max-file-size:20MB}")
+    private DataSize maxFileSize = DataSize.ofMegabytes(20);
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ResponseDTO<Void>> handleBusiness(BusinessException e, HttpServletRequest request) {
@@ -86,7 +99,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     public ResponseEntity<ResponseDTO<Void>> handleValid(BindException e, HttpServletRequest request) {
         FieldError fieldError = e.getBindingResult().getFieldError();
-        String msg = fieldError == null ? "参数校验失败" : fieldError.getDefaultMessage();
+        String msg = validationMessage(fieldError);
         // 校验失败留痕，便于联调与线上问题排查
         log.warn("参数校验失败: uri={}, field={}, rejected={}, msg={}",
                 request.getRequestURI(),
@@ -212,6 +225,45 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 上传请求的大小超出 {@code spring.servlet.multipart.max-file-size} → 413。
+     *
+     * <p>必须单独捕获而不能依赖 {@link MultipartException} 的处理器：
+     * {@code MaxUploadSizeExceededException} 是其子类，若只声明父类，超限上传会被答复为
+     * 「请以 multipart/form-data 提交」——把「文件过大」说成「格式不对」，是误导性的排查方向。
+     * Spring 按最具体类型选择处理器，因此两者同时声明时本方法优先。
+     *
+     * <p>上限值优先取异常携带的值，为未知时回退到本类读到的配置值：上限由容器
+     * （Tomcat 的 Servlet Part 实现）判定时，{@code getMaxUploadSize()} 返回 {@code -1} 表示未知，
+     * 直接用它渲染会得到「单个文件最大 0MB」。
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ResponseDTO<Void>> handleUploadTooLarge(MaxUploadSizeExceededException e,
+                                                                 HttpServletRequest request) {
+        long fromException = e.getMaxUploadSize();
+        long maxBytes = fromException > 0 ? fromException : maxFileSize.toBytes();
+        log.warn("上传文件超过大小上限: uri={}, 异常携带={} 字节, 生效上限={} 字节",
+                request.getRequestURI(), fromException, maxBytes);
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ResponseDTO.error(ErrorCode.PARAM_ERROR,
+                        "文件过大，单个文件最大 " + (maxBytes / 1024 / 1024) + "MB"));
+    }
+
+    /**
+     * 上传请求的构造有误，最常见的是以非 {@code multipart/form-data} 的 {@code Content-Type}
+     * 提交到文件接口 → 400。此时 Spring 在解析参数阶段即抛出，异常文本为
+     * {@code Current request is not a multipart request}，属调用方请求格式问题，不应报 500。
+     *
+     * <p>覆盖的另一个场景是 multipart 请求体本身无法解析（边界串缺失或被截断）。
+     */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ResponseDTO<Void>> handleMultipart(MultipartException e,
+                                                            HttpServletRequest request) {
+        log.warn("上传请求格式有误: uri={}, detail={}", request.getRequestURI(), rootCauseLine(e));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseDTO.error(ErrorCode.PARAM_ERROR, "请以 multipart/form-data 形式上传文件"));
+    }
+
+    /**
      * 请求的 {@code Content-Type} 与接口要求不符（例如 {@code application/json} 的接口
      * 收到 {@code text/plain}）→ 415。
      *
@@ -264,6 +316,29 @@ public class GlobalExceptionHandler {
             return "缺少上传的文件：" + ex.getRequestPartName();
         }
         return "请求参数不完整或格式不对";
+    }
+
+    /**
+     * 校验类异常（{@code Validator} 抛出）返回给用户的文案。
+     *
+     * <p>区分两种失败：注解校验失败（{@code @Min} / {@code @Size} 等）的默认消息由开发者撰写，
+     * 可直接透出；**类型绑定失败**（如 {@code pageNum=abc} 绑到 {@code Long}）的默认消息是 Spring
+     * 生成的诊断文本，形如
+     * {@code Failed to convert property value of type 'java.lang.String' to required type 'java.lang.Long' for property 'pageNum'}，
+     * 含 Java 类名、属性名与原始入参。此类文本属实现细节，改为中性文案，与
+     * {@link #badParamMessage} 处理 {@code @RequestParam} 类型不匹配的方式一致。
+     *
+     * <p>保留字段名：它取自调用方自己的请求，不构成额外信息暴露，且是定位问题所必需的。
+     */
+    private static String validationMessage(FieldError fieldError) {
+        if (fieldError == null) {
+            return "参数校验失败";
+        }
+        if (fieldError.isBindingFailure()) {
+            return "参数 " + fieldError.getField() + " 的值不对";
+        }
+        String msg = fieldError.getDefaultMessage();
+        return (msg == null || msg.isBlank()) ? "参数校验失败" : msg;
     }
 
     /** 取最内层 cause 的描述，压缩为一行并截断，便于日志阅读 */
