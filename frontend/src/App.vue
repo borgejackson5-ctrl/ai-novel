@@ -90,8 +90,6 @@ const onUserCmd = (cmd) => {
       </div>
 
       <div class="user">
-        <!-- 游客（未登录）：不显示「0 金币」和空白头像，二者均为登录后才有，
-             显示会使用户误判账号状态异常。改为直接提供登录入口 -->
         <NoticeBell v-if="userStore.token" />
         <div v-if="userStore.token" class="coin-tag" @click="go('/profile')">
           <el-icon class="coin-icon"><Coin /></el-icon>

@@ -222,8 +222,6 @@ onMounted(async () => {
 
     <div v-if="!loading && !list.length" class="empty-tip">
       没有找到匹配的作品，换个关键词或分类试试
-      <!-- 降级（AI 不可用）且零结果时后端会返回一组分类入口，
-           提供一个可直接点击的出口，优于让用户自行另想关键词 -->
       <div v-if="smartInfo && smartInfo.categories && smartInfo.categories.length" class="cat-suggest">
         <span class="cat-hint">也可以直接看看这些分类：</span>
         <el-tag

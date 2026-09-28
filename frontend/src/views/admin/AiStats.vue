@@ -28,9 +28,7 @@ onMounted(load)
     <div class="page-head">
       <div>
         <h2 class="section-title">AI 用量</h2>
-        <span class="count">
-          采集自 {{ data?.generatedAt || '-' }} —— {{ data?.counterScope || '' }}
-        </span>
+        <span class="count">启动于 {{ data?.startedAt || '-' }}</span>
       </div>
       <el-button round @click="load">刷新</el-button>
     </div>
@@ -50,13 +48,13 @@ onMounted(load)
       </div>
       <div class="stat-card">
         <div class="stat-num">{{ hitRate }}</div>
-        <div class="stat-label">缓存命中率</div>
+        <div class="stat-label">命中率</div>
       </div>
     </div>
 
-    <h3 class="block-title">按场景与模型</h3>
+    <h3 class="block-title">各功能调用统计</h3>
     <el-table :data="data?.scenes || []" size="small">
-      <el-table-column prop="label" label="场景" width="130" />
+      <el-table-column prop="label" label="功能" width="130" />
       <el-table-column prop="model" label="模型" min-width="160" show-overflow-tooltip />
       <el-table-column prop="succeeded" label="成功" width="90" align="right" />
       <el-table-column prop="failed" label="失败" width="90" align="right" />
@@ -68,7 +66,7 @@ onMounted(load)
       </el-table-column>
     </el-table>
 
-    <h3 class="block-title">当日额度</h3>
+    <h3 class="block-title">今日额度</h3>
     <div class="quota-row">
       <div v-for="q in data?.quota || []" :key="q.name" class="quota-card">
         <div class="quota-head">
@@ -85,9 +83,9 @@ onMounted(load)
       </div>
     </div>
 
-    <h3 class="block-title">缓存命中</h3>
+    <h3 class="block-title">命中情况</h3>
     <el-table :data="data?.cache || []" size="small">
-      <el-table-column prop="cache" label="缓存" min-width="200" show-overflow-tooltip />
+      <el-table-column prop="label" label="数据" min-width="200" show-overflow-tooltip />
       <el-table-column prop="hit" label="命中" width="100" align="right" />
       <el-table-column prop="miss" label="未命中" width="100" align="right" />
       <el-table-column label="命中率" width="110" align="right">
@@ -97,18 +95,18 @@ onMounted(load)
 
     <div class="two-col">
       <div>
-        <h3 class="block-title">降级</h3>
+        <h3 class="block-title">AI 不可用时的处理</h3>
         <el-table :data="data?.degrade || []" size="small">
-          <el-table-column prop="label" label="场景" width="120" />
-          <el-table-column prop="reason" label="原因" min-width="130" />
+          <el-table-column prop="label" label="功能" width="120" />
+          <el-table-column prop="reasonLabel" label="处理方式" min-width="130" />
           <el-table-column prop="count" label="次数" width="80" align="right" />
         </el-table>
       </div>
       <div>
-        <h3 class="block-title">流式收尾</h3>
+        <h3 class="block-title">生成任务结果</h3>
         <el-table :data="data?.sse || []" size="small">
-          <el-table-column prop="api" label="入口" width="110" />
-          <el-table-column prop="outcome" label="结果" min-width="110" />
+          <el-table-column prop="apiLabel" label="功能" width="110" />
+          <el-table-column prop="outcomeLabel" label="结果" min-width="110" />
           <el-table-column prop="count" label="次数" width="80" align="right" />
         </el-table>
       </div>

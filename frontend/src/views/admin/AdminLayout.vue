@@ -129,7 +129,6 @@ onBeforeUnmount(() => { document.body.style.overflow = '' })
       </div>
     </aside>
 
-    <!-- 窄屏抽屉的遮罩：点击关闭抽屉。z-index 低于侧栏，使侧栏位于其上 -->
     <div v-if="sideOpen" class="side-mask" @click="sideOpen = false"></div>
 
     <div class="main-col">

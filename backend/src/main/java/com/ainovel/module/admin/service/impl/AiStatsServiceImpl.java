@@ -13,7 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.lang.management.ManagementFactory;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,11 +30,14 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>不落库、不做快照：Micrometer 的 counter 与 timer 本身即为累计值，
  * 读一次即可得到「自进程启动至今」的分布，无需额外维护存储。
- * 代价是重启后归零，因此返回值中带有口径提示字段，由页面展示。
  *
  * <p>指标名在此处使用字面量而非引用 {@code BusinessMetrics} 的常量：Micrometer 的指标
  * 一经导出即成为外部契约（Prometheus 侧按名字抓取），读取方不应因该类的常量重命名而失效。
  * 两者不一致时表现为页面全为 0，因此新增指标需同时更新此处。
+ *
+ * <p>归类用的标签值（降级原因、缓存名、流式入口与结果）在接口中一律以「码 + 展示名」成对返回：
+ * 码保持与指标标签一致，展示名供管理端渲染，未登记的取值回落为码本身。
+ * 展示名集中在本类，避免同一份映射散落在页面与接口两侧后各自漂移。
  */
 @Service
 @RequiredArgsConstructor
@@ -54,6 +60,35 @@ public class AiStatsServiceImpl implements AiStatsService {
     /** 标签缺失时的占位值：Micrometer 允许指标不带某个标签，此时 getTag 返回 null */
     private static final String TAG_ABSENT = "-";
 
+    /** 降级原因的展示名，取值见 {@code BusinessMetrics#aiDegrade} */
+    private static final Map<String, String> DEGRADE_REASON_LABELS = Map.of(
+            "no_key", "未配置模型密钥",
+            "failed", "模型调用失败",
+            "timeout", "模型响应超时",
+            "local_fallback", "改用本地处理");
+
+    /**
+     * 缓存名的展示名。缓存名取自 CacheHelper 的 key 前两段，
+     * 与 {@code NovelServiceImpl} / {@code ChapterServiceImpl} 中的 key 前缀一一对应，新增缓存需同步登记。
+     */
+    private static final Map<String, String> CACHE_LABELS = Map.of(
+            "novel:detail", "作品详情",
+            "novel:chapter:page", "章节目录",
+            "novel:chapter:content", "章节正文");
+
+    /** 流式入口的展示名，取值见 {@code AiController} 与 {@code AiWritingController} 的埋点 */
+    private static final Map<String, String> SSE_API_LABELS = Map.of(
+            "generate", "正文生成",
+            "continue", "正文续写",
+            "polish", "文字润色");
+
+    /** 流式收尾结果的展示名，取值见 {@code BusinessMetrics#sseStream} */
+    private static final Map<String, String> SSE_OUTCOME_LABELS = Map.of(
+            "done", "正常完成",
+            "cancelled", "用户停止",
+            "timeout", "超时中断",
+            "error", "异常中断");
+
     private final MeterRegistry registry;
 
     private final DailyQuotaLimiter dailyQuotaLimiter;
@@ -75,7 +110,9 @@ public class AiStatsServiceImpl implements AiStatsService {
     public AiStatsVO stats() {
         AiStatsVO vo = new AiStatsVO();
         vo.setGeneratedAt(LocalDateTime.now().format(TIME_FORMAT));
-        vo.setCounterScope("调用次数与耗时自本进程启动累计，重启清零、多实例不合并；当日额度取自 Redis，跨天重置");
+        vo.setStartedAt(TIME_FORMAT.format(Instant.ofEpochMilli(
+                ManagementFactory.getRuntimeMXBean().getStartTime())
+                .atZone(ZoneId.systemDefault())));
 
         List<AiStatsVO.SceneStat> scenes = scenes();
         vo.setScenes(scenes);
@@ -146,7 +183,9 @@ public class AiStatsServiceImpl implements AiStatsService {
             stat.setScene(scene);
             AiScene sceneEnum = AiScene.fromCode(scene);
             stat.setLabel(sceneEnum == null ? scene : sceneEnum.label());
-            stat.setReason(tag(counter, "reason"));
+            String reason = tag(counter, "reason");
+            stat.setReason(reason);
+            stat.setReasonLabel(labelOf(DEGRADE_REASON_LABELS, reason));
             stat.setCount((long) counter.count());
             list.add(stat);
         }
@@ -169,6 +208,7 @@ public class AiStatsServiceImpl implements AiStatsService {
         byName.forEach((name, hitAndMiss) -> {
             AiStatsVO.CacheStat stat = new AiStatsVO.CacheStat();
             stat.setCache(name);
+            stat.setLabel(labelOf(CACHE_LABELS, name));
             stat.setHit(hitAndMiss[0]);
             stat.setMiss(hitAndMiss[1]);
             long reads = hitAndMiss[0] + hitAndMiss[1];
@@ -184,8 +224,12 @@ public class AiStatsServiceImpl implements AiStatsService {
         List<AiStatsVO.SseStat> list = new ArrayList<>();
         for (Counter counter : registry.find(M_SSE_STREAM).counters()) {
             AiStatsVO.SseStat stat = new AiStatsVO.SseStat();
-            stat.setApi(tag(counter, "api"));
-            stat.setOutcome(tag(counter, "outcome"));
+            String api = tag(counter, "api");
+            String outcome = tag(counter, "outcome");
+            stat.setApi(api);
+            stat.setApiLabel(labelOf(SSE_API_LABELS, api));
+            stat.setOutcome(outcome);
+            stat.setOutcomeLabel(labelOf(SSE_OUTCOME_LABELS, outcome));
             stat.setCount((long) counter.count());
             list.add(stat);
         }
@@ -202,8 +246,8 @@ public class AiStatsServiceImpl implements AiStatsService {
      */
     private List<AiStatsVO.QuotaStat> quota() {
         return List.of(
-                quotaStat("平台 Key（按次）", AiQuotaConstant.PLATFORM_USAGE_KEY_PREFIX, platformDailyLimit),
-                quotaStat("文生图（按张）", AiQuotaConstant.COVER_USAGE_KEY_PREFIX, coverDailyLimit));
+                quotaStat("平台模型调用（按次）", AiQuotaConstant.PLATFORM_USAGE_KEY_PREFIX, platformDailyLimit),
+                quotaStat("封面生成（按张）", AiQuotaConstant.COVER_USAGE_KEY_PREFIX, coverDailyLimit));
     }
 
     private AiStatsVO.QuotaStat quotaStat(String name, String keyPrefix, long limit) {
@@ -219,5 +263,10 @@ public class AiStatsServiceImpl implements AiStatsService {
     private static String tag(Meter meter, String key) {
         String value = meter.getId().getTag(key);
         return value == null ? TAG_ABSENT : value;
+    }
+
+    /** 取展示名；未登记的取值回落为码本身，保证新增取值先能看到原始码而不是空白 */
+    private static String labelOf(Map<String, String> labels, String code) {
+        return labels.getOrDefault(code, code);
     }
 }

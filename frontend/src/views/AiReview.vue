@@ -271,8 +271,6 @@ onBeforeUnmount(stopPolling)
         <el-button v-else round @click="doCancel">停止审查</el-button>
       </div>
 
-      <!-- 审查范围：只在还没发起过时给选（已有任务时按钮变成「继续/重新审查」，
-           重新审查会按新范围再建任务，那时也让它能选） -->
       <div v-if="scopeOptions.length > 1" class="scope-row">
         <span class="scope-label">审查范围</span>
         <el-radio-group v-model="scope" size="small">

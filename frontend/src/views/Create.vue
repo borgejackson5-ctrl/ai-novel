@@ -309,7 +309,7 @@ const publish = async () => {
                 </div>
                 <div class="ai-row">
                   <span class="ai-label">简介</span>
-                  <el-button size="small" :loading="aiIntroLoading" @click="aiIntro">AI 生成（流式）</el-button>
+                  <el-button size="small" :loading="aiIntroLoading" @click="aiIntro">AI 生成简介</el-button>
                   <span class="ai-note">生成过程实时写入简介框，可再修改</span>
                 </div>
                 <div class="ai-tip">未配置 AI Key 时返回的是示例内容 · 可在「AI 设置」中配置</div>

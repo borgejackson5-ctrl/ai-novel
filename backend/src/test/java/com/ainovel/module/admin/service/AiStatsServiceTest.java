@@ -92,6 +92,51 @@ class AiStatsServiceTest {
     }
 
     @Test
+    @DisplayName("展示名随码一并下发：原始码保持与指标标签一致，页面无需另维护映射")
+    void displayLabelsAreResolved() {
+        BusinessMetrics metrics = metrics();
+        metrics.aiDegrade(AiScene.REVIEW, "local_fallback");
+        metrics.cacheAccess("novel:chapter:content", false);
+        metrics.cacheAccess("novel:chapter:page", true);
+        metrics.sseStream("polish", "cancelled");
+
+        AiStatsVO vo = service.stats();
+
+        AiStatsVO.DegradeStat degrade = vo.getDegrade().get(0);
+        assertThat(degrade.getReason()).as("码不变").isEqualTo("local_fallback");
+        assertThat(degrade.getReasonLabel()).isEqualTo("改用本地处理");
+
+        AiStatsVO.CacheStat content = vo.getCache().stream()
+                .filter(stat -> "novel:chapter:content".equals(stat.getCache()))
+                .findFirst().orElseThrow();
+        assertThat(content.getLabel()).isEqualTo("章节正文");
+        AiStatsVO.CacheStat page = vo.getCache().stream()
+                .filter(stat -> "novel:chapter:page".equals(stat.getCache()))
+                .findFirst().orElseThrow();
+        assertThat(page.getLabel()).isEqualTo("章节目录");
+
+        AiStatsVO.SseStat sse = vo.getSse().get(0);
+        assertThat(sse.getApiLabel()).isEqualTo("文字润色");
+        assertThat(sse.getOutcomeLabel()).isEqualTo("用户停止");
+    }
+
+    @Test
+    @DisplayName("未登记的取值回落为码本身：新增缓存或新入口不会在页面上显示为空白")
+    void unknownLabelFallsBackToCode() {
+        BusinessMetrics metrics = metrics();
+        metrics.aiDegrade(AiScene.REVIEW, "brand_new_reason");
+        metrics.cacheAccess("novel:brand:new", false);
+        metrics.sseStream("publish", "paused");
+
+        AiStatsVO vo = service.stats();
+
+        assertThat(vo.getDegrade().get(0).getReasonLabel()).isEqualTo("brand_new_reason");
+        assertThat(vo.getCache().get(0).getLabel()).isEqualTo("novel:brand:new");
+        assertThat(vo.getSse().get(0).getApiLabel()).isEqualTo("publish");
+        assertThat(vo.getSse().get(0).getOutcomeLabel()).isEqualTo("paused");
+    }
+
+    @Test
     @DisplayName("缓存命中率由命中与未命中合并算出")
     void cacheHitRate() {
         BusinessMetrics metrics = metrics();
@@ -131,7 +176,7 @@ class AiStatsServiceTest {
         assertThat(vo.getScenes()).isEmpty();
         assertThat(vo.getCache()).isEmpty();
         assertThat(vo.getQuota()).as("额度来自 Redis，与指标无关，因此仍有数据").hasSize(2);
-        assertThat(vo.getCounterScope()).isNotBlank();
+        assertThat(vo.getStartedAt()).as("页面以启动时间标注统计起点").isNotBlank();
     }
 
     @Test

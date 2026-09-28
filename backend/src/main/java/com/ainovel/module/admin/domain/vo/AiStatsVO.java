@@ -7,9 +7,12 @@ import java.util.List;
 /**
  * AI 调用统计（管理端「AI 用量」页）。
  *
- * <p>口径说明：调用次数与耗时取自本进程的 Micrometer 指标，**重启清零、多实例不聚合**，
- * 用途是查看当前的使用分布与失败情况，不代表长期趋势，页面需明确标注这一点。
- * 当日额度部分取自 Redis，按日期滚动、跨天自动清零，重启不影响。
+ * <p>调用次数与耗时取自本进程的 Micrometer 指标：重启清零、多实例不聚合，
+ * 反映的是当前的使用分布与失败情况，不代表长期趋势。
+ * 当日额度取自 Redis，按日期滚动、跨天自动清零，重启不影响。
+ *
+ * <p>各分组的取值以「码 + 展示名」成对返回：码进指标与接口字段，展示名仅供渲染。
+ * 二者合一会使「改展示文案」牵动指标标签。
  *
  * <p>「场景」由调用方在发请求时声明（见 {@code AiScene}），而非按调用的方法名推断：
  * 同步起名与搜索意图解析同属非流式调用，按方法名区分会把两者记到同一组。
@@ -20,8 +23,8 @@ public class AiStatsVO {
     /** 采集时间（yyyy-MM-dd HH:mm:ss） */
     private String generatedAt;
 
-    /** 计数口径提示，直接展示给使用者 */
-    private String counterScope;
+    /** 应用启动时间，即调用次数与耗时的统计起点（yyyy-MM-dd HH:mm:ss） */
+    private String startedAt;
 
     /** 合计 */
     private Totals totals;
@@ -89,8 +92,11 @@ public class AiStatsVO {
 
         private String label;
 
-        /** 降级原因：no_key / failed / timeout / local_fallback */
+        /** 降级原因码：no_key / failed / timeout / local_fallback */
         private String reason;
+
+        /** 降级原因的展示名；原因码未知时回落为原因码本身 */
+        private String reasonLabel;
 
         private long count;
     }
@@ -99,7 +105,11 @@ public class AiStatsVO {
     @Data
     public static class CacheStat {
 
+        /** 缓存名，取自缓存 key 的前两段（如 novel:detail） */
         private String cache;
+
+        /** 缓存名的展示名；未登记的名称回落为缓存名本身 */
+        private String label;
 
         private long hit;
 
@@ -116,8 +126,14 @@ public class AiStatsVO {
         /** 入口名：generate / continue / polish */
         private String api;
 
+        /** 入口展示名；未登记的入口回落为入口名本身 */
+        private String apiLabel;
+
         /** done / cancelled / timeout / error */
         private String outcome;
+
+        /** 收尾结果展示名；未登记的结果回落为结果码本身 */
+        private String outcomeLabel;
 
         private long count;
     }

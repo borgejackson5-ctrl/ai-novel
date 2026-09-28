@@ -90,7 +90,7 @@ onMounted(load)
       <div>
         <h2 class="section-title">系统健康</h2>
         <span class="count">
-          采集自 {{ data?.runningSince || '-' }}，进程内内存统计（重启清零）
+          启动于 {{ data?.runningSince || '-' }}
         </span>
       </div>
       <el-button round @click="doReset">重置统计</el-button>
