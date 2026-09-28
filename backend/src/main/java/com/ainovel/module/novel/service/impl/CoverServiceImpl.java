@@ -1,6 +1,7 @@
 package com.ainovel.module.novel.service.impl;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.constant.AiQuotaConstant;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.ratelimit.DailyQuotaLimiter;
 import com.ainovel.common.client.DashScopeClient;
@@ -40,9 +41,6 @@ public class CoverServiceImpl implements CoverService {
     /** 文生图固定风格后缀：统一出图观感并避免文字水印 */
     private static final String STYLE_SUFFIX = "，竖版小说封面，精美插画风格，画面无文字";
 
-    /** 文生图每日硬上限计数器 key 前缀（独立于文本 Key 的计数器） */
-    private static final String COVER_USAGE_KEY_PREFIX = "ai:cover:usage:";
-
     /**
      * 封面在 OSS 上的目录前缀。
      *
@@ -68,7 +66,7 @@ public class CoverServiceImpl implements CoverService {
         }
         // 文生图使用独立的 DashScope Key，单独设置每日硬上限；超限后提示可手动上传封面
         // 文生图按「次」计（重量 1）：每次生成计一张图，与字数无关
-        if (!dailyQuotaLimiter.tryAcquire(COVER_USAGE_KEY_PREFIX, coverDailyLimit, 1)) {
+        if (!dailyQuotaLimiter.tryAcquire(AiQuotaConstant.COVER_USAGE_KEY_PREFIX, coverDailyLimit, 1)) {
             throw new BusinessException(ErrorCode.AI_COVER_LIMIT);
         }
         String finalPrompt = prompt.trim() + STYLE_SUFFIX;

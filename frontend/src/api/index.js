@@ -213,6 +213,9 @@ export const handleAppeal = (id, data) => request.put(`/admin/appeal/${id}/handl
 // 管理后台 - 操作日志（审计追溯）
 export const getAdminLogPage = (params) => request.get("/admin/log/page", { params });
 
+// 管理后台 - AI 用量（调用次数 / 失败 / 降级 / 缓存命中 / 当日额度）
+export const getAiStats = () => request.get("/admin/ai-stats");
+
 // 管理后台 - 系统健康（运行指标 + 慢查询）
 export const getSystemMetrics = () => request.get("/admin/system/metrics");
 export const resetSystemMetrics = () => request.post("/admin/system/metrics/reset");

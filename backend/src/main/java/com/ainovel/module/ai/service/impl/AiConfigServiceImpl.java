@@ -2,6 +2,7 @@ package com.ainovel.module.ai.service.impl;
 
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.AiConstant;
+import com.ainovel.common.constant.AiQuotaConstant;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.ratelimit.DailyQuotaLimiter;
 import com.ainovel.common.util.LoginUserUtil;
@@ -57,12 +58,6 @@ public class AiConfigServiceImpl implements AiConfigService {
      */
     @Value("${app.ai-min-charge-units:200}")
     private int minChargeUnits = 200;
-
-    /** 平台 Key 全局日用量硬上限 key 前缀（按日期滚动） */
-    private static final String PLATFORM_USAGE_KEY_PREFIX = "ai:platform:usage:";
-
-    /** 用户免费额度计数器 key 前缀（按日期滚动，跨天自动清零） */
-    private static final String USER_USAGE_KEY_PREFIX = "ai:user:usage:";
 
     /**
      * 额度用尽的提示：直接说明「今日已用完、明日恢复」，**不引导用户配置 Key**。
@@ -203,7 +198,7 @@ public class AiConfigServiceImpl implements AiConfigService {
             throw new BusinessException(ErrorCode.AI_PLATFORM_BUSY, PLATFORM_BUSY_MSG);
         }
         int quotaLimit = uc.getQuotaLimit() == null ? DEFAULT_QUOTA : uc.getQuotaLimit();
-        if (dailyQuotaLimiter.tryAcquire(USER_USAGE_KEY_PREFIX + userId + ":", quotaLimit, units)) {
+        if (dailyQuotaLimiter.tryAcquire(AiQuotaConstant.USER_USAGE_KEY_PREFIX + userId + ":", quotaLimit, units)) {
             // 记录「本次扣费字数」：外部接口调用失败时需按该数值原样退回
             platform.setQuotaChargedUnits(units);
             return platform;
@@ -212,7 +207,7 @@ public class AiConfigServiceImpl implements AiConfigService {
         // 而此处尚未调用模型：不归还则该次请求白白消耗一次全局配额，当日额度已用尽的账号
         // 反复重试即可把平台配额耗尽，此后所有用户都收到「AI 服务繁忙」。
         // 归还与占用之间非严格原子，但归还方向偏保守（最多减至 0，不会放大配额）。
-        dailyQuotaLimiter.release(PLATFORM_USAGE_KEY_PREFIX, 1);
+        dailyQuotaLimiter.release(AiQuotaConstant.PLATFORM_USAGE_KEY_PREFIX, 1);
         throw new BusinessException(ErrorCode.AI_QUOTA_EXHAUSTED, QUOTA_EXHAUSTED_MSG);
     }
 
@@ -257,7 +252,7 @@ public class AiConfigServiceImpl implements AiConfigService {
         vo.setOwnKey(maskKey(uc.getOwnKey()));
         vo.setHasOwnKey(StringUtils.hasText(uc.getOwnKey()));
         int limit = uc.getQuotaLimit() == null ? DEFAULT_QUOTA : uc.getQuotaLimit();
-        long used = dailyQuotaLimiter.currentUsage(USER_USAGE_KEY_PREFIX + userId + ":");
+        long used = dailyQuotaLimiter.currentUsage(AiQuotaConstant.USER_USAGE_KEY_PREFIX + userId + ":");
         vo.setQuotaLimit(limit);
         vo.setUsedUnits(used);
         vo.setRemainingUnits(Math.max(0, limit - used));
@@ -370,7 +365,7 @@ public class AiConfigServiceImpl implements AiConfigService {
         if (charged == null || charged <= 0) {
             return;
         }
-        dailyQuotaLimiter.release(USER_USAGE_KEY_PREFIX + userId + ":", charged);
+        dailyQuotaLimiter.release(AiQuotaConstant.USER_USAGE_KEY_PREFIX + userId + ":", charged);
         // 使用「未完成」而非「调用失败」：该退款路径也覆盖**超时**
         // （用户等待过久、未取得任何内容），其并非"AI 接口调不通"。
         // 文案的差异会显著影响排查方向
@@ -401,7 +396,7 @@ public class AiConfigServiceImpl implements AiConfigService {
      */
     public boolean tryAcquirePlatformQuota() {
         // 平台上限按「次」计（权重 1）：其约束的是平台 Key 的调用次数，与用户扣除的字数无关
-        return dailyQuotaLimiter.tryAcquire(PLATFORM_USAGE_KEY_PREFIX, platformDailyLimit, 1);
+        return dailyQuotaLimiter.tryAcquire(AiQuotaConstant.PLATFORM_USAGE_KEY_PREFIX, platformDailyLimit, 1);
     }
 
     /**

@@ -44,7 +44,8 @@ const routes = [
       { path: 'appeals', name: 'AdminAppeal', component: () => import('../views/admin/AppealAdmin.vue') },
       { path: 'logs', name: 'AdminLog', component: () => import('../views/admin/AdminLog.vue') },
       { path: 'ai-config', name: 'AdminAiConfig', component: () => import('../views/admin/AiConfigAdmin.vue') },
-      { path: 'system', name: 'AdminSystem', component: () => import('../views/admin/SystemMetrics.vue') }
+      { path: 'system', name: 'AdminSystem', component: () => import('../views/admin/SystemMetrics.vue') },
+      { path: 'ai-stats', name: 'AdminAiStats', component: () => import('../views/admin/AiStats.vue') }
     ]
   }
 ]

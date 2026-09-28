@@ -4,7 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../../store/user'
 import { getPendingAuditCount, getFeedbackPendingCount } from '../../api'
 import NoticeBell from '../../components/NoticeBell.vue'
-import { ChatDotRound, CircleCheck, Collection, CollectionTag, DataAnalysis, MagicStick, Memo, Odometer, Tickets, Upload, User } from '@element-plus/icons-vue'
+import { ChatDotRound, CircleCheck, Collection, CollectionTag, DataAnalysis, MagicStick, Memo, Odometer, Tickets, TrendCharts, Upload, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -22,7 +22,8 @@ const titleMap = {
   '/admin/import': '公版书导入',
   '/admin/logs': '操作日志',
   '/admin/ai-config': 'AI 配置',
-  '/admin/system': '系统健康'
+  '/admin/system': '系统健康',
+  '/admin/ai-stats': 'AI 用量'
 }
 const pageTitle = computed(() => titleMap[route.path] || '管理后台')
 
@@ -56,6 +57,7 @@ const MENU_GROUPS = [
     title: '系统',
     items: [
       { to: '/admin/ai-config', icon: MagicStick, label: 'AI 配置' },
+      { to: '/admin/ai-stats', icon: TrendCharts, label: 'AI 用量' },
       { to: '/admin/logs', icon: Memo, label: '操作日志' },
       { to: '/admin/system', icon: Odometer, label: '系统健康' }
     ]

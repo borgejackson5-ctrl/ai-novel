@@ -6,10 +6,12 @@ import com.ainovel.common.domain.PageResult;
 import com.ainovel.common.domain.ResponseDTO;
 import com.ainovel.module.admin.domain.form.AuditRejectForm;
 import com.ainovel.module.admin.domain.vo.AdminLogVO;
+import com.ainovel.module.admin.domain.vo.AiStatsVO;
 import com.ainovel.module.admin.domain.vo.DashboardVO;
 import com.ainovel.module.admin.domain.vo.NovelAuditVO;
 import com.ainovel.module.admin.service.AdminLogService;
 import com.ainovel.module.admin.service.AdminService;
+import com.ainovel.module.admin.service.AiStatsService;
 import com.ainovel.module.ai.service.AiConfigService;
 import com.ainovel.module.coin.domain.vo.RechargeOrderVO;
 import com.ainovel.module.feedback.domain.form.FeedbackHandleForm;
@@ -63,6 +65,14 @@ public class AdminController {
     private final SearchReconcileService searchReconcileService;
 
     private final SystemMetricsService systemMetricsService;
+
+    private final AiStatsService aiStatsService;
+
+    @Operation(summary = "AI 用量：调用次数与耗时、失败、降级、缓存命中、当日额度")
+    @GetMapping("/ai-stats")
+    public ResponseDTO<AiStatsVO> aiStats() {
+        return ResponseDTO.ok(aiStatsService.stats());
+    }
 
     @Operation(summary = "搜索索引对账（比对 DB 与索引，发现漂移自动修复）")
     @PostMapping("/search/reconcile")
