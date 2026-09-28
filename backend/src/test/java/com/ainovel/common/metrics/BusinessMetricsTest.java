@@ -81,6 +81,27 @@ class BusinessMetricsTest {
     }
 
     @Test
+    @DisplayName("token 用量按输入 / 输出分列累加，而不是按次数计")
+    void aiTokens_accumulatesByKind() {
+        metrics.aiTokens(AiScene.TITLE, "deepseek-chat", 1200, 300);
+        metrics.aiTokens(AiScene.TITLE, "deepseek-chat", 800, 100);
+
+        assertThat(count("ainovel.ai.tokens", "scene", "TITLE", "model", "deepseek-chat", "kind", "prompt"))
+                .as("同一模型的多次调用应累加，只留最后一次会使长文场景的消耗被严重低估")
+                .isEqualTo(2000);
+        assertThat(count("ainovel.ai.tokens", "scene", "TITLE", "model", "deepseek-chat", "kind", "completion"))
+                .isEqualTo(400);
+    }
+
+    @Test
+    @DisplayName("上游未返回用量时不写 0 记录：与「确实消耗 0」区分开")
+    void aiTokens_skipsZero() {
+        metrics.aiTokens(AiScene.TITLE, "deepseek-chat", 0, 0);
+
+        assertThat(registry.find("ainovel.ai.tokens").counters()).isEmpty();
+    }
+
+    @Test
     @DisplayName("outbox 积压是 Gauge：每次读都现取，不是累计值")
     void outboxBacklog_isGauge() {
         int[] backlog = {3};

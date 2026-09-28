@@ -12,6 +12,7 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.converter.BeanOutputConverter;
@@ -249,7 +250,28 @@ public class SpringAiChapterReviewer implements ChapterReviewer {
             throw e;
         }
         businessMetrics.aiCall(AiScene.REVIEW, model, System.currentTimeMillis() - start);
+        recordUsage(model, response);
         return response;
+    }
+
+    /**
+     * 记录本轮调用的 token 用量。
+     *
+     * <p>工具循环的每一轮都是独立的上游请求、均按量计费，因此逐轮记录，
+     * 而不是等整章结束时只记一次收尾调用。
+     */
+    private void recordUsage(String model, ChatResponse response) {
+        Usage usage = response.getMetadata() == null ? null : response.getMetadata().getUsage();
+        if (usage == null) {
+            return;
+        }
+        businessMetrics.aiTokens(AiScene.REVIEW, model,
+                tokens(usage.getPromptTokens()), tokens(usage.getCompletionTokens()));
+    }
+
+    /** 上游未返回的字段按 0 处理，埋点层据此不写记录（见 BusinessMetrics#aiTokens） */
+    private static int tokens(Integer value) {
+        return value == null ? 0 : value;
     }
 
     /**

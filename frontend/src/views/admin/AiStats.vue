@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { getAiStats } from '../../api'
-import { hitRateOf, pctText, quotaPct, quotaStatus } from '../../utils/aiStats'
+import { countText, hitRateOf, pctText, quotaPct, quotaStatus } from '../../utils/aiStats'
 
 const loading = ref(true)
 const data = ref(null)
@@ -16,6 +16,8 @@ const load = async () => {
 }
 
 const pct = pctText
+
+const count = countText
 
 /** 命中率按全部缓存合并算；无读取记录时为 null，由 pct 显示为破折号 */
 const hitRate = computed(() => pctText(hitRateOf(data.value?.cache)))
@@ -52,7 +54,12 @@ onMounted(load)
       </div>
     </div>
 
-    <h3 class="block-title">各功能调用统计</h3>
+    <div class="block-head">
+      <h3 class="block-title">各功能调用统计</h3>
+      <span class="count">
+        累计消耗 输入 {{ count(data?.totals?.promptTokens) }} · 输出 {{ count(data?.totals?.completionTokens) }} token
+      </span>
+    </div>
     <el-table :data="data?.scenes || []" size="small">
       <el-table-column prop="label" label="功能" width="130" />
       <el-table-column prop="model" label="模型" min-width="160" show-overflow-tooltip />
@@ -63,6 +70,12 @@ onMounted(load)
       </el-table-column>
       <el-table-column label="最大耗时" width="110" align="right">
         <template #default="{ row }">{{ row.maxCostMs }} ms</template>
+      </el-table-column>
+      <el-table-column label="输入 token" width="120" align="right">
+        <template #default="{ row }">{{ count(row.promptTokens) }}</template>
+      </el-table-column>
+      <el-table-column label="输出 token" width="120" align="right">
+        <template #default="{ row }">{{ count(row.completionTokens) }}</template>
       </el-table-column>
     </el-table>
 
@@ -143,6 +156,14 @@ onMounted(load)
   font-weight: 500;
   margin: 22px 0 10px;
 }
+.block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.block-head .block-title { margin-bottom: 10px; }
 
 .quota-row {
   display: grid;

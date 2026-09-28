@@ -4,8 +4,11 @@ import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.exception.StreamCancelledException;
+import com.ainovel.common.metrics.BusinessMetrics;
 import com.ainovel.module.ai.config.AiProperties;
 import com.sun.net.httpserver.HttpServer;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +47,25 @@ abstract class AiChatClientContract {
 
     /** 被测实现由子类提供（同包，不需要 public） */
     abstract AiChatClient createClient(AiProperties props);
+
+    /**
+     * 由 {@link #createClient} 构建实例时使用的指标注册表。
+     *
+     * <p>token 用量的断言依赖它：用量由上游返回，不能从请求体或返回值反推，
+     * 只能验证「有没有上报到指标」。子类在 {@code createClient} 中赋值。
+     */
+    protected SimpleMeterRegistry meterRegistry;
+
+    /** 与 {@link #meterRegistry} 配套的指标门面 */
+    protected BusinessMetrics metrics;
+
+    /** 读取某个 kind（prompt / completion）的 token 累计值 */
+    protected double tokenCount(String kind) {
+        Counter counter = meterRegistry.find("ainovel.ai.tokens")
+                .tags("scene", "TITLE", "model", "deepseek-chat", "kind", kind)
+                .counter();
+        return counter == null ? 0 : counter.count();
+    }
 
     /** 起一个假的 OpenAI 兼容服务，返回固定响应，并把收到的请求体记下来 */
     protected HttpServer fakeOpenAi(AtomicReference<String> receivedBody, String responseBody) throws Exception {
@@ -159,6 +181,73 @@ abstract class AiChatClientContract {
             assertTrue(body.get().contains("\"max_tokens\":777"),
                     "流式请求体同样要带 max_tokens，实际：" + body.get());
             assertTrue(body.get().contains("\"stream\":true"), "实际：" + body.get());
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    @DisplayName("非流式：解析上游返回的 usage 并上报 token")
+    void chat_reportsTokenUsage() throws Exception {
+        AtomicReference<String> body = new AtomicReference<>();
+        HttpServer server = fakeOpenAi(body,
+                "{\"choices\":[{\"message\":{\"content\":\"通过\"}}],"
+                        + "\"usage\":{\"prompt_tokens\":1200,\"completion_tokens\":300}}");
+        try {
+            AiChatClient client = clientFor(100);
+
+            client.chat(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u");
+
+            assertEquals(1200.0, tokenCount("prompt"), 0.001, "输入用量没上报，管理端的消耗统计会偏小");
+            assertEquals(300.0, tokenCount("completion"), 0.001, "输出用量没上报");
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    @DisplayName("流式：请求体要求上游回传用量，收尾分片的 usage 要上报且不当作正文回调")
+    void chatStream_reportsTokenUsage() throws Exception {
+        AtomicReference<String> body = new AtomicReference<>();
+        // 收尾分片的 choices 为空数组 —— 这是 include_usage 的规范形态，也是最容易写错的一处：
+        // 按「choices[0] 必存在」解析会在这里取到空正文，按「有正文才回调」处理才正确
+        String sse = "data: {\"choices\":[{\"delta\":{\"content\":\"甲\"}}]}\n\n"
+                + "data: {\"choices\":[],\"usage\":{\"prompt_tokens\":11,\"completion_tokens\":22}}\n\n"
+                + "data: [DONE]\n\n";
+        HttpServer server = fakeOpenAi(body, sse, "text/event-stream");
+        try {
+            AiChatClient client = clientFor(100);
+            List<String> chunks = new ArrayList<>();
+
+            client.chatStream(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunks::add);
+
+            assertTrue(body.get().contains("stream_options"),
+                    "流式请求体必须带 stream_options，否则上游不回传用量，"
+                            + "而流式是本项目文本消耗的主要来源。实际：" + body.get());
+            assertTrue(body.get().contains("include_usage"),
+                    "stream_options 必须打开 include_usage。实际：" + body.get());
+            assertEquals(List.of("甲"), chunks,
+                    "只带用量的收尾分片没有正文，不应回调出去。实际回调：" + chunks);
+            assertEquals(11.0, tokenCount("prompt"), 0.001, "流式输入用量没上报");
+            assertEquals(22.0, tokenCount("completion"), 0.001, "流式输出用量没上报");
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    @DisplayName("上游不返回 usage 时不报错、记 0：兼容服务未必都返回该字段")
+    void chat_withoutUsage_isSafe() throws Exception {
+        AtomicReference<String> body = new AtomicReference<>();
+        HttpServer server = fakeOpenAi(body, "{\"choices\":[{\"message\":{\"content\":\"通过\"}}]}");
+        try {
+            AiChatClient client = clientFor(100);
+
+            String out = client.chat(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u");
+
+            assertEquals("通过", out, "缺少 usage 字段不影响正文解析");
+            assertEquals(0.0, tokenCount("prompt"), 0.001);
+            assertEquals(0.0, tokenCount("completion"), 0.001);
         } finally {
             server.stop(0);
         }

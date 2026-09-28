@@ -154,6 +154,41 @@ class AiStatsServiceTest {
     }
 
     @Test
+    @DisplayName("token 用量按「场景 + 模型」汇总，并与调用次数分列")
+    void tokensGroupBySceneAndModel() {
+        BusinessMetrics metrics = metrics();
+        metrics.aiCall(AiScene.TITLE, "m", 10);
+        metrics.aiTokens(AiScene.TITLE, "m", 1200, 300);
+        metrics.aiTokens(AiScene.TITLE, "m", 800, 100);
+        metrics.aiTokens(AiScene.INTRO, "m", 500, 200);
+
+        AiStatsVO vo = service.stats();
+
+        AiStatsVO.SceneStat title = vo.getScenes().stream()
+                .filter(stat -> AiScene.TITLE.code().equals(stat.getScene()))
+                .findFirst().orElseThrow();
+        assertThat(title.getPromptTokens()).isEqualTo(2000);
+        assertThat(title.getCompletionTokens()).isEqualTo(400);
+
+        assertThat(vo.getTotals().getPromptTokens()).isEqualTo(2500);
+        assertThat(vo.getTotals().getCompletionTokens()).isEqualTo(600);
+    }
+
+    @Test
+    @DisplayName("上游未返回用量时仍计入调用次数，token 保持 0 —— 用量不能由次数推算")
+    void tokensAbsentKeepsCallCount() {
+        BusinessMetrics metrics = metrics();
+        metrics.aiCall(AiScene.TITLE, "m", 10);
+
+        AiStatsVO vo = service.stats();
+
+        assertThat(vo.getScenes().get(0).getSucceeded()).isEqualTo(1);
+        assertThat(vo.getScenes().get(0).getPromptTokens()).isZero();
+        assertThat(vo.getScenes().get(0).getCompletionTokens()).isZero();
+        assertThat(vo.getTotals().getPromptTokens()).isZero();
+    }
+
+    @Test
     @DisplayName("当日额度取 Redis 计数，超额时剩余显示 0 而非负数")
     void quotaComesFromRedisUsage() {
         when(limiter.currentUsage(anyString())).thenReturn(120L);

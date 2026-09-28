@@ -59,6 +59,12 @@ public class AiStatsVO {
 
         /** 成功率，取值 0~1；无调用时为 0 */
         private double successRate;
+
+        /** 输入 token 合计（仅统计上游返回用量的调用） */
+        private long promptTokens;
+
+        /** 输出 token 合计（仅统计上游返回用量的调用） */
+        private long completionTokens;
     }
 
     /** 单个「场景 + 模型」的调用统计 */
@@ -82,6 +88,17 @@ public class AiStatsVO {
 
         /** 最大耗时（毫秒） */
         private long maxCostMs;
+
+        /**
+         * 输入 token 合计。
+         *
+         * <p>与调用次数口径不同：用量由上游返回，未返回时此处为 0 而次数照常计数，
+         * 因此不能由「次数 × 平均值」推算。
+         */
+        private long promptTokens;
+
+        /** 输出 token 合计，口径同 {@link #promptTokens} */
+        private long completionTokens;
     }
 
     /** 一次降级：AI 不可用时由调用方回退到本地逻辑 */

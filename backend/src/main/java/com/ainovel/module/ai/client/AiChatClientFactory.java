@@ -91,12 +91,19 @@ public class AiChatClientFactory {
      *
      * <p>这些参数**可以**在请求级覆盖，与 baseUrl/apiKey 不同。
      * 抽成方法是为了让「闲聊」与「审查」两条路径的取值口径一致（尤其 maxTokens 必须发出）。
+     *
+     * <p>{@code streamUsage(true)} 对应请求体的 {@code stream_options.include_usage}：
+     * 该选项默认为关闭，不显式打开则流式响应不会回传用量，管理端按 token 统计消费时
+     * 会把「生成类场景」整段漏掉（流式是本项目文本消耗的主要来源）。
+     * 非流式请求不受影响：框架会主动从请求体中移除 {@code stream_options}。
+     * 该值只影响是否回传用量，不改变生成行为与费用。
      */
     public OpenAiChatOptions options(String model, double temperature) {
         return OpenAiChatOptions.builder()
                 .model(model)
                 .temperature(temperature)
                 .maxTokens(props.getMaxTokens())
+                .streamUsage(true)
                 .build();
     }
 

@@ -103,6 +103,7 @@ public class DashScopeEmbeddingClient implements EmbeddingClient {
             // 按批计数：调用方传入超过 batchSize 条时会被切成多批，每批都是一次真实调用
             businessMetrics.aiCall(AiScene.EMBEDDING, props.getEmbeddingModel(),
                     System.currentTimeMillis() - start);
+            recordUsage(response);
             log.info("文本向量化：{} 条，维度 {}，耗时 {}ms", vectors.size(),
                     vectors.get(0).length, System.currentTimeMillis() - start);
             return vectors;
@@ -117,6 +118,18 @@ public class DashScopeEmbeddingClient implements EmbeddingClient {
             log.warn("文本向量化失败：{} 条，耗时 {}ms", batch.size(), System.currentTimeMillis() - start, e);
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "文本向量化失败，请稍后重试");
         }
+    }
+
+    /**
+     * 记录本批的 token 用量。
+     *
+     * <p>embedding 的用量全部计入输入：兼容端点只返回 {@code usage.total_tokens}，
+     * 没有输入与输出之分，因此记在 prompt 一侧。部分兼容服务不返回该字段，
+     * 取到 0 时埋点层不写记录（见 {@link BusinessMetrics#aiTokens}）。
+     */
+    private void recordUsage(JsonNode response) {
+        int total = response == null ? 0 : response.path("usage").path("total_tokens").asInt(0);
+        businessMetrics.aiTokens(AiScene.EMBEDDING, props.getEmbeddingModel(), total, 0);
     }
 
     /**

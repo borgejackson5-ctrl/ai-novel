@@ -21,8 +21,9 @@ class SpringAiChatClientTest extends AiChatClientContract {
     AiChatClient createClient(AiProperties props) {
         // 不需要 init()：Spring AI 的实例在 builder().build() 时即已建好，没有 @PostConstruct 这一步。
         // 客户端工厂承担「按配置构建 + 缓存」，由普通对话与章节审查共用
-        return new SpringAiChatClient(props, new AiChatClientFactory(props, HttpClient.newHttpClient()),
-                new BusinessMetrics(new SimpleMeterRegistry()));
+        meterRegistry = new SimpleMeterRegistry();
+        metrics = new BusinessMetrics(meterRegistry);
+        return new SpringAiChatClient(props, new AiChatClientFactory(props, HttpClient.newHttpClient()), metrics);
     }
 
     /**

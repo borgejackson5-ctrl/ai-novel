@@ -4,7 +4,7 @@
  * 全部断言都用**字符串**做输入 —— 后端把 Long 序列化为字符串，用数字测等于没测。
  */
 import { strict as assert } from 'node:assert'
-import { hitRateOf, pctText, quotaPct, quotaStatus, toNum } from './aiStats.js'
+import { countText, hitRateOf, pctText, quotaPct, quotaStatus, toNum } from './aiStats.js'
 
 assert.equal(toNum('3'), 3, '字符串数字要能转回数字')
 assert.equal(toNum('0'), 0)
@@ -32,5 +32,10 @@ assert.equal(pctText(0.8), '80.0%')
 assert.equal(pctText(0), '0.0%')
 assert.equal(pctText(null), '—', '无数据用破折号，0% 会被读作「一次都没命中」')
 assert.equal(pctText(undefined), '—')
+
+// token 用量是六位以上的常见来源：不转数字会被当作文本处理，既不分组也不能比较
+assert.equal(countText('12345'), (12345).toLocaleString('zh-CN'))
+assert.equal(countText(undefined), (0).toLocaleString('zh-CN'), '缺字段显示 0 而不是 NaN')
+assert.equal(countText('abc'), (0).toLocaleString('zh-CN'))
 
 console.log('aiStats 辅助函数：全部通过')

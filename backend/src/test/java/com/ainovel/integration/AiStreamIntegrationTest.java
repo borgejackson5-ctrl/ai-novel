@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.net.URLEncoder;
 import java.net.http.HttpResponse;
@@ -54,6 +55,9 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private StringRedisTemplate redis;
+
+    /** 拉取指标用的管理员 token（懒加载，见 {@link #actuatorToken()}） */
+    private String actuatorToken;
 
     @BeforeEach
     void pointPlatformConfigAtFakeModel() {
@@ -117,6 +121,44 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    @DisplayName("token 用量接通了：流式请求要求上游回传用量，并记入指标")
+    void streamReportsTokenUsage() throws Exception {
+        String token = login("user", "user123");
+        double promptBefore = tokenCount("prompt");
+        double completionBefore = tokenCount("completion");
+
+        HttpResponse<String> resp = call("GET",
+                "/ai/generate/stream?type=TITLE&input=" + encode("雨夜铜钱"), null, asUser(token));
+        assertEquals(200, resp.statusCode(), () -> "响应体=" + head(resp.body()));
+
+        // 假模型只在请求体带 stream_options.include_usage 时才回传用量：
+        // 增量取不到即为「请求没要求用量」，而不是「上游不支持」
+        waitUntil(Duration.ofSeconds(10), "流式 token 用量记入指标", () ->
+                tokenCount("prompt") - promptBefore >= FakeOpenAiServer.STREAM_PROMPT_TOKENS);
+        assertTrue(tokenCount("completion") - completionBefore >= FakeOpenAiServer.STREAM_COMPLETION_TOKENS,
+                "输出用量没记：实际增量 " + (tokenCount("completion") - completionBefore));
+    }
+
+    @Test
+    @DisplayName("非流式调用的 token 用量同样记入指标")
+    void syncCallReportsTokenUsage() throws Exception {
+        String token = login("user", "user123");
+        double promptBefore = tokenCount("prompt");
+
+        HttpResponse<String> resp = call("POST", "/ai/generate",
+                "{\"type\":\"TITLE\",\"input\":\"雨夜铜钱\"}", asUser(token));
+        assertEquals(200, resp.statusCode(), () -> "响应体=" + head(resp.body()));
+
+        waitUntil(Duration.ofSeconds(10), "非流式 token 用量记入指标", () ->
+                tokenCount("prompt") - promptBefore >= FakeOpenAiServer.SYNC_PROMPT_TOKENS);
+    }
+
+    /** 与 BusinessMetrics#aiTokens 的指标名口径一致：ainovel.ai.tokens → ainovel_ai_tokens_total */
+    private double tokenCount(String kind) {
+        return sumMetric("ainovel_ai_tokens_total", "kind=\"" + kind + "\"");
+    }
+
+    @Test
     @DisplayName("用户中途停（客户端断开）记成 cancelled，而不是 done 也不是 error")
     void clientDisconnectIsRecordedAsCancelled() throws Exception {
         String token = login("user", "user123");
@@ -176,6 +218,14 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
         return "ai:user:usage:" + TestData.userId(jdbc, "user") + ":" + LocalDate.now();
     }
 
+    /** 拉取指标用的管理员 token，懒加载一次后复用（actuator 端点要求管理员角色） */
+    private String actuatorToken() throws IOException, InterruptedException {
+        if (actuatorToken == null) {
+            actuatorToken = login("admin", "admin123");
+        }
+        return actuatorToken;
+    }
+
     private double sseOutcomeCount(String outcome) {
         return sumMetric("ainovel_sse_stream_total", "outcome=\"" + outcome + "\"");
     }
@@ -187,6 +237,10 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
     /**
      * 从 /actuator/prometheus 中把某条指标（可带若干标签过滤）累加。
      *
+     * <p>必须带**管理员** token：actuator 端点由 {@code ActuatorGuardFilter} 保护，
+     * 除 health / info 外一律要求管理员角色，匿名访问会得到 401
+     * （曾用 guest() 访问，整个测试类因 401 全红，而该用例集不在默认的 {@code mvn test} 中，长期未被发现）。
+     *
      * <p>端点不可达时立即报错，不得静默返回 0：早先的版本吞掉异常、读不到即返回 0，
      * 结果断言只表现为「指标没有增长」，真正的原因（prometheus 端点未暴露）
      * 被掩盖了两轮排查。
@@ -194,7 +248,7 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
     private double sumMetric(String name, String... tags) {
         HttpResponse<String> resp;
         try {
-            resp = call("GET", "/actuator/prometheus", null, guest());
+            resp = call("GET", "/actuator/prometheus", null, asUser(actuatorToken()));
         } catch (Exception e) {
             throw new IllegalStateException("拉取 /actuator/prometheus 失败：" + e, e);
         }

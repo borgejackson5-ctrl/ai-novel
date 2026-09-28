@@ -1,13 +1,21 @@
 package com.ainovel.common.client;
 
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.metrics.BusinessMetrics;
+import com.sun.net.httpserver.HttpServer;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,5 +100,40 @@ class DashScopeEmbeddingClientTest {
         BusinessException e = assertThrows(BusinessException.class, () -> client.embed(texts(1)));
 
         assertTrue(e.getMessage().contains("Key"), "错误信息要能看出是缺 Key，而不是笼统的「失败」");
+    }
+
+    @Test
+    @DisplayName("用量按 usage.total_tokens 记在输入侧 —— embedding 没有输出 token")
+    void reportsTokenUsage() throws Exception {
+        AtomicReference<String> requestBody = new AtomicReference<>();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        // 路径与生产一致，否则这个测试会和真实端点脱节
+        server.createContext("/compatible-mode/v1/embeddings", exchange -> {
+            requestBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            byte[] body = "{\"data\":[{\"index\":0,\"embedding\":[0.1,0.2]}],\"usage\":{\"total_tokens\":42}}"
+                    .getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, body.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(body);
+            }
+        });
+        server.start();
+        try {
+            props.setBaseUrl("http://127.0.0.1:" + server.getAddress().getPort());
+            props.setEmbeddingModel("stub-embed");
+            SimpleMeterRegistry registry = new SimpleMeterRegistry();
+            DashScopeEmbeddingClient client = new DashScopeEmbeddingClient(props, new BusinessMetrics(registry));
+
+            client.embed(List.of("甲"));
+
+            Counter counter = registry.find("ainovel.ai.tokens")
+                    .tags("scene", AiScene.EMBEDDING.code(), "model", "stub-embed", "kind", "prompt")
+                    .counter();
+            assertEquals(42.0, counter == null ? 0 : counter.count(),
+                    "用量没记到输入侧。取不到时为 0（不写记录），因此这里为 0 也可能是字段名变了，需核对响应结构");
+        } finally {
+            server.stop(0);
+        }
     }
 }

@@ -90,6 +90,23 @@ public class BusinessMetrics {
         increment("ai.degrade", "scene", scene.code(), "reason", reason);
     }
 
+    /**
+     * 记录一次 AI 调用消耗的 token。
+     *
+     * <p>与 {@link #aiCall} 分开埋点，不合并为一次：用量由上游返回，部分兼容服务不返回该字段
+     * （或仅在流式下返回），而调用次数始终可知。合并后「上游未返回用量」会表现为
+     * 「这次调用不存在」，调用量凭空减少。
+     *
+     * <p>输入与输出以 {@code kind} 分列：两者单价不同，合计数无法换算费用。
+     *
+     * @param promptTokens     输入 token 数；上游未返回时传 0
+     * @param completionTokens 输出 token 数；上游未返回时传 0
+     */
+    public void aiTokens(AiScene scene, String model, int promptTokens, int completionTokens) {
+        count("ai.tokens", promptTokens, "scene", scene.code(), "model", model, "kind", "prompt");
+        count("ai.tokens", completionTokens, "scene", scene.code(), "model", model, "kind", "completion");
+    }
+
     // ==================== 缓存 ====================
 
     /**
@@ -199,6 +216,23 @@ public class BusinessMetrics {
         } catch (Exception e) {
             log.debug("指标埋点失败（不影响业务）: {}", e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 按数值累加埋点（token 这类可变量）。
+     *
+     * <p>{@code amount <= 0} 时不写入：上游未返回用量时不应产生一条 0 记录，
+     * 否则管理端无法区分「本次调用真的没消耗」与「上游没告诉用量」。
+     */
+    private void count(String name, long amount, String... tags) {
+        if (amount <= 0) {
+            return;
+        }
+        try {
+            registry.counter(PREFIX + name, tags).increment(amount);
+        } catch (Exception e) {
+            log.debug("指标埋点失败（不影响业务）: {}", e.getMessage());
         }
     }
 }

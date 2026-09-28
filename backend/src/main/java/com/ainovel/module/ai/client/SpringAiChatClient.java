@@ -10,10 +10,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.Usage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -65,13 +68,16 @@ public class SpringAiChatClient implements AiChatClient {
         requireKey(apiKey);
         long start = System.currentTimeMillis();
         try {
-            String content = clientFactory.forConfig(baseUrl, apiKey, model, fast).prompt()
+            // 取 ChatResponse 而非 content()：用量只在响应元数据中，content() 会将其丢弃；
+            // 另发一次请求仅用于取用量会重复计费
+            ChatResponse response = clientFactory.forConfig(baseUrl, apiKey, model, fast).prompt()
                     .system(systemPrompt)
                     .user(userPrompt)
                     .options(clientFactory.options(model, temperature))
                     .call()
-                    .content();
-            String text = content == null ? "" : content;
+                    .chatResponse();
+            String text = contentOf(response);
+            recordUsage(scene, model, usageOf(response));
             logCall(scene, model, systemPrompt.length() + userPrompt.length(), text.length(), start);
             return text;
         } catch (Exception e) {
@@ -87,14 +93,25 @@ public class SpringAiChatClient implements AiChatClient {
         requireKey(apiKey);
         long start = System.currentTimeMillis();
         AtomicInteger replyChars = new AtomicInteger();
+        // 用量只在最后一个分片回传（请求体的 stream_options.include_usage）：逐片覆盖，结束时即为最终值
+        AtomicReference<Usage> usage = new AtomicReference<>();
         try {
             clientFactory.forConfig(baseUrl, apiKey, model, false).prompt()
                     .system(systemPrompt)
                     .user(userPrompt)
                     .options(clientFactory.options(model, temperature))
                     .stream()
-                    .content()
-                    .doOnNext(chunk -> {
+                    .chatResponse()
+                    .doOnNext(response -> {
+                        Usage latest = usageOf(response);
+                        if (latest != null) {
+                            usage.set(latest);
+                        }
+                        String chunk = contentOf(response);
+                        // 仅携带用量的收尾分片没有 choices：跳过它，否则会向 SSE 推一帧空内容
+                        if (chunk.isEmpty()) {
+                            return;
+                        }
                         replyChars.addAndGet(chunk.length());
                         // 此处抛出的异常会被 Reactor 视为错误信号：**上游订阅立即被取消**，
                         // blockLast 随即返回。这是「用户点击停止后本端立即停止」的实现方式。
@@ -107,6 +124,7 @@ public class SpringAiChatClient implements AiChatClient {
                     // 同步读完整条流：本方法需向调用方提供「读完才返回」的语义，
                     // 上层（AiController）在专用线程池中执行，不占用 Servlet 线程
                     .blockLast();
+            recordUsage(scene, model, usage.get());
             logCall(scene, model, systemPrompt.length() + userPrompt.length(),
                     replyChars.get(), start);
         } catch (StreamCancelledException e) {
@@ -124,6 +142,42 @@ public class SpringAiChatClient implements AiChatClient {
         if (apiKey == null || apiKey.isBlank()) {
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "未配置 AI API Key");
         }
+    }
+
+    /**
+     * 取正文。启用用量回传后，最后一个分片只带 usage、不带 choices
+     * （{@code getResult()} 为 null），此时返回空串，由调用方跳过。
+     */
+    private static String contentOf(ChatResponse response) {
+        if (response == null || response.getResult() == null || response.getResult().getOutput() == null) {
+            return "";
+        }
+        String text = response.getResult().getOutput().getText();
+        return text == null ? "" : text;
+    }
+
+    /** 取用量元数据；上游未返回任何用量时为 null */
+    private static Usage usageOf(ChatResponse response) {
+        if (response == null || response.getMetadata() == null) {
+            return null;
+        }
+        return response.getMetadata().getUsage();
+    }
+
+    /**
+     * 记录用量。上游未返回的字段以 0 传入，埋点层据此不写记录
+     * （见 {@link BusinessMetrics#aiTokens}），避免与「确实为 0」混淆。
+     */
+    private void recordUsage(AiScene scene, String model, Usage usage) {
+        if (usage == null) {
+            return;
+        }
+        businessMetrics.aiTokens(scene, model,
+                tokens(usage.getPromptTokens()), tokens(usage.getCompletionTokens()));
+    }
+
+    private static int tokens(Integer value) {
+        return value == null ? 0 : value;
     }
 
     /**

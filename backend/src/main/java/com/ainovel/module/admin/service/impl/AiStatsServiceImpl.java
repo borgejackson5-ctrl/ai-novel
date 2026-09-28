@@ -49,6 +49,8 @@ public class AiStatsServiceImpl implements AiStatsService {
 
     private static final String M_AI_CALL_DURATION = "ainovel.ai.call.duration";
 
+    private static final String M_AI_TOKENS = "ainovel.ai.tokens";
+
     private static final String M_AI_DEGRADE = "ainovel.ai.degrade";
 
     private static final String M_CACHE_ACCESS = "ainovel.cache.access";
@@ -140,6 +142,16 @@ public class AiStatsServiceImpl implements AiStatsService {
             stat.setAvgCostMs(count == 0 ? 0 : Math.round(timer.totalTime(TimeUnit.MILLISECONDS) / count));
             stat.setMaxCostMs(Math.round(timer.max(TimeUnit.MILLISECONDS)));
         }
+        // 用量与调用次数分开累计：上游未返回用量的调用仍计入次数，此处只累加能拿到的部分
+        for (Counter counter : registry.find(M_AI_TOKENS).counters()) {
+            AiStatsVO.SceneStat stat = sceneStat(byKey, counter);
+            long amount = (long) counter.count();
+            if ("completion".equals(tag(counter, "kind"))) {
+                stat.setCompletionTokens(stat.getCompletionTokens() + amount);
+            } else {
+                stat.setPromptTokens(stat.getPromptTokens() + amount);
+            }
+        }
         List<AiStatsVO.SceneStat> list = new ArrayList<>(byKey.values());
         list.sort(Comparator.comparingLong(AiStatsVO.SceneStat::getSucceeded).reversed());
         return list;
@@ -162,9 +174,13 @@ public class AiStatsServiceImpl implements AiStatsService {
     private static AiStatsVO.Totals totals(List<AiStatsVO.SceneStat> scenes) {
         long succeeded = 0;
         long failed = 0;
+        long promptTokens = 0;
+        long completionTokens = 0;
         for (AiStatsVO.SceneStat stat : scenes) {
             succeeded += stat.getSucceeded();
             failed += stat.getFailed();
+            promptTokens += stat.getPromptTokens();
+            completionTokens += stat.getCompletionTokens();
         }
         long attempts = succeeded + failed;
         AiStatsVO.Totals totals = new AiStatsVO.Totals();
@@ -172,6 +188,8 @@ public class AiStatsServiceImpl implements AiStatsService {
         totals.setFailed(failed);
         totals.setAttempts(attempts);
         totals.setSuccessRate(attempts == 0 ? 0 : (double) succeeded / attempts);
+        totals.setPromptTokens(promptTokens);
+        totals.setCompletionTokens(completionTokens);
         return totals;
     }
 

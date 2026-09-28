@@ -43,3 +43,11 @@ export const quotaStatus = (quota) => {
 export const pctText = (ratio) => (
   ratio === null || ratio === undefined ? '—' : `${(ratio * 100).toFixed(1)}%`
 )
+
+/**
+ * 计数文本：先转数字再加千分位。
+ *
+ * 计数不可直接渲染：后端把 Long 序列化为字符串，位数多时既无分隔也不便核对
+ * （详见文件头的说明）。token 用量是六位以上的常见来源。
+ */
+export const countText = (v) => toNum(v).toLocaleString('zh-CN')

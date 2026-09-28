@@ -122,6 +122,7 @@ public class AiClient implements AiChatClient {
 
             JsonNode root = objectMapper.readTree(response);
             String content = root.path("choices").path(0).path("message").path("content").asText("");
+            recordUsage(scene, model, root.path("usage"));
             logCall(scene, model, systemPrompt.length() + userPrompt.length(), content.length(), start);
             return content;
         } catch (BusinessException e) {
@@ -174,6 +175,9 @@ public class AiClient implements AiChatClient {
                 "model", model,
                 "temperature", temperature,
                 "stream", true,
+                // 流式响应默认不回传用量，需显式要求：不打开则本项目消耗最大的生成类场景
+                // 在管理端统计里整段缺失（见 SpringAiChatClient 同名选项）
+                "stream_options", Map.of("include_usage", true),
                 "max_tokens", props.getMaxTokens(),
                 "messages", List.of(
                         Map.of("role", "system", "content", systemPrompt),
@@ -182,11 +186,11 @@ public class AiClient implements AiChatClient {
         );
 
         long start = System.currentTimeMillis();
-        int replyChars;
+        SseResult result;
         try {
             // exchange 会绕过消息转换器与状态码异常机制，因此 HTTP 错误状态需自行判断。
             // 在 lambda 内读完流，响应关闭交由 Spring 处理（不要将其返回到 lambda 外部）。
-            replyChars = restClient.post()
+            result = restClient.post()
                     .uri(baseUrl + "/chat/completions")
                     .header("Authorization", "Bearer " + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -201,7 +205,8 @@ public class AiClient implements AiChatClient {
                         }
                         return readSse(response.getBody(), onChunk);
                     });
-            logCall(scene, model, systemPrompt.length() + userPrompt.length(), replyChars, start);
+            recordUsage(scene, model, result);
+            logCall(scene, model, systemPrompt.length() + userPrompt.length(), result.chars(), start);
         } catch (StreamCancelledException e) {
             // 主动停止不属于失败：原样抛出，不包装为业务异常（见 AiChatClient 上的契约说明），
             // 也不计入失败数。该抛出同时会关闭 readSse 中 try-with-resources 持有的输入流，
@@ -219,10 +224,15 @@ public class AiClient implements AiChatClient {
     }
 
     /**
-     * 读 SSE 流并逐段回调，返回累计字符数（只用于日志，不记正文）。
+     * 读 SSE 流并逐段回调，返回累计字符数（只用于日志，不记正文）与上游回传的用量。
+     *
+     * <p>启用用量回传后，收尾分片只带 {@code usage}、{@code choices} 为空数组：
+     * 该分片不产生回调，因此正文与用量需分开判断。
      */
-    private int readSse(InputStream is, Consumer<String> onChunk) throws IOException {
+    private SseResult readSse(InputStream is, Consumer<String> onChunk) throws IOException {
         int chars = 0;
+        int promptTokens = 0;
+        int completionTokens = 0;
         try (InputStream in = is;
              BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             String line;
@@ -240,9 +250,40 @@ public class AiClient implements AiChatClient {
                     chars += delta.length();
                     onChunk.accept(delta);
                 }
+                JsonNode usage = node.path("usage");
+                if (!usage.isMissingNode() && !usage.isNull()) {
+                    // 以最后一次非零值为准，而不是累加：按规范用量只在收尾分片回传一次；
+                    // 若上游逐片回传（非规范实现），累加会成倍放大
+                    int prompt = usage.path("prompt_tokens").asInt(0);
+                    int completion = usage.path("completion_tokens").asInt(0);
+                    if (prompt > 0) {
+                        promptTokens = prompt;
+                    }
+                    if (completion > 0) {
+                        completionTokens = completion;
+                    }
+                }
             }
         }
-        return chars;
+        return new SseResult(chars, promptTokens, completionTokens);
+    }
+
+    /** 一次流式读取的结果：正文累计字符数（仅用于日志）与上游回传的用量 */
+    private record SseResult(int chars, int promptTokens, int completionTokens) {
+    }
+
+    /**
+     * 记录非流式响应的用量。OpenAI 兼容接口在非流式响应中返回 {@code usage}；
+     * 少数服务不返回该字段，此时取到 0，埋点层据此不写记录（见 {@link BusinessMetrics#aiTokens}）。
+     */
+    private void recordUsage(AiScene scene, String model, JsonNode usage) {
+        businessMetrics.aiTokens(scene, model,
+                usage.path("prompt_tokens").asInt(0), usage.path("completion_tokens").asInt(0));
+    }
+
+    /** 记录流式响应的用量 */
+    private void recordUsage(AiScene scene, String model, SseResult result) {
+        businessMetrics.aiTokens(scene, model, result.promptTokens(), result.completionTokens());
     }
 
     private org.springframework.http.client.ClientHttpRequestFactory clientRequestFactory(int timeoutSeconds) {

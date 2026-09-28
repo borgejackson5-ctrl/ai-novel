@@ -40,6 +40,16 @@ public final class FakeOpenAiServer {
 
     private static final long CHUNK_GAP_MS = 60L;
 
+    /** 流式收尾分片回传的用量，取固定值供集成测试断言 */
+    public static final int STREAM_PROMPT_TOKENS = 12;
+
+    public static final int STREAM_COMPLETION_TOKENS = 34;
+
+    /** 非流式响应回传的用量 */
+    public static final int SYNC_PROMPT_TOKENS = 1;
+
+    public static final int SYNC_COMPLETION_TOKENS = 1;
+
     private final HttpServer server;
 
     private final AtomicInteger calls = new AtomicInteger();
@@ -115,8 +125,12 @@ public final class FakeOpenAiServer {
         }
 
         // 应用发送的是 OpenAI 请求体，stream 字段决定是否走 SSE
-        if (request.replace(" ", "").contains("\"stream\":true")) {
-            respondStream(exchange);
+        String compact = request.replace(" ", "");
+        if (compact.contains("\"stream\":true")) {
+            // 真实上游只在请求体要求时才回传用量。此处照此实现：若应用忘了带
+            // stream_options.include_usage，集成测试就取不到用量而失败 —— 这是唯一能
+            // 证伪「流式 token 统计是否真的接通」的方式
+            respondStream(exchange, compact.contains("\"include_usage\":true"));
         } else {
             respondOnce(exchange);
         }
@@ -126,8 +140,9 @@ public final class FakeOpenAiServer {
         String json = """
                 {"id":"chatcmpl-stub","object":"chat.completion","created":1,"model":"%s",
                  "choices":[{"index":0,"message":{"role":"assistant","content":"%s"},"finish_reason":"stop"}],
-                 "usage":{"prompt_tokens":1,"completion_tokens":1,"total_tokens":2}}
-                """.formatted(MODEL, content(1));
+                 "usage":{"prompt_tokens":%d,"completion_tokens":%d,"total_tokens":%d}}
+                """.formatted(MODEL, content(1), SYNC_PROMPT_TOKENS, SYNC_COMPLETION_TOKENS,
+                SYNC_PROMPT_TOKENS + SYNC_COMPLETION_TOKENS);
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, body.length);
@@ -136,7 +151,7 @@ public final class FakeOpenAiServer {
         }
     }
 
-    private void respondStream(HttpExchange exchange) throws IOException {
+    private void respondStream(HttpExchange exchange, boolean includeUsage) throws IOException {
         exchange.getResponseHeaders().add("Content-Type", "text/event-stream; charset=utf-8");
         // 长度 0 表示分块传输，才能逐段推送
         exchange.sendResponseHeaders(200, 0);
@@ -147,11 +162,27 @@ public final class FakeOpenAiServer {
                 Thread.sleep(CHUNK_GAP_MS);
             }
             write(out, chunk(null, "stop"));
+            if (includeUsage) {
+                write(out, usageChunk());
+            }
             write(out, "data: [DONE]\n\n");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         // 客户端中途断开时 out.write 抛出 IOException，方法就此结束，与真实上游行为一致
+    }
+
+    /**
+     * 收尾的用量分片。
+     *
+     * <p>{@code choices} 为空数组，与真实上游一致 —— 解析方必须能处理「没有 choices」的分片，
+     * 按 {@code choices[0]} 直接取正文会在这里崩或取到空值。
+     */
+    private static String usageChunk() {
+        return "data: {\"id\":\"chatcmpl-stub\",\"object\":\"chat.completion.chunk\",\"created\":1,\"model\":\""
+                + MODEL + "\",\"choices\":[],\"usage\":{\"prompt_tokens\":" + STREAM_PROMPT_TOKENS
+                + ",\"completion_tokens\":" + STREAM_COMPLETION_TOKENS
+                + ",\"total_tokens\":" + (STREAM_PROMPT_TOKENS + STREAM_COMPLETION_TOKENS) + "}}\n\n";
     }
 
     private static String content(int index) {

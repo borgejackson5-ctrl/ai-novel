@@ -28,7 +28,9 @@ class AiClientTest extends AiChatClientContract {
     @Override
     AiChatClient createClient(AiProperties props) {
         // 指标门面用真实对象 + 内存 registry：它是无副作用的写入，不需要 mock
-        AiClient client = new AiClient(props, new BusinessMetrics(new SimpleMeterRegistry()), HttpClient.newHttpClient());
+        meterRegistry = new SimpleMeterRegistry();
+        metrics = new BusinessMetrics(meterRegistry);
+        AiClient client = new AiClient(props, metrics, HttpClient.newHttpClient());
         // @PostConstruct 仅在 Spring 容器中自动触发，测试中需手动调用（它负责创建两个超时不同的 RestClient）
         client.init();
         return client;
