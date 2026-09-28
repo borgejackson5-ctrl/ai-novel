@@ -2,6 +2,7 @@ package com.ainovel.module.ai.service.impl;
 
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.AiConstant;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.module.ai.client.AiChatClient;
 import com.ainovel.module.ai.domain.PolishMode;
@@ -173,7 +174,7 @@ public class AiWritingServiceImpl implements AiWritingService {
                 target.targetChars());
 
         long start = System.currentTimeMillis();
-        aiClient.chatStream(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+        aiClient.chatStream(AiScene.CONTINUE, config.getBaseUrl(), config.getApiKey(), config.getModel(),
                 temperatureOf(config), CONTINUE_SYSTEM_PROMPT, userPrompt, onChunk);
         log.info("AI 续写完成：上文 {} 字，目标 {} 字，耗时 {}ms",
                 context.length(), target.targetChars(), System.currentTimeMillis() - start);
@@ -202,7 +203,7 @@ public class AiWritingServiceImpl implements AiWritingService {
                 POLISH_INSTRUCTIONS.get(mode), content.strip());
 
         long start = System.currentTimeMillis();
-        aiClient.chatStream(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+        aiClient.chatStream(AiScene.POLISH, config.getBaseUrl(), config.getApiKey(), config.getModel(),
                 POLISH_TEMPERATURE, POLISH_SYSTEM_PROMPT, userPrompt, onChunk);
         log.info("AI 润色完成：{}，原文 {} 字，耗时 {}ms",
                 mode.label(), content.length(), System.currentTimeMillis() - start);

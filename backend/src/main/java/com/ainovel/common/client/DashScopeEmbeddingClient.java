@@ -1,7 +1,9 @@
 package com.ainovel.common.client;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
+import com.ainovel.common.metrics.BusinessMetrics;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -44,8 +46,11 @@ public class DashScopeEmbeddingClient implements EmbeddingClient {
     /** RestClient 线程安全，作为单例复用 */
     private final RestClient restClient;
 
-    public DashScopeEmbeddingClient(DashScopeProperties props) {
+    private final BusinessMetrics businessMetrics;
+
+    public DashScopeEmbeddingClient(DashScopeProperties props, BusinessMetrics businessMetrics) {
         this.props = props;
+        this.businessMetrics = businessMetrics;
         this.restClient = RestClient.builder().baseUrl(props.getBaseUrl()).build();
     }
 
@@ -86,25 +91,32 @@ public class DashScopeEmbeddingClient implements EmbeddingClient {
         body.put("encoding_format", "float");
 
         long start = System.currentTimeMillis();
-        JsonNode response;
         try {
-            response = restClient.post()
+            JsonNode response = restClient.post()
                     .uri(EMBEDDINGS_PATH)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + props.getApiKey())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
                     .body(JsonNode.class);
+            List<float[]> vectors = parse(response, batch.size());
+            // 按批计数：调用方传入超过 batchSize 条时会被切成多批，每批都是一次真实调用
+            businessMetrics.aiCall(AiScene.EMBEDDING, props.getEmbeddingModel(),
+                    System.currentTimeMillis() - start);
+            log.info("文本向量化：{} 条，维度 {}，耗时 {}ms", vectors.size(),
+                    vectors.get(0).length, System.currentTimeMillis() - start);
+            return vectors;
+        } catch (BusinessException e) {
+            // 返回数据不完整等已收敛为业务异常的情况：原样抛出，同样计入失败
+            businessMetrics.aiCallFailed(AiScene.EMBEDDING, props.getEmbeddingModel(), "other");
+            throw e;
         } catch (Exception e) {
+            businessMetrics.aiCallFailed(AiScene.EMBEDDING, props.getEmbeddingModel(), "other");
             // 「调用失败」与「无相关结果」在界面上表现一致，仅能通过该日志区分，
             // 因此必须记录失败，不能静默吞掉并返回空向量
             log.warn("文本向量化失败：{} 条，耗时 {}ms", batch.size(), System.currentTimeMillis() - start, e);
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "文本向量化失败，请稍后重试");
         }
-        List<float[]> vectors = parse(response, batch.size());
-        log.info("文本向量化：{} 条，维度 {}，耗时 {}ms", vectors.size(),
-                vectors.get(0).length, System.currentTimeMillis() - start);
-        return vectors;
     }
 
     /**

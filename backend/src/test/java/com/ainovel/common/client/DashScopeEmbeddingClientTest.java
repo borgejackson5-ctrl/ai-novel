@@ -1,6 +1,7 @@
 package com.ainovel.common.client;
 
 import com.ainovel.common.exception.BusinessException;
+import com.ainovel.common.metrics.BusinessMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import java.util.stream.IntStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * 向量客户端中不需要发起网络请求的部分：批量切分与快速失败。
@@ -36,7 +38,7 @@ class DashScopeEmbeddingClientTest {
         private final List<Integer> batches = new ArrayList<>();
 
         Recorder(DashScopeProperties props) {
-            super(props);
+            super(props, mock(BusinessMetrics.class));
         }
 
         @Override
@@ -85,7 +87,7 @@ class DashScopeEmbeddingClientTest {
     @DisplayName("没配 Key ⇒ 立刻报错，不打网络（也别悄悄返回空向量）")
     void blankKeyFailsFast() {
         props.setApiKey("");
-        DashScopeEmbeddingClient client = new DashScopeEmbeddingClient(props);
+        DashScopeEmbeddingClient client = new DashScopeEmbeddingClient(props, mock(BusinessMetrics.class));
 
         BusinessException e = assertThrows(BusinessException.class, () -> client.embed(texts(1)));
 

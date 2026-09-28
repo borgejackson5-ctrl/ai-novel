@@ -68,7 +68,7 @@ class AiSearchServiceTest {
     void parse_normalJson() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著", 3L, "侠义公案"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("{\"keywords\":[\"重生\"],\"tags\":[\"爽文\"],\"categoryId\":3}");
 
         aiSearchService.smartSearch(form("想看重生爽文"));
@@ -88,7 +88,7 @@ class AiSearchServiceTest {
     void parse_markdownFence() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("好的，解析结果如下：\n```json\n{\"keywords\":[\"言情\"],\"tags\":[\"世家\"],\"categoryId\":null}\n```\n请查收");
 
         SmartSearchVO vo = aiSearchService.smartSearch(form("权谋言情小说"));
@@ -104,7 +104,7 @@ class AiSearchServiceTest {
     void parse_garbage_degrades() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("抱歉，我无法理解您的搜索意图。");
         when(searchService.smartSearch(any(SearchIntent.class), anyInt(), anyInt()))
                 .thenReturn(PageResult.of(1, 1, 10, List.of(new NovelVO())));
@@ -124,7 +124,7 @@ class AiSearchServiceTest {
     void parse_llmFailure_degrades() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenThrow(new RuntimeException("read timeout"));
         when(searchService.smartSearch(any(SearchIntent.class), anyInt(), anyInt()))
                 .thenReturn(PageResult.of(6, 1, 10, List.of(new NovelVO())));
@@ -143,7 +143,7 @@ class AiSearchServiceTest {
     void parse_hallucinatedCategoryId_ignored() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("{\"keywords\":[\"言情\"],\"tags\":[],\"categoryId\":999}");
 
         SmartSearchVO vo = aiSearchService.smartSearch(form("言情小说"));
@@ -158,7 +158,7 @@ class AiSearchServiceTest {
     void parse_tokenOverflow_truncated() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("{\"keywords\":[\"重生\",\"穿越\",\"逆袭\",\"世家\",\"仙侠\",\"第6个应被截断\"],"
                         + "\"tags\":[\"" + "超".repeat(30) + "\",\"爽文\"],\"categoryId\":null}");
 
@@ -197,7 +197,7 @@ class AiSearchServiceTest {
     void parse_emptyIntent_degrades() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenReturn("{\"keywords\":[],\"tags\":[],\"categoryId\":1}");
 
         SmartSearchVO vo = aiSearchService.smartSearch(form("推荐一下"));
@@ -231,7 +231,7 @@ class AiSearchServiceTest {
 
         assertFalse(vo.getDegraded());
         assertEquals("cached", vo.getSource());
-        verify(aiClient, never()).chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString());
+        verify(aiClient, never()).chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString());
         verify(searchService).smartSearch(any(SearchIntent.class), eq(1), eq(10));
     }
 
@@ -278,7 +278,7 @@ class AiSearchServiceTest {
     void fallback_noHit_offersCategories() {
         mockConfigWithKey();
         when(categoryService.getNameMap()).thenReturn(Map.of(1L, "古典名著", 3L, "侠义公案"));
-        when(aiClient.chatFast(anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
+        when(aiClient.chatFast(any(), anyString(), anyString(), anyString(), anyDouble(), anyString(), anyString()))
                 .thenThrow(new RuntimeException("read timeout"));
         // 「随便看看」会被本地规则整句当作关键词，自然检索不到结果
         when(searchService.smartSearch(any(SearchIntent.class), anyInt(), anyInt()))

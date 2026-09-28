@@ -1,6 +1,7 @@
 package com.ainovel.module.ai.client;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.exception.StreamCancelledException;
 import com.ainovel.common.metrics.BusinessMetrics;
@@ -76,22 +77,22 @@ public class AiClient implements AiChatClient {
      * 单轮对话，返回模型文本输出
      */
     @Override
-    public String chat(String baseUrl, String apiKey, String model, double temperature,
+    public String chat(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                        String systemPrompt, String userPrompt) {
-        return doChat(restClient, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
+        return doChat(scene, restClient, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
     }
 
     /**
      * 短超时单轮对话：用于搜索意图解析等交互路径，超时快速失败由调用方降级
      */
     @Override
-    public String chatFast(String baseUrl, String apiKey, String model, double temperature,
+    public String chatFast(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                            String systemPrompt, String userPrompt) {
-        return doChat(fastClient, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
+        return doChat(scene, fastClient, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
     }
 
-    private String doChat(RestClient client, String baseUrl, String apiKey, String model, double temperature,
-                          String systemPrompt, String userPrompt) {
+    private String doChat(AiScene scene, RestClient client, String baseUrl, String apiKey, String model,
+                          double temperature, String systemPrompt, String userPrompt) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "未配置 AI API Key");
         }
@@ -121,11 +122,13 @@ public class AiClient implements AiChatClient {
 
             JsonNode root = objectMapper.readTree(response);
             String content = root.path("choices").path(0).path("message").path("content").asText("");
-            logCall("chat", model, systemPrompt.length() + userPrompt.length(), content.length(), start);
+            logCall(scene, model, systemPrompt.length() + userPrompt.length(), content.length(), start);
             return content;
         } catch (BusinessException e) {
+            businessMetrics.aiCallFailed(scene, model, "other");
             throw e;
         } catch (Exception e) {
+            businessMetrics.aiCallFailed(scene, model, "other");
             log.error("调用 AI 接口失败", e);
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "调用 AI 接口失败，请检查 Key 与网络", e);
         }
@@ -135,7 +138,7 @@ public class AiClient implements AiChatClient {
      * 调用日志：只记模型、耗时与字数，**不记 Key、不记正文**。
      * 正文既可能很长（污染日志），也可能属于用户未发布的创作内容（不应写入日志）。
      */
-    private void logCall(String scene, String model, int promptChars, int replyChars, long startMs) {
+    private void logCall(AiScene scene, String model, int promptChars, int replyChars, long startMs) {
         long costMs = System.currentTimeMillis() - startMs;
         // 指标不受 enable-log 开关影响：日志供人工查看、线上可能被关闭，
         // 而「调用量 / 耗时」需长期观察趋势，不应随日志一并中断
@@ -144,7 +147,7 @@ public class AiClient implements AiChatClient {
             return;
         }
         log.info("AI 调用 scene={} model={} 耗时={}ms 输入={}字 输出={}字",
-                scene, model, costMs, promptChars, replyChars);
+                scene.code(), model, costMs, promptChars, replyChars);
     }
 
     /**
@@ -161,7 +164,7 @@ public class AiClient implements AiChatClient {
      * @param onChunk 每收到一段增量文本时的回调
      */
     @Override
-    public void chatStream(String baseUrl, String apiKey, String model, double temperature,
+    public void chatStream(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                            String systemPrompt, String userPrompt, Consumer<String> onChunk) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "未配置 AI API Key");
@@ -198,13 +201,18 @@ public class AiClient implements AiChatClient {
                         }
                         return readSse(response.getBody(), onChunk);
                     });
-            logCall("chatStream", model, systemPrompt.length() + userPrompt.length(), replyChars, start);
-        } catch (BusinessException | StreamCancelledException e) {
-            // 主动停止不属于失败：原样抛出，不包装为业务异常（见 AiChatClient 上的契约说明）。
-            // 该抛出同时会关闭 readSse 中 try-with-resources 持有的输入流，连接中断后模型侧才会真正停止；
-            // 若吞掉该异常，用户已关闭页面，服务端仍会继续生成完毕
+            logCall(scene, model, systemPrompt.length() + userPrompt.length(), replyChars, start);
+        } catch (StreamCancelledException e) {
+            // 主动停止不属于失败：原样抛出，不包装为业务异常（见 AiChatClient 上的契约说明），
+            // 也不计入失败数。该抛出同时会关闭 readSse 中 try-with-resources 持有的输入流，
+            // 连接中断后模型侧才会真正停止；若吞掉该异常，用户已关闭页面，服务端仍会继续生成完毕
+            throw e;
+        } catch (BusinessException e) {
+            // try 块内抛出业务异常的唯一来源是「HTTP 非 2xx」，原样抛出以保留原有提示文案
+            businessMetrics.aiCallFailed(scene, model, "other");
             throw e;
         } catch (Exception e) {
+            businessMetrics.aiCallFailed(scene, model, "other");
             log.error("调用 AI 流式接口失败", e);
             throw new BusinessException(ErrorCode.AI_GENERATE_FAIL, "调用 AI 流式接口失败", e);
         }

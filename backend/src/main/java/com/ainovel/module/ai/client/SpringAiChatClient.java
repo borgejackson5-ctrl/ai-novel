@@ -1,6 +1,7 @@
 package com.ainovel.module.ai.client;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.exception.StreamCancelledException;
 import com.ainovel.common.metrics.BusinessMetrics;
@@ -48,18 +49,18 @@ public class SpringAiChatClient implements AiChatClient {
     }
 
     @Override
-    public String chat(String baseUrl, String apiKey, String model, double temperature,
+    public String chat(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                        String systemPrompt, String userPrompt) {
-        return doChat("chat", false, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
+        return doChat(scene, false, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
     }
 
     @Override
-    public String chatFast(String baseUrl, String apiKey, String model, double temperature,
+    public String chatFast(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                            String systemPrompt, String userPrompt) {
-        return doChat("chatFast", true, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
+        return doChat(scene, true, baseUrl, apiKey, model, temperature, systemPrompt, userPrompt);
     }
 
-    private String doChat(String scene, boolean fast, String baseUrl, String apiKey, String model,
+    private String doChat(AiScene scene, boolean fast, String baseUrl, String apiKey, String model,
                           double temperature, String systemPrompt, String userPrompt) {
         requireKey(apiKey);
         long start = System.currentTimeMillis();
@@ -74,12 +75,14 @@ public class SpringAiChatClient implements AiChatClient {
             logCall(scene, model, systemPrompt.length() + userPrompt.length(), text.length(), start);
             return text;
         } catch (Exception e) {
+            // 失败计数与成功计数分列，管理端据此算成功率
+            businessMetrics.aiCallFailed(scene, model, "other");
             throw toBusinessException(e);
         }
     }
 
     @Override
-    public void chatStream(String baseUrl, String apiKey, String model, double temperature,
+    public void chatStream(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                            String systemPrompt, String userPrompt, Consumer<String> onChunk) {
         requireKey(apiKey);
         long start = System.currentTimeMillis();
@@ -104,13 +107,15 @@ public class SpringAiChatClient implements AiChatClient {
                     // 同步读完整条流：本方法需向调用方提供「读完才返回」的语义，
                     // 上层（AiController）在专用线程池中执行，不占用 Servlet 线程
                     .blockLast();
-            logCall("chatStream", model, systemPrompt.length() + userPrompt.length(),
+            logCall(scene, model, systemPrompt.length() + userPrompt.length(),
                     replyChars.get(), start);
         } catch (StreamCancelledException e) {
             // 用户主动停止：原样抛出。**不得进入下方的 toBusinessException**：
-            // 一旦包装即变为「生成失败」，调用方会退回一次不应退回的额度
+            // 一旦包装即变为「生成失败」，调用方会退回一次不应退回的额度。
+            // 此处同样不计入失败数：主动停止不是故障，且其数量已由 sse.stream 指标记录
             throw e;
         } catch (Exception e) {
+            businessMetrics.aiCallFailed(scene, model, "other");
             throw toBusinessException(e);
         }
     }
@@ -137,7 +142,7 @@ public class SpringAiChatClient implements AiChatClient {
      * 调用日志：只记模型、耗时与字数，**不记 Key、不记正文**。
      * 正文既可能很长（污染日志），也可能属于用户未发布的创作内容（不应写入日志）。
      */
-    private void logCall(String scene, String model, int promptChars, int replyChars, long startMs) {
+    private void logCall(AiScene scene, String model, int promptChars, int replyChars, long startMs) {
         long costMs = System.currentTimeMillis() - startMs;
         // 与手写版一致：指标不受 enable-log 开关影响（见 AiClient 同名方法的说明）
         businessMetrics.aiCall(scene, model, costMs);
@@ -145,6 +150,6 @@ public class SpringAiChatClient implements AiChatClient {
             return;
         }
         log.info("AI 调用(spring-ai) scene={} model={} 耗时={}ms 输入={}字 输出={}字",
-                scene, model, costMs, promptChars, replyChars);
+                scene.code(), model, costMs, promptChars, replyChars);
     }
 }

@@ -3,6 +3,7 @@ package com.ainovel.module.ai.service.impl;
 import com.ainovel.common.audit.SensitiveWordFilter;
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.MessageTypeConstant;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.enums.AuditStatusEnum;
 import com.ainovel.common.enums.ChapterAuditStatusEnum;
 import com.ainovel.common.exception.BusinessException;
@@ -81,7 +82,7 @@ public class AiAuditServiceImpl implements AiAuditService {
         AiConfig config = aiConfigService.getActiveConfig();
         // 平台 Key 达全局日上限时跳过 AI 审核，仅敏感词过滤 + 转人工终审（不抛错触发 MQ 重试）
         if (StringUtils.hasText(config.getApiKey()) && aiConfigService.tryAcquirePlatformQuota()) {
-            String result = aiClient.chat(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+            String result = aiClient.chat(AiScene.AUDIT_NOVEL, config.getBaseUrl(), config.getApiKey(), config.getModel(),
                     config.getTemperature() == null ? 0.3 : config.getTemperature(),
                     "你是内容审核员，判断以下小说内容是否合规。只回复\"通过\"或\"拒绝:原因\"。",
                     content);
@@ -138,7 +139,7 @@ public class AiAuditServiceImpl implements AiAuditService {
         AiConfig config = aiConfigService.getActiveConfig();
         // 平台 Key 达全局日上限时跳过 AI 审核，仅敏感词过滤 + 转人工终审（不抛错触发 MQ 重试）
         if (StringUtils.hasText(config.getApiKey()) && aiConfigService.tryAcquirePlatformQuota()) {
-            String result = aiClient.chat(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+            String result = aiClient.chat(AiScene.AUDIT_CHAPTER, config.getBaseUrl(), config.getApiKey(), config.getModel(),
                     config.getTemperature() == null ? 0.3 : config.getTemperature(),
                     "你是内容审核员，判断以下章节内容是否合规。只回复\"通过\"或\"拒绝:原因\"。",
                     content);

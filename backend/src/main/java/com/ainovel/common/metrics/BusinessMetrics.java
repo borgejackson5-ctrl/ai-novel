@@ -1,5 +1,6 @@
 package com.ainovel.common.metrics;
 
+import com.ainovel.common.enums.AiScene;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -36,22 +37,45 @@ public class BusinessMetrics {
     // ==================== AI ====================
 
     /**
-     * 记录一次**调用成功**的 AI 调用（失败的调用不计入，由 {@link #aiDegrade} 记录）。
+     * 记录一次**调用成功**的 AI 调用。
      *
-     * @param scene  调用场景（TITLE / INTRO / CONTINUE / POLISH / REVIEW / SEARCH…）
+     * <p>耗时用 Timer 记录而非自存原始值：Timer 自带 count / totalTime / max，
+     * 管理端据此算平均耗时与峰值，不需要另外维护一份耗时列表。
+     *
+     * @param scene  调用场景
      * @param model  实际使用的模型名
      * @param costMs 耗时
      */
-    public void aiCall(String scene, String model, long costMs) {
-        if (!increment("ai.call", "scene", scene, "model", model)) {
+    public void aiCall(AiScene scene, String model, long costMs) {
+        if (!increment("ai.call", "scene", scene.code(), "model", model)) {
             return;
         }
         try {
-            Timer timer = registry.timer(PREFIX + "ai.call.duration", "scene", scene);
+            Timer timer = registry.timer(PREFIX + "ai.call.duration",
+                    "scene", scene.code(), "model", model);
             timer.record(Duration.ofMillis(Math.max(0, costMs)));
         } catch (Exception e) {
             log.debug("指标埋点失败（不影响业务）: {}", e.getMessage());
         }
+    }
+
+    /**
+     * 记录一次**调用失败**的 AI 调用（HTTP 非 2xx、超时、无 Key、上游中断等）。
+     *
+     * <p>与 {@link #aiCall} 分列，而不是在同一个 counter 上加 result 标签：
+     * 失败次数需要单独观察其绝对量，缓步上升通常先于用户投诉出现；
+     * 分列后管理端可直接用两者算出成功率。
+     *
+     * <p>{@code reason} 当前由调用方统一传 {@code other}：catch 处面对的是整个调用栈的异常，
+     * 按类型细分需要区分 HTTP 状态错误、连接超时与序列化失败，而当前看板只用到失败总量与
+     * 成功率。标签结构已就位，需要按原因拆分时再由调用方分别取值。
+     *
+     * @param scene  调用场景
+     * @param model  实际使用的模型名
+     * @param reason http_error / timeout / no_key / cancelled / other
+     */
+    public void aiCallFailed(AiScene scene, String model, String reason) {
+        increment("ai.call.failed", "scene", scene.code(), "model", model, "reason", reason);
     }
 
     /**
@@ -62,8 +86,8 @@ public class BusinessMetrics {
      *
      * @param reason no_key / failed / timeout / local_fallback
      */
-    public void aiDegrade(String scene, String reason) {
-        increment("ai.degrade", "scene", scene, "reason", reason);
+    public void aiDegrade(AiScene scene, String reason) {
+        increment("ai.degrade", "scene", scene.code(), "reason", reason);
     }
 
     // ==================== 缓存 ====================

@@ -1,5 +1,6 @@
 package com.ainovel.common.metrics;
 
+import com.ainovel.common.enums.AiScene;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +36,9 @@ class BusinessMetricsTest {
     @Test
     @DisplayName("AI 调用按场景与模型分别计数，并记录耗时")
     void aiCall_countsBySceneAndModel() {
-        metrics.aiCall("TITLE", "deepseek-chat", 120);
-        metrics.aiCall("TITLE", "deepseek-chat", 80);
-        metrics.aiCall("REVIEW", "deepseek-chat", 3000);
+        metrics.aiCall(AiScene.TITLE, "deepseek-chat", 120);
+        metrics.aiCall(AiScene.TITLE, "deepseek-chat", 80);
+        metrics.aiCall(AiScene.REVIEW, "deepseek-chat", 3000);
 
         assertThat(count("ainovel.ai.call", "scene", "TITLE", "model", "deepseek-chat")).isEqualTo(2);
         assertThat(count("ainovel.ai.call", "scene", "REVIEW", "model", "deepseek-chat")).isEqualTo(1);
@@ -49,9 +50,9 @@ class BusinessMetricsTest {
     @Test
     @DisplayName("降级按场景与原因分别计数 —— 降级率就是要看这个")
     void aiDegrade_countsByReason() {
-        metrics.aiDegrade("SEARCH", "fallback");
-        metrics.aiDegrade("SEARCH", "fallback");
-        metrics.aiDegrade("SEARCH", "mock");
+        metrics.aiDegrade(AiScene.SEARCH, "fallback");
+        metrics.aiDegrade(AiScene.SEARCH, "fallback");
+        metrics.aiDegrade(AiScene.SEARCH, "mock");
 
         assertThat(count("ainovel.ai.degrade", "scene", "SEARCH", "reason", "fallback")).isEqualTo(2);
         assertThat(count("ainovel.ai.degrade", "scene", "SEARCH", "reason", "mock")).isEqualTo(1);

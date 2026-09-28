@@ -81,7 +81,7 @@ class AiWritingServiceImplTest {
     /** 抓取所有真正送进模型的 userPrompt（按调用顺序） */
     private List<String> sentPrompts() {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(aiClient, atLeastOnce()).chatStream(anyString(), anyString(), anyString(), anyDouble(),
+        verify(aiClient, atLeastOnce()).chatStream(any(), anyString(), anyString(), anyString(), anyDouble(),
                 anyString(), captor.capture(), any());
         return captor.getAllValues();
     }
@@ -162,7 +162,7 @@ class AiWritingServiceImplTest {
 
         assertTrue(got.length() > 0, "无 Key 时也要有打字机效果，否则前端没法本地开发");
         assertTrue(got.toString().contains("示例"), "演示文字要自报家门，别让作者以为模型真写了一版");
-        verify(aiClient, never()).chatStream(anyString(), anyString(), anyString(), anyDouble(),
+        verify(aiClient, never()).chatStream(any(), anyString(), anyString(), anyString(), anyDouble(),
                 anyString(), anyString(), any());
     }
 
@@ -203,7 +203,7 @@ class AiWritingServiceImplTest {
         service.polish(SENTENCE, PolishMode.EXPRESS, config, c -> { });
 
         ArgumentCaptor<Double> temp = ArgumentCaptor.forClass(Double.class);
-        verify(aiClient).chatStream(anyString(), anyString(), anyString(), temp.capture(),
+        verify(aiClient).chatStream(any(), anyString(), anyString(), anyString(), temp.capture(),
                 anyString(), anyString(), any());
         assertTrue(temp.getValue() < 0.5, "润色温度要明显低于创作档，实际 " + temp.getValue());
     }

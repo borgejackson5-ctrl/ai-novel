@@ -1,7 +1,9 @@
 package com.ainovel.common.client;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
+import com.ainovel.common.metrics.BusinessMetrics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -33,6 +35,8 @@ public class DashScopeClient {
 
     private final DashScopeProperties props;
 
+    private final BusinessMetrics businessMetrics;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private RestClient restClient;
@@ -46,10 +50,19 @@ public class DashScopeClient {
 
     /** 文生图：提交 → 轮询 → 下载，返回图片字节 */
     public byte[] textToImage(String prompt) {
-        String apiKey = requireKey();
-        String taskId = submit(apiKey, prompt);
-        String url = poll(apiKey, taskId);
-        return download(url);
+        long start = System.currentTimeMillis();
+        try {
+            String apiKey = requireKey();
+            String taskId = submit(apiKey, prompt);
+            String url = poll(apiKey, taskId);
+            byte[] image = download(url);
+            // 按次计数：一次调用产出一张图，与提示词长度无关（配额同样按次扣减）
+            businessMetrics.aiCall(AiScene.COVER, props.getModel(), System.currentTimeMillis() - start);
+            return image;
+        } catch (RuntimeException e) {
+            businessMetrics.aiCallFailed(AiScene.COVER, props.getModel(), "other");
+            throw e;
+        }
     }
 
     private String requireKey() {

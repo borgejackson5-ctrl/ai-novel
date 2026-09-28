@@ -3,6 +3,7 @@ package com.ainovel.module.ai.service.impl;
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.AiConstant;
 import com.ainovel.common.constant.MqConstant;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.enums.AuditStatusEnum;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.mq.MqSender;
@@ -121,7 +122,7 @@ public class AiServiceImpl implements AiService {
             if (isMock(config)) {
                 return mockGenerate(type, input);
             }
-            return aiClient.chat(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+            return aiClient.chat(AiScene.ofGenerateType(type), config.getBaseUrl(), config.getApiKey(), config.getModel(),
                     config.getTemperature() == null ? 0.8 : config.getTemperature(),
                     SYSTEM_PROMPTS.get(type), input);
         } catch (RuntimeException e) {
@@ -154,7 +155,7 @@ public class AiServiceImpl implements AiService {
                 sleepQuietly(15);
             }
         } else {
-            aiClient.chatStream(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+            aiClient.chatStream(AiScene.ofGenerateType(type), config.getBaseUrl(), config.getApiKey(), config.getModel(),
                     config.getTemperature() == null ? 0.8 : config.getTemperature(),
                     SYSTEM_PROMPTS.get(type), input, onChunk);
         }

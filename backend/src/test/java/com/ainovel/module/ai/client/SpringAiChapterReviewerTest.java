@@ -1,6 +1,7 @@
 package com.ainovel.module.ai.client;
 
 import com.ainovel.common.domain.PageResult;
+import com.ainovel.common.metrics.BusinessMetrics;
 import com.ainovel.module.ai.config.AiProperties;
 import com.ainovel.module.ai.domain.ChapterReviewReport;
 import com.ainovel.module.ai.tool.ChapterReviewTools;
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -66,7 +68,8 @@ class SpringAiChapterReviewerTest {
         props.setSearchTimeoutSeconds(5);
         // 使用真实的工厂与真实的工具：需要验证的正是「框架是否接上了工具、循环是否正确」
         reviewer = new SpringAiChapterReviewer(new AiChatClientFactory(props, HttpClient.newHttpClient()),
-                new ChapterReviewTools(chapterService, chapterRetrievalPort), props);
+                new ChapterReviewTools(chapterService, chapterRetrievalPort), props,
+                mock(BusinessMetrics.class));
     }
 
     @AfterEach

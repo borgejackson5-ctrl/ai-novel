@@ -1,6 +1,7 @@
 package com.ainovel.module.ai.client;
 
 import com.ainovel.common.code.ErrorCode;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.exception.StreamCancelledException;
 import com.ainovel.module.ai.config.AiProperties;
@@ -120,7 +121,7 @@ abstract class AiChatClientContract {
         try {
             AiChatClient client = clientFor(1234);
 
-            String out = client.chat(baseUrl(server), "sk-test", "deepseek-chat", 0.5, "你是审核员", "正文");
+            String out = client.chat(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "你是审核员", "正文");
 
             assertEquals("通过", out);
             assertTrue(body.get().contains("\"max_tokens\":1234"),
@@ -152,7 +153,7 @@ abstract class AiChatClientContract {
             AiChatClient client = clientFor(777);
             List<String> chunks = new ArrayList<>();
 
-            client.chatStream(baseUrl(server), "sk-test", "deepseek-chat", 0.5, "sys", "user", chunks::add);
+            client.chatStream(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "sys", "user", chunks::add);
 
             assertEquals(String.join("", chunks), "错别字", "增量文本要按顺序回调，实际：" + chunks);
             assertTrue(body.get().contains("\"max_tokens\":777"),
@@ -182,7 +183,7 @@ abstract class AiChatClientContract {
             // 断言具体异常与错误码，而不是「抛出即通过」：
             // 后者连 NPE 都会算作预期失败，等于该测试没有约束任何行为
             BusinessException ex = assertThrows(BusinessException.class, () ->
-                    client.chatStream(baseUrl(server), "sk-bad", "deepseek-chat", 0.5, "s", "u", chunks::add));
+                    client.chatStream(AiScene.TITLE, baseUrl(server), "sk-bad", "deepseek-chat", 0.5, "s", "u", chunks::add));
 
             assertEquals(ErrorCode.AI_GENERATE_FAIL, ex.getErrorCode(),
                     "401 必须转成对用户可解释的业务错误，而不是把三方异常抛到接口层");
@@ -203,7 +204,7 @@ abstract class AiChatClientContract {
 
             // 第 2 段之后模拟用户点击「停止」
             StreamCancelledException ex = assertThrows(StreamCancelledException.class, () ->
-                    client.chatStream(baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunk -> {
+                    client.chatStream(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunk -> {
                         chunks.add(chunk);
                         if (chunks.size() == 2) {
                             throw new StreamCancelledException("模拟用户点了停止");
@@ -230,7 +231,7 @@ abstract class AiChatClientContract {
             List<String> chunks = new ArrayList<>();
 
             assertThrows(StreamCancelledException.class, () ->
-                    client.chatStream(baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunk -> {
+                    client.chatStream(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunk -> {
                         chunks.add(chunk);
                         if (chunks.size() == 2) {
                             throw new StreamCancelledException("模拟用户点了停止");
@@ -260,7 +261,7 @@ abstract class AiChatClientContract {
             AiChatClient client = clientFor(100);
 
             BusinessException ex = assertThrows(BusinessException.class, () ->
-                    client.chat(baseUrl(server), "  ", "deepseek-chat", 0.5, "s", "u"));
+                    client.chat(AiScene.TITLE, baseUrl(server), "  ", "deepseek-chat", 0.5, "s", "u"));
 
             assertEquals(ErrorCode.AI_GENERATE_FAIL, ex.getErrorCode());
             assertNull(body.get(), "空 Key 不该真的发出请求");

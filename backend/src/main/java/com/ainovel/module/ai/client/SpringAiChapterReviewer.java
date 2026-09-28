@@ -1,5 +1,7 @@
 package com.ainovel.module.ai.client;
 
+import com.ainovel.common.enums.AiScene;
+import com.ainovel.common.metrics.BusinessMetrics;
 import com.ainovel.module.ai.config.AiProperties;
 import com.ainovel.module.ai.domain.ChapterReviewReport;
 import com.ainovel.module.ai.tool.ChapterReviewTools;
@@ -122,6 +124,15 @@ public class SpringAiChapterReviewer implements ChapterReviewer {
 
     private final AiProperties props;
 
+    /**
+     * 业务指标。
+     *
+     * <p>本链路此前没有任何埋点：它经 {@link AiChatClientFactory} 直接取用 {@code ChatClient}，
+     * 未经过 {@code AiChatClient}，而后者才是原先唯一的埋点位置。这使它成为统计盲区中最需要
+     * 关注的一处：单次审查会提交整章正文，且工具循环可能连续调用多轮，是单次消耗最大的链路。
+     */
+    private final BusinessMetrics businessMetrics;
+
     @Override
     public ChapterReviewReport review(ChapterReviewRequest request) {
         ChatClient client = clientFactory.forConfig(request.baseUrl(), request.apiKey(), request.model(), false);
@@ -150,7 +161,7 @@ public class SpringAiChapterReviewer implements ChapterReviewer {
         int noMaterial = 0;
 
         for (int round = 1; ; round++) {
-            ChatResponse response = call(client, messages, options);
+            ChatResponse response = call(request.model(), client, messages, options);
             if (!response.hasToolCalls()) {
                 ChapterReviewReport report = parse(converter, response);
                 addNoMaterialMark(report, noMaterial);
@@ -213,16 +224,31 @@ public class SpringAiChapterReviewer implements ChapterReviewer {
         report.setSummary(String.format(NO_MATERIAL_MARK, noMaterial) + summary);
     }
 
-    /** 单次模型调用。{@code options} 中带有工具定义，但框架不会执行它们（见类注释）。 */
-    private ChatResponse call(ChatClient client, List<Message> messages, OpenAiChatOptions options) {
-        ChatResponse response = client.prompt()
-                .messages(messages)
-                .options(options)
-                .call()
-                .chatResponse();
-        if (response == null) {
-            throw new IllegalStateException("模型没有返回任何内容");
+    /**
+     * 单次模型调用。{@code options} 中带有工具定义，但框架不会执行它们（见类注释）。
+     *
+     * <p>本方法同时是该链路的埋点位置。工具循环的每一轮都会真实调用上游并按量计费，
+     * 因此场景 {@link AiScene#REVIEW} 记录的是**模型调用次数**，而非审查过的章节数。
+     *
+     * <p>{@code model} 由调用方传入：{@code options} 是本次请求构建的一份副本，其中不含模型名。
+     */
+    private ChatResponse call(String model, ChatClient client, List<Message> messages, OpenAiChatOptions options) {
+        long start = System.currentTimeMillis();
+        ChatResponse response;
+        try {
+            response = client.prompt()
+                    .messages(messages)
+                    .options(options)
+                    .call()
+                    .chatResponse();
+            if (response == null) {
+                throw new IllegalStateException("模型没有返回任何内容");
+            }
+        } catch (RuntimeException e) {
+            businessMetrics.aiCallFailed(AiScene.REVIEW, model, "other");
+            throw e;
         }
+        businessMetrics.aiCall(AiScene.REVIEW, model, System.currentTimeMillis() - start);
         return response;
     }
 
@@ -242,7 +268,7 @@ public class SpringAiChapterReviewer implements ChapterReviewer {
         List<Message> stopMessages = new ArrayList<>(messages);
         stopMessages.add(new UserMessage(STOP_INSTRUCTION));
 
-        ChatResponse response = call(client, stopMessages,
+        ChatResponse response = call(request.model(), client, stopMessages,
                 OpenAiChatOptions.builder().internalToolExecutionEnabled(false).build());
 
         ChapterReviewReport report = parse(converter, response);

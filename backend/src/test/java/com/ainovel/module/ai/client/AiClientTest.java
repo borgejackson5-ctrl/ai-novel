@@ -1,5 +1,6 @@
 package com.ainovel.module.ai.client;
 
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.metrics.BusinessMetrics;
 import com.ainovel.module.ai.config.AiProperties;
 import com.sun.net.httpserver.HttpServer;
@@ -43,7 +44,7 @@ class AiClientTest extends AiChatClientContract {
         try {
             List<String> chunks = new ArrayList<>();
 
-            clientFor(100).chatStream(baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunks::add);
+            clientFor(100).chatStream(AiScene.TITLE, baseUrl(server), "sk-test", "deepseek-chat", 0.5, "s", "u", chunks::add);
 
             assertEquals("错别字", String.join("", chunks),
                     "手写版按 data: 前缀逐行读，不依赖服务端声明的 Content-Type");

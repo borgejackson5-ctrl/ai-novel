@@ -1,5 +1,6 @@
 package com.ainovel.module.ai.client;
 
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.StreamCancelledException;
 
 import java.util.function.Consumer;
@@ -19,24 +20,29 @@ import java.util.function.Consumer;
  *
  * <p>方法签名中携带 {@code baseUrl}/{@code apiKey}/{@code model} 是**有意设计**：
  * 本站支持 BYOK，每个用户可能使用不同的服务商与地址，调用方每次均需传入生效配置。
+ *
+ * <p>{@code scene} 同样由调用方传入，不由实现按方法名推断。调用量与耗时按场景分组统计，
+ * 而「同步起名」与「搜索意图解析」同属非流式调用，仅凭方法名无法区分，
+ * 会被记到同一个标签下。该参数置于首位，使调用点先声明意图、再传配置。
  */
 public interface AiChatClient {
 
     /**
      * 单轮对话，返回模型文本输出。
      *
+     * @param scene      调用场景，用于调用量与耗时的分组统计
      * @param baseUrl    形如 {@code https://api.deepseek.com/v1}（**含**版本段，客户端只补 {@code /chat/completions}）
      * @param temperature 采样温度
      * @param systemPrompt 系统提示词
      * @param userPrompt   用户输入
      */
-    String chat(String baseUrl, String apiKey, String model, double temperature,
+    String chat(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                 String systemPrompt, String userPrompt);
 
     /**
      * 短超时单轮对话：用于搜索意图解析这类交互路径，超时快速失败、由调用方降级。
      */
-    String chatFast(String baseUrl, String apiKey, String model, double temperature,
+    String chatFast(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                     String systemPrompt, String userPrompt);
 
     /**
@@ -62,6 +68,6 @@ public interface AiChatClient {
      *
      * @param onChunk 每收到一段增量文本时的回调
      */
-    void chatStream(String baseUrl, String apiKey, String model, double temperature,
+    void chatStream(AiScene scene, String baseUrl, String apiKey, String model, double temperature,
                     String systemPrompt, String userPrompt, Consumer<String> onChunk);
 }

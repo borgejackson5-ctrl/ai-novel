@@ -1,5 +1,7 @@
 package com.ainovel.common.client;
 
+import com.ainovel.common.metrics.BusinessMetrics;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -99,7 +101,7 @@ class EmbeddingLiveProbeTest {
         DashScopeProperties props = new DashScopeProperties();
         props.setApiKey(localApiKey());
         props.setEmbeddingDimensions(DIMENSIONS);
-        return new DashScopeEmbeddingClient(props);
+        return new DashScopeEmbeddingClient(props, new BusinessMetrics(new SimpleMeterRegistry()));
     }
 
     /**

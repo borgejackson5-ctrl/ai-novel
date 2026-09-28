@@ -3,6 +3,7 @@ package com.ainovel.module.search.service.impl;
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.AiConstant;
 import com.ainovel.common.domain.PageResult;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.common.exception.BusinessException;
 import com.ainovel.common.metrics.BusinessMetrics;
 import com.ainovel.common.util.LoginUserUtil;
@@ -181,7 +182,7 @@ public class AiSearchServiceImpl implements AiSearchService {
                     source = "mock";
                     model = "mock";
                 } else {
-                    String llmOutput = aiClient.chatFast(config.getBaseUrl(), config.getApiKey(), config.getModel(),
+                    String llmOutput = aiClient.chatFast(AiScene.SEARCH, config.getBaseUrl(), config.getApiKey(), config.getModel(),
                             PARSE_TEMPERATURE, buildSystemPrompt(categoryNames), query);
                     intent = parseIntent(llmOutput, categoryNames.keySet());
                 }
@@ -424,7 +425,7 @@ public class AiSearchServiceImpl implements AiSearchService {
         long costMs = System.currentTimeMillis() - start;
         if (degraded) {
             // model 即降级来源（fallback / mock），直接作为 reason 使用
-            businessMetrics.aiDegrade("SEARCH", model);
+            businessMetrics.aiDegrade(AiScene.SEARCH, model);
         }
         log.info("智能搜索：意图解析 model={} degraded={} 耗时={}ms queryChars={}",
                 model, degraded, costMs, queryChars);
