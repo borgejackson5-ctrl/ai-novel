@@ -126,6 +126,35 @@ class CoverServiceTest {
                 "统一风格后缀丢了，出图观感会不一致。实际：" + promptCap.getValue());
     }
 
+    @Test
+    @DisplayName("生成：文生图失败 → 归还本次额度（否则连续失败会把当日张数耗光，用户再也点不动）")
+    void generate_textToImageFails_releasesQuota() {
+        when(dailyQuotaLimiter.tryAcquire(anyString(), anyLong(), anyLong())).thenReturn(true);
+        when(dashScopeClient.textToImage(anyString()))
+                .thenThrow(new BusinessException(ErrorCode.AI_GENERATE_FAIL, "文生图失败"));
+
+        assertThrows(BusinessException.class, () -> coverService.generate("一只猫"));
+
+        ArgumentCaptor<String> prefixCap = ArgumentCaptor.forClass(String.class);
+        verify(dailyQuotaLimiter).release(prefixCap.capture(), eq(1L));
+        assertEquals("ai:cover:usage:", prefixCap.getValue(),
+                "归还的计数器必须与扣减时一致，写错前缀则额度永远还不回去且没有任何报错");
+        verifyNoInteractions(ossService);
+    }
+
+    @Test
+    @DisplayName("生成：图片已产出、仅转存失败 → 不归还（成本已发生，不应按未生成处理）")
+    void generate_ossUploadFails_keepsQuota() {
+        when(dailyQuotaLimiter.tryAcquire(anyString(), anyLong(), anyLong())).thenReturn(true);
+        when(dashScopeClient.textToImage(anyString())).thenReturn(PNG);
+        when(ossService.upload(any(byte[].class), anyString(), anyString(), anyString()))
+                .thenThrow(new BusinessException(ErrorCode.SYSTEM_ERROR, "封面服务暂不可用，请稍后再试"));
+
+        assertThrows(BusinessException.class, () -> coverService.generate("一只猫"));
+
+        verify(dailyQuotaLimiter, never()).release(anyString(), anyLong());
+    }
+
     // ---------- 用户上传：第一层 大小 / 后缀 ----------
 
     @Test

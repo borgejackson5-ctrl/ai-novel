@@ -55,9 +55,14 @@ public class CoverServiceImpl implements CoverService {
 
     private final DailyQuotaLimiter dailyQuotaLimiter;
 
-    /** 文生图每日硬上限（图比文本贵，独立且更严，可配置） */
+    /**
+     * 文生图每日硬上限（图比文本贵，独立且更严，可配置）。
+     *
+     * <p>带初始化器：无 Spring 上下文的单测中 {@code @Value} 不生效，字段将停留在初始化值；
+     * 若留作 0，则「上限 0 = 关闭」使得额度判定恒为拒绝。
+     */
     @Value("${app.ai-cover-daily-limit:20}")
-    private int coverDailyLimit;
+    private int coverDailyLimit = 20;
 
     /** AI 生成封面：文生图 → 下载 → 转存 OSS */
     public String generate(String prompt) {
@@ -70,7 +75,18 @@ public class CoverServiceImpl implements CoverService {
             throw new BusinessException(ErrorCode.AI_COVER_LIMIT);
         }
         String finalPrompt = prompt.trim() + STYLE_SUFFIX;
-        byte[] image = dashScopeClient.textToImage(finalPrompt);
+        byte[] image;
+        try {
+            image = dashScopeClient.textToImage(finalPrompt);
+        } catch (RuntimeException e) {
+            // 未取得图片即归还本次占用的额度。计数器语义为「当日成功产出的图片张数」，
+            // 不归还则连续失败会把当日张数耗光，用户在额度重置前无法再发起生成。
+            // 上游出图但下载失败这一情形也会一并归还：偏向可用性的取舍，代价是极端情况下
+            // 实际出图数略高于上限。
+            // 转存失败不在此列：该分支未包住 upload，图片已产出、成本已发生。
+            dailyQuotaLimiter.release(AiQuotaConstant.COVER_USAGE_KEY_PREFIX, 1);
+            throw e;
+        }
         return ossService.upload(image, COVER_DIR, "png", "image/png");
     }
 
