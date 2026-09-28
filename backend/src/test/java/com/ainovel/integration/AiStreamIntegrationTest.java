@@ -1,6 +1,7 @@
 package com.ainovel.integration;
 
 import com.ainovel.common.constant.SseConstant;
+import com.ainovel.common.enums.AiScene;
 import com.ainovel.support.FakeOpenAiServer;
 import com.ainovel.support.IntegrationTest;
 import com.ainovel.support.IntegrationTestBase;
@@ -110,14 +111,16 @@ class AiStreamIntegrationTest extends IntegrationTestBase {
     @DisplayName("调用指标带的是真实模型名（能一眼看出没走 mock / 降级）")
     void aiCallMetricCarriesConfiguredModel() throws Exception {
         String token = login("user", "user123");
-        double before = aiCallCount("chatStream", MODEL.model());
+        // 断言的是**场景码**而不是方法名：埋点改造后场景由调用方声明（见 AiScene），
+        // 不再按方法名推断，type=TITLE 对应 AiScene.TITLE
+        double before = aiCallCount(AiScene.TITLE.code(), MODEL.model());
 
         HttpResponse<String> resp = call("GET",
                 "/ai/generate/stream?type=TITLE&input=" + encode("雨夜铜钱"), null, asUser(token));
         assertEquals(200, resp.statusCode());
 
-        waitUntil(Duration.ofSeconds(10), "ai_call{scene=chatStream,model=" + MODEL.model() + "} 涨了",
-                () -> aiCallCount("chatStream", MODEL.model()) > before);
+        waitUntil(Duration.ofSeconds(10), "ai_call{scene=" + AiScene.TITLE.code() + ",model=" + MODEL.model() + "} 涨了",
+                () -> aiCallCount(AiScene.TITLE.code(), MODEL.model()) > before);
     }
 
     @Test
