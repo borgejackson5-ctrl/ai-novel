@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { getAiStats } from '../../api'
+import { hitRateOf, pctText, quotaPct, quotaStatus } from '../../utils/aiStats'
 
 const loading = ref(true)
 const data = ref(null)
@@ -14,27 +15,10 @@ const load = async () => {
   }
 }
 
-/** 比率转百分比文本；无数据时用破折号，避免显示成 0% 而被误读为「一次都没命中」 */
-const pct = (v) => (typeof v === 'number' ? `${(v * 100).toFixed(1)}%` : '—')
+const pct = pctText
 
-/**
- * 缓存命中率按全部缓存合并计算：分母取总读取次数而非各缓存命中率的平均，
- * 后者会让读取量很小的缓存与主要缓存等权。
- */
-const hitRate = computed(() => {
-  const list = data.value?.cache || []
-  const hit = list.reduce((sum, item) => sum + item.hit, 0)
-  const reads = list.reduce((sum, item) => sum + item.hit + item.miss, 0)
-  return reads === 0 ? '—' : `${((hit / reads) * 100).toFixed(1)}%`
-})
-
-/** el-progress 要求 0~100 的整数；上限为 0（已关闭该配额）时按 0 处理，不出现 NaN */
-const quotaPct = (q) => {
-  if (!q.limit) return 0
-  return Math.min(100, Math.round((q.used / q.limit) * 100))
-}
-
-const quotaStatus = (q) => (q.limit && q.used >= q.limit ? 'exception' : undefined)
+/** 命中率按全部缓存合并算；无读取记录时为 null，由 pct 显示为破折号 */
+const hitRate = computed(() => pctText(hitRateOf(data.value?.cache)))
 
 onMounted(load)
 </script>
