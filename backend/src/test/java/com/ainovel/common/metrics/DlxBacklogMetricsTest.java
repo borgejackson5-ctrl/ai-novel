@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -96,6 +97,24 @@ class DlxBacklogMetricsTest {
         metrics.register();
 
         assertEquals((double) (DlxBacklogMetrics.DLX_QUEUES.size() - 1), gaugeValue(), 0.0001);
+    }
+
+    @Test
+    @DisplayName("积压明细按队列给出条数，读不到的队列为 -1（管理端据此定位是哪类消息在堆积）")
+    void backlogDetails_perQueue() {
+        when(amqpAdmin.getQueueInfo(anyString())).thenAnswer(invocation -> {
+            String queue = invocation.getArgument(0);
+            if (MqConstant.OSS_DELETE_DLX_QUEUE.equals(queue)) {
+                throw new IllegalStateException("读不到");
+            }
+            return new QueueInformation(queue, MqConstant.AI_AUDIT_DLX_QUEUE.equals(queue) ? 3 : 0, 0);
+        });
+
+        Map<String, Long> details = metrics.backlogDetails();
+
+        assertEquals(DlxBacklogMetrics.DLX_QUEUES.size(), details.size(), "每个队列都要有一行明细");
+        assertEquals(3L, details.get(MqConstant.AI_AUDIT_DLX_QUEUE));
+        assertEquals(-1L, details.get(MqConstant.OSS_DELETE_DLX_QUEUE), "读不到应为 -1 而非 0");
     }
 
     /**

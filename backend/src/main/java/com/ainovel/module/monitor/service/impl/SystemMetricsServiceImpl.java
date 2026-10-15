@@ -1,5 +1,7 @@
 package com.ainovel.module.monitor.service.impl;
 
+import com.ainovel.common.metrics.DlxBacklogMetrics;
+import com.ainovel.common.metrics.OutboxBacklogMetrics;
 import com.ainovel.module.monitor.domain.vo.SystemMetricsVO;
 import com.ainovel.module.monitor.metrics.ApiStat;
 import com.ainovel.module.monitor.metrics.MetricsCollector;
@@ -23,6 +25,10 @@ public class SystemMetricsServiceImpl implements SystemMetricsService {
 
     private final MetricsCollector metricsCollector;
 
+    private final DlxBacklogMetrics dlxBacklogMetrics;
+
+    private final OutboxBacklogMetrics outboxBacklogMetrics;
+
     public SystemMetricsVO metrics() {
         List<ApiStat> apis = metricsCollector.apiStats();
         SystemMetricsVO vo = new SystemMetricsVO();
@@ -35,6 +41,10 @@ public class SystemMetricsServiceImpl implements SystemMetricsService {
         vo.setRecentSlowApis(metricsCollector.recentSlowApis());
         vo.setRecentSlowSqls(metricsCollector.recentSlowSqls());
         vo.setTotalRequests(apis.stream().mapToLong(ApiStat::getCount).sum());
+        // 消息侧的两项积压：本页是管理端唯一能看到它们的地方（生产未接 Prometheus）
+        vo.setDlxBacklog(dlxBacklogMetrics.currentBacklog());
+        vo.setDlxQueues(dlxBacklogMetrics.backlogDetails());
+        vo.setOutboxBacklog(outboxBacklogMetrics.currentBacklog());
         return vo;
     }
 

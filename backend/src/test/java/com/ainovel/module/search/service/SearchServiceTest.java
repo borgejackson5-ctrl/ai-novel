@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.elasticsearch.core.AggregationsContainer;
@@ -22,6 +23,7 @@ import org.springframework.data.elasticsearch.core.query.Query;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,13 +77,90 @@ class SearchServiceTest {
     @BeforeEach
     void stubIndex() {
         searchService = new SearchServiceImpl(elasticsearchOperations, novelService, categoryService);
-        // ensureIndex() 会先确认索引存在；已存在且 mapping 中包含 analyzer 时走最短分支。
-        // 使用 lenient：只有 reindexAll 那条路径会触发索引操作，loadIndexedIds 不会，
+        // ensureIndex() 会先确认索引存在并按 TEXT_FIELDS 校验结构。
+        // 使用 lenient：只有走索引的分支会触发这些调用，loadIndexedIds 不会，
         // 严格模式下「未使用的 stub」会被判失败，而这里本来就是按需准备。
         lenient().when(elasticsearchOperations.indexOps(NovelDoc.class)).thenReturn(indexOperations);
         lenient().when(indexOperations.exists()).thenReturn(true);
-        lenient().when(indexOperations.getMapping()).thenReturn(
-                Map.of("properties", Map.of("title", Map.of("type", "text", "analyzer", "ik_max_word"))));
+        // 默认模拟「结构正常」的索引（四个分词字段齐全），否则每条用例都会走重建分支
+        lenient().when(indexOperations.getMapping())
+                .thenReturn(mappingOf(List.of("title", "author", "intro", "tags")));
+    }
+
+    /** 构造一份只含指定字段的 mapping，用于模拟不同时期的索引结构 */
+    private static Map<String, Object> mappingOf(List<String> fields) {
+        Map<String, Object> properties = new LinkedHashMap<>();
+        for (String field : fields) {
+            properties.put(field, Map.of("type", "text", "analyzer", "ik_max_word"));
+        }
+        return Map.of("properties", properties);
+    }
+
+    @Test
+    @DisplayName("旧索引缺 author 字段 → 删除并按当前映射重建（只告警会让「按作者搜索」永远 0 条且不报错）")
+    void ensureIndex_rebuildsWhenFieldMissing() {
+        // 模拟加 author 之前的索引：只有 title/intro/tags
+        when(indexOperations.getMapping()).thenReturn(mappingOf(List.of("title", "intro", "tags")));
+
+        searchService.ensureIndex();
+
+        verify(indexOperations).delete();
+        verify(indexOperations).createWithMapping();
+    }
+
+    @Test
+    @DisplayName("字段存在但分析器不是 IK → 同样重建（中文会被切成单字，检索结果不可用）")
+    void ensureIndex_rebuildsWhenAnalyzerNotIk() {
+        Map<String, Object> properties = new LinkedHashMap<>();
+        properties.put("title", Map.of("type", "text", "analyzer", "standard"));
+        properties.put("author", Map.of("type", "text", "analyzer", "ik_max_word"));
+        properties.put("intro", Map.of("type", "text", "analyzer", "ik_max_word"));
+        properties.put("tags", Map.of("type", "text", "analyzer", "ik_max_word"));
+        when(indexOperations.getMapping()).thenReturn(Map.of("properties", properties));
+
+        searchService.ensureIndex();
+
+        verify(indexOperations).delete();
+    }
+
+    @Test
+    @DisplayName("索引结构一致 → 不重建（否则每次启动都白删一次索引）")
+    void ensureIndex_keepsIndexWhenFresh() {
+        searchService.ensureIndex();
+
+        verify(indexOperations, never()).delete();
+        verify(indexOperations, never()).createWithMapping();
+    }
+
+    @Test
+    @DisplayName("读不到 mapping → 不重建（无法判断结构时不能删索引）")
+    void ensureIndex_keepsIndexWhenMappingUnreadable() {
+        when(indexOperations.getMapping()).thenThrow(new IllegalStateException("ES 抖动"));
+
+        searchService.ensureIndex();
+
+        verify(indexOperations, never()).delete();
+        verify(indexOperations, never()).createWithMapping();
+    }
+
+    @Test
+    @DisplayName("写入索引的文档带作者名（缺它则按作者搜索恒为 0 条）")
+    void reindexAll_writesAuthorIntoDoc() {
+        Novel novel = new Novel();
+        novel.setId(1L);
+        novel.setTitle("红楼梦");
+        novel.setAuthor("曹雪芹");
+        when(novelService.pageVisibleForIndex(anyInt(), anyInt()))
+                .thenReturn(List.of(novel))
+                .thenReturn(List.of());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<NovelDoc>> captor = ArgumentCaptor.forClass(List.class);
+
+        searchService.reindexAll();
+
+        verify(elasticsearchOperations).save(captor.capture());
+        assertEquals("曹雪芹", captor.getValue().get(0).getAuthor());
+        assertEquals("红楼梦", captor.getValue().get(0).getTitle());
     }
 
     @Test

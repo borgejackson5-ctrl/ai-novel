@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useUserStore } from '../store/user'
 import {
   getNovelDetail,
   getAuthorChapters,
@@ -21,6 +22,7 @@ import { CircleCheck, CircleClose, Clock, InfoFilled, Refresh } from '@element-p
 
 const route = useRoute()
 const novelId = route.params.id
+const userStore = useUserStore()
 
 // 从「AI 审查问题清单」跳来时带上目标章：首次加载即定位到它所在的那一页并高亮。
 // 页码由服务端按目录序号换算 —— 章号可能因删除留下空洞，前端按章号估算会翻错页。
@@ -89,6 +91,12 @@ const openAdd = () => {
   editing.value = false
   form.value = { id: null, chapterNo: null, title: '', content: '', unlockCoin: 0 }
   dialog.value = true
+  // 新增章没有服务端版本可比对，有草稿就直接恢复
+  const draft = readDraft()
+  if (draft && ((draft.title || '').trim() || (draft.content || '').trim())) {
+    applyDraft(draft)
+    ElMessage.info('已恢复上次未提交的草稿')
+  }
 }
 
 const openEdit = async (row) => {
@@ -99,6 +107,7 @@ const openEdit = async (row) => {
   try {
     const res = await getChapterContent(row.id)
     form.value.content = res?.content || ''
+    await restoreDraftIfAny(row)
   } catch (e) {
     /* 正文拉取失败不阻塞编辑弹窗 */
   } finally {
@@ -121,18 +130,161 @@ const submit = async () => {
     if (editing.value) {
       await updateChapter(form.value.id, payload)
       ElMessage.success('已提交审核，通过后无缝替换')
-      dialog.value = false
+      closeAfterSubmit()
       load(pageNum.value)
     } else {
       await addChapter({ novelId, ...payload })
       ElMessage.success('新章节已提交审核')
-      dialog.value = false
+      closeAfterSubmit()
       // 新章排在最后：直接跳转到最后一页，否则用户看不到刚添加的章节
       load(Math.max(1, Math.ceil((total.value + 1) / pageSize)))
     }
   } finally {
     saving.value = false
   }
+}
+
+/**
+ * 提交成功后关闭弹窗：先把「关闭时保留草稿」的标记置否，
+ * 否则 @close 里的保存会把刚提交的内容又写成本地草稿。
+ */
+const closeAfterSubmit = () => {
+  keepDraftOnClose = false
+  dialog.value = false
+}
+
+// ===== 草稿自动保存 =====
+// 编辑器内容只存在于内存中，刷新或误关弹窗即整章丢失（AI 续写 / 润色生成的内容同样只在内存）。
+// 因此按「账号 + 作品 + 章节」在本地留一份草稿，重新打开时提示恢复。
+// 草稿只留在本机：它没有经过敏感词校验与送审，不能写进数据库。
+const DRAFT_PREFIX = 'chapter-draft:'
+/** 输入停顿多久后落盘：太短会频繁写 localStorage，太长则在刷新时丢得多 */
+const DRAFT_DEBOUNCE_MS = 800
+
+const draftSavedAt = ref('')
+let draftTimer = null
+let keepDraftOnClose = true
+
+/**
+ * 草稿键带上账号标识：同一浏览器换账号后不应看到上一个人未提交的草稿。
+ * 作品与章节一并入键，避免一本书的草稿覆盖另一本、一章的草稿覆盖另一章。
+ */
+const draftKey = () => {
+  const scope = (userStore.token || '').slice(0, 8) || 'anon'
+  return `${DRAFT_PREFIX}${scope}:${novelId}:${form.value.id ?? 'new'}`
+}
+
+const clockOf = (ts) => new Date(ts || Date.now()).toTimeString().slice(0, 8)
+
+/** 落盘当前编辑器内容；三项都为空则删掉草稿（空稿没有恢复价值） */
+const saveDraft = () => {
+  draftTimer = null
+  const title = form.value.title || ''
+  const content = form.value.content || ''
+  try {
+    if (!title.trim() && !content.trim()) {
+      localStorage.removeItem(draftKey())
+      draftSavedAt.value = ''
+      return
+    }
+    localStorage.setItem(draftKey(), JSON.stringify({
+      title,
+      content,
+      unlockCoin: form.value.unlockCoin ?? 0,
+      savedAt: Date.now()
+    }))
+    draftSavedAt.value = clockOf()
+  } catch (e) {
+    // 隐私模式或配额用满时 localStorage 会抛异常：写作本身不应因此中断
+  }
+}
+
+/** 输入期间防抖保存，避免每敲一个字写一次 */
+const scheduleDraftSave = () => {
+  if (draftTimer) clearTimeout(draftTimer)
+  draftTimer = setTimeout(saveDraft, DRAFT_DEBOUNCE_MS)
+}
+
+const readDraft = () => {
+  try {
+    const raw = localStorage.getItem(draftKey())
+    return raw ? JSON.parse(raw) : null
+  } catch (e) {
+    return null
+  }
+}
+
+const clearDraft = () => {
+  try {
+    localStorage.removeItem(draftKey())
+  } catch (e) { /* 同 saveDraft：本地存储不可用不影响写作 */ }
+  draftSavedAt.value = ''
+}
+
+const applyDraft = (draft) => {
+  form.value.title = draft.title || ''
+  form.value.content = draft.content || ''
+  form.value.unlockCoin = draft.unlockCoin ?? form.value.unlockCoin
+  draftSavedAt.value = clockOf(draft.savedAt)
+}
+
+/**
+ * 线上正文与本地草稿不一致时询问是否恢复。
+ *
+ * 判据是「草稿是否与线上内容不同」而不是「草稿是否存在」：
+ * 打开过一次弹窗就会留下草稿（拉到的正文会被存一次），内容相同的草稿没有恢复价值，
+ * 此时直接清掉，否则每次编辑都要弹一次询问。
+ */
+const restoreDraftIfAny = async (row) => {
+  const draft = readDraft()
+  if (!draft) return
+  const sameAsServer = (draft.title || '') === (row.title || '')
+    && (draft.content || '') === (form.value.content || '')
+    && (draft.unlockCoin ?? 0) === (row.unlockCoin ?? 0)
+  if (sameAsServer) {
+    clearDraft()
+    return
+  }
+  try {
+    await ElMessageBox.confirm(
+      `发现 ${clockOf(draft.savedAt)} 保存的草稿，与当前内容不一致，是否恢复？`,
+      '恢复草稿',
+      { type: 'info', confirmButtonText: '恢复草稿', cancelButtonText: '用线上版本' }
+    )
+  } catch (e) {
+    // 选择「用线上版本」或直接关闭：丢弃草稿，编辑器保留线上内容
+    clearDraft()
+    return
+  }
+  applyDraft(draft)
+  ElMessage.success('已恢复草稿')
+}
+
+/** 关闭弹窗：用户主动关闭则保留草稿，提交成功则丢弃 */
+const onDialogClose = () => {
+  if (draftTimer) {
+    clearTimeout(draftTimer)
+    draftTimer = null
+  }
+  if (keepDraftOnClose) {
+    saveDraft()
+  } else {
+    clearDraft()
+    keepDraftOnClose = true
+  }
+}
+
+// 标题 / 正文 / 价格任一变化都排一次保存（AI 续写与润色写入正文同样经过这里）
+watch(
+  () => [form.value.title, form.value.content, form.value.unlockCoin],
+  () => {
+    if (dialog.value) scheduleDraftSave()
+  }
+)
+
+/** 防抖窗口内刷新页面会丢内容，卸载与离开前各补存一次 */
+const flushDraft = () => {
+  if (dialog.value) saveDraft()
 }
 
 // ===== AI 写作（续写 / 润色）=====
@@ -354,7 +506,14 @@ const remove = async (row) => {
   load(list.value.length === 1 && pageNum.value > 1 ? pageNum.value - 1 : pageNum.value)
 }
 
-onMounted(() => load(1, focusChapterId))
+onMounted(() => {
+  load(1, focusChapterId)
+  window.addEventListener('beforeunload', flushDraft)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', flushDraft)
+  flushDraft()
+})
 </script>
 
 <template>
@@ -494,6 +653,7 @@ onMounted(() => load(1, focusChapterId))
       width="680px"
       align-center
       :close-on-click-modal="false"
+      @close="onDialogClose"
     >
       <div v-loading="contentLoading">
         <el-form label-width="80px">
@@ -543,6 +703,10 @@ onMounted(() => load(1, focusChapterId))
         </el-form>
       </div>
       <template #footer>
+        <span class="draft-hint">
+          <template v-if="draftSavedAt">草稿已自动保存 {{ draftSavedAt }}</template>
+          <template v-else>内容会自动保存在本机，关闭后可以接着写</template>
+        </span>
         <el-button @click="dialog = false">取消</el-button>
         <el-button type="primary" :loading="saving" @click="submit">
           {{ editing ? '提交修改（送审）' : '提交新章（送审）' }}
@@ -641,6 +805,13 @@ onMounted(() => load(1, focusChapterId))
 </template>
 
 <style scoped>
+/* 弹窗底部的草稿状态提示：占满左侧，按钮仍在右侧 */
+.draft-hint {
+  float: left;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 32px;
+}
 /* 从「AI 审查问题清单」跳来时的目标章高亮：左侧一条竖线 + 淡底，避免与斑马纹撞色 */
 :deep(.el-table__row.row-focused) {
   background: var(--cinnabar-bg, #f6e7e3);

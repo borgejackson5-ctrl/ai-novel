@@ -25,6 +25,7 @@ import org.springframework.data.elasticsearch.core.query.highlight.HighlightFiel
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,12 @@ public class SearchServiceImpl implements SearchService {
      * 但若终止判据改用常量 500，则第一页即 break，索引只写入前 200 本且不报错。
      */
     private static final int REINDEX_PAGE_SIZE = 200;
+
+    /**
+     * 要求 IK 分词的字段：缺字段或分析器不是 ik_* 都会让中文检索静默失效。
+     * author 为 2026-10-15 新增，旧索引里不存在，故一并纳入结构校验以触发重建。
+     */
+    private static final List<String> TEXT_FIELDS = List.of("title", "author", "intro", "tags");
 
     /**
      * 直接使用 ElasticsearchOperations 读写文档，不使用 Spring Data Repository。
@@ -112,7 +119,7 @@ public class SearchServiceImpl implements SearchService {
                     // multi_match 多字段加权 + 过滤上架状态
                     b.must(m -> m.multiMatch(mm -> mm
                             .query(keyword.trim())
-                            .fields("title^3.0", "intro^1.5", "tags^1.0")));
+                            .fields("title^3.0", "author^2.0", "intro^1.5", "tags^1.0")));
                     b.filter(f -> f.term(t -> t.field("status").value(1)));
                     if (filter != null) {
                         if (filter.getCategoryId() != null) {
@@ -163,6 +170,7 @@ public class SearchServiceImpl implements SearchService {
             NovelVO vo = new NovelVO();
             vo.setId(d.getId());
             vo.setTitle(d.getTitle());
+            vo.setAuthor(d.getAuthor());
             vo.setIntro(d.getIntro());
             vo.setTags(d.getTags());
             vo.setCategoryId(d.getCategoryId());
@@ -209,7 +217,7 @@ public class SearchServiceImpl implements SearchService {
                         for (String keyword : intent.getKeywords()) {
                             kb.should(s -> s.multiMatch(mm -> mm
                                     .query(keyword)
-                                    .fields("title^3.0", "intro^1.5", "tags^1.0")));
+                                    .fields("title^3.0", "author^2.0", "intro^1.5", "tags^1.0")));
                         }
                         for (String tag : intent.getTags()) {
                             kb.should(s -> s.multiMatch(mm -> mm
@@ -281,6 +289,8 @@ public class SearchServiceImpl implements SearchService {
             NovelVO vo = new NovelVO();
             vo.setId(doc.getId());
             vo.setTitle(doc.getTitle());
+            // 作者此前漏设：书卡上的作者为空，而索引里本就不含该字段，改按作者搜索时一并补回
+            vo.setAuthor(doc.getAuthor());
             // 高亮片段单独放 highlightTitle，前端 v-html 渲染
             List<String> titleHl = hit.getHighlightField("title");
             if (titleHl != null && !titleHl.isEmpty()) {
@@ -303,13 +313,17 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /**
-     * 确保搜索索引存在，且 mapping 按实体注解（@Document/@Field）建立
+     * 确保搜索索引存在，且 mapping 与当前实体定义一致。
      *
-     * <p>必须显式调用，不能依赖 save/saveAll 自动建索引。
-     * Spring Data 在索引缺失时不会按实体映射建索引，而是交由 ES 动态映射处理，
-     * 导致 title/intro/tags 上配置的 ik_max_word / ik_smart 全部丢失，
-     * 中文索引退化为单字切分。且查询侧仍按词切分，两侧不一致，
-     * 表现为搜索无结果或返回大量无关结果（以「三国演义」查询时显式使用 IK 命中 0 条）。
+     * <p>必须显式调用，不能依赖 save/saveAll 自动建索引。Spring Data 在索引缺失时不会按实体映射
+     * 建索引，而是交由 ES 动态映射处理，导致 title/author/intro/tags 上配置的
+     * ik_max_word / ik_smart 全部丢失，中文退化为单字切分；且查询侧仍按词切分，
+     * 两侧不一致，表现为搜索无结果或返回大量无关结果（以「三国演义」查询时显式使用 IK 命中 0 条）。
+     *
+     * <p>ES 不允许修改已存在字段的 mapping，新增字段（如 author）也不会补进旧索引。
+     * 因此结构过时时此处直接**删除索引并按当前映射重建**，而不是仅告警：
+     * 索引内容全部由 MySQL 派生，可重新灌入，删除不损失数据；
+     * 而只告警的后果是「按作者搜索永远 0 条且不报错」，需要人工排查才会发现。
      */
     public void ensureIndex() {
         IndexOperations ops = elasticsearchOperations.indexOps(NovelDoc.class);
@@ -318,24 +332,49 @@ public class SearchServiceImpl implements SearchService {
             log.info("搜索索引不存在，已按实体映射创建（含 IK 分析器）");
             return;
         }
-        warnIfAnalyzerMissing(ops);
+        List<String> stale = staleFields(ops);
+        if (stale.isEmpty()) {
+            return;
+        }
+        log.warn("搜索索引结构过时（{}），删除并按当前映射重建；索引内容由 MySQL 派生，重建不丢数据",
+                String.join("、", stale));
+        ops.delete();
+        ops.createWithMapping();
     }
 
     /**
-     * 索引已存在时无法再改字段分析器（ES 不允许修改已存在字段的 mapping），
-     * 只能在启动时告警，提示删索引后重建。
+     * 列出 mapping 中缺失或分析器不符的字段，为空表示结构一致。
+     *
+     * <p>判据只覆盖「缺了会静默失效」的分词字段，不做全字段比对：
+     * 索引中可能存在历史遗留字段，它们不影响检索，不应触发重建。
+     *
+     * <p>读取 mapping 失败时返回空列表（按「不重建」处理）：无法判断结构时不应删除索引。
      */
-    private void warnIfAnalyzerMissing(IndexOperations ops) {
+    private List<String> staleFields(IndexOperations ops) {
+        Map<String, Object> properties = new HashMap<>();
         try {
-            Object props = ops.getMapping().get("properties");
-            if (props instanceof Map<?, ?> p && p.get("title") instanceof Map<?, ?> title
-                    && !title.containsKey("analyzer")) {
-                log.warn("搜索索引 title 字段没有 analyzer —— IK 分词未生效，"
-                        + "需删除索引后重新执行全量重建才会恢复");
+            Object raw = ops.getMapping().get("properties");
+            if (!(raw instanceof Map<?, ?> map)) {
+                log.warn("搜索索引：mapping 中没有 properties，跳过结构校验");
+                return List.of();
             }
+            map.forEach((k, v) -> properties.put(String.valueOf(k), v));
         } catch (Exception e) {
-            log.debug("读取索引 mapping 失败，跳过分析器校验: {}", e.getMessage());
+            log.warn("搜索索引：读取 mapping 失败，跳过结构校验", e);
+            return List.of();
         }
+        List<String> stale = new ArrayList<>();
+        for (String field : TEXT_FIELDS) {
+            if (!(properties.get(field) instanceof Map<?, ?> f)) {
+                stale.add(field + " 字段不存在");
+                continue;
+            }
+            Object analyzer = f.get("analyzer");
+            if (analyzer == null || !String.valueOf(analyzer).startsWith("ik_")) {
+                stale.add(field + " 的分析器是 " + analyzer);
+            }
+        }
+        return stale;
     }
 
     /**
@@ -447,6 +486,7 @@ public class SearchServiceImpl implements SearchService {
         NovelDoc doc = new NovelDoc();
         doc.setId(novel.getId());
         doc.setTitle(novel.getTitle());
+        doc.setAuthor(novel.getAuthor());
         doc.setIntro(novel.getIntro());
         doc.setTags(novel.getTags());
         doc.setCategoryId(novel.getCategoryId());

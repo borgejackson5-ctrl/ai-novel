@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
  *
  * <p>与 MySQL t_novel 解耦，专门为全文搜索优化：
  * <ul>
- *   <li>title/intro/tags 用 IK 分词（ik_max_word 索引细切 / ik_smart 查询粗切）</li>
+ *   <li>title/author/intro/tags 用 IK 分词（ik_max_word 索引细切 / ik_smart 查询粗切）</li>
  *   <li>categoryId/readCount/status 用精确类型，用于过滤与排序</li>
  * </ul>
  *
@@ -34,6 +34,16 @@ public class NovelDoc {
     /** 书名：搜索权重最高 */
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private String title;
+
+    /**
+     * 作者名：搜索权重仅次于书名。
+     *
+     * <p>搜索框的占位文案是「搜索书名 / 作者」，索引中缺少该字段时按作者搜索必然返回 0 条，
+     * 且不报错（表现为「搜作者搜不到」）。中文人名需 IK 分词，
+     * 否则搜索「曹」会命中大量无关作品。
+     */
+    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    private String author;
 
     /** 简介 */
     @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")

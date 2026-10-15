@@ -25,14 +25,21 @@ public class OutboxBacklogMetrics {
 
     @PostConstruct
     void register() {
-        businessMetrics.registerOutboxBacklog(() -> {
-            try {
-                return outboxStore.countPending();
-            } catch (Exception e) {
-                // 查询失败返回 -1 而非 0：0 表示「一切正常」，
-                // 将「查询失败」也显示为 0 会产生误导，-1 在图表上可直观识别为异常
-                return -1;
-            }
-        });
+        businessMetrics.registerOutboxBacklog(this::currentBacklog);
+    }
+
+    /**
+     * 待补投的 outbox 消息条数；查询失败返回 -1（未知）。
+     *
+     * <p>与指标注册共用同一份读取逻辑：管理端展示与 Prometheus 指标必须同源。
+     */
+    public long currentBacklog() {
+        try {
+            return outboxStore.countPending();
+        } catch (Exception e) {
+            // 查询失败返回 -1 而非 0：0 表示「一切正常」，
+            // 将「查询失败」也显示为 0 会产生误导，-1 在图表上可直观识别为异常
+            return -1;
+        }
     }
 }

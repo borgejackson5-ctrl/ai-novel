@@ -229,7 +229,10 @@ public class NovelServiceImpl implements NovelService {
     public PageResult<Novel> searchByKeyword(String keyword, NovelQueryForm filter, int page, int size) {
         String kw = keyword == null ? "" : keyword.trim();
         LambdaQueryWrapper<Novel> wrapper = new LambdaQueryWrapper<>();
+        // 字段集合与 ES 侧 multi_match 保持一致（含 author），否则 ES 降级到 MySQL 后
+        // 「按作者搜索」会突然搜不到结果，同一次查询因路径不同而结果不同
         wrapper.and(w -> w.like(Novel::getTitle, kw)
+                .or().like(Novel::getAuthor, kw)
                 .or().like(Novel::getIntro, kw)
                 .or().like(Novel::getTags, kw));
         NovelVisibility.appendTo(wrapper);

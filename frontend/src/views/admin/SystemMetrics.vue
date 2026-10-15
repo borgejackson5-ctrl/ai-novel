@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   getSystemMetrics,
@@ -10,6 +10,36 @@ import {
 
 const loading = ref(true)
 const data = ref(null)
+
+/**
+ * 死信队列名 → 展示名。
+ *
+ * 队列名是内部标识（形如 ai.novel.audit.dlx.queue），直接显示等于把内部结构摆给使用者看。
+ * 未登记的队列回落为原名：新增队列时至少能看出是哪一条，而不是整行消失。
+ */
+const DLX_LABEL = {
+  'ai.novel.audit.dlx.queue': 'AI 预审',
+  'ai.novel.review.dlx.queue': '全文审查',
+  'search.novel.sync.dlx.queue': '检索同步',
+  'search.chapter.chunk.dlx.queue': '章节检索',
+  'oss.delete.dlx.queue': '文件清理',
+  'pay.order.close.dlx.queue': '订单超时关闭',
+  'rank.read.dlx.queue': '阅读数落库'
+}
+
+/** 积压读数：-1 表示读不到（与 0「一切正常」区分），null 表示本次没取到 */
+const fmtBacklog = (n) => (n == null ? '-' : Number(n) < 0 ? '未知' : Number(n))
+
+/** 需要提醒的情况：有积压，或读数未知。未知不能当成正常 —— 那恰是最需要排查的时候 */
+const backlogAlert = (n) => n == null || Number(n) < 0 || Number(n) > 0
+
+const dlxRows = computed(() =>
+  Object.entries(data.value?.dlxQueues || {}).map(([queue, count]) => ({
+    queue,
+    count,
+    label: DLX_LABEL[queue] || queue
+  }))
+)
 
 const load = async () => {
   loading.value = true
@@ -117,6 +147,40 @@ onMounted(load)
 
     <section class="ops">
       <div class="ops-head">
+        <h3 class="block-title">消息投递</h3>
+        <span class="ops-hint">消息发不出去、或投递反复失败时，从这里看积压</span>
+      </div>
+
+      <div class="stat-row mq-row">
+        <div class="stat-card">
+          <div class="stat-num" :class="{ zero: !backlogAlert(data?.outboxBacklog) }">
+            {{ fmtBacklog(data?.outboxBacklog) }}
+          </div>
+          <div class="stat-label">待补投消息</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" :class="{ zero: !backlogAlert(data?.dlxBacklog) }">
+            {{ fmtBacklog(data?.dlxBacklog) }}
+          </div>
+          <div class="stat-label">投递失败积压</div>
+        </div>
+      </div>
+
+      <div v-if="dlxRows.length" class="ops-result">
+        <span class="ops-sub">按类型：</span>
+        <span v-for="r in dlxRows" :key="r.queue" class="dlx-chip" :class="{ bad: backlogAlert(r.count) }">
+          {{ r.label }} {{ fmtBacklog(r.count) }}
+        </span>
+      </div>
+
+      <div v-if="backlogAlert(data?.dlxBacklog)" class="ops-result warn">
+        有消息反复投递失败并已堆积。继续增长会导致消息服务拒绝写入，
+        届时全站都无法发出消息，请尽快排查。
+      </div>
+    </section>
+
+    <section class="ops">
+      <div class="ops-head">
         <h3 class="block-title">检索数据维护</h3>
         <span class="ops-hint">检索到的作品与实际对不上时，用这两步处理</span>
       </div>
@@ -220,7 +284,21 @@ onMounted(load)
 }
 .stat-num { font-size: 26px; font-weight: 700; color: #b23a2e; line-height: 1.1; }
 .stat-num .unit { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+/* 积压为 0 时改用低调色：默认的告警红与「真的有积压」长得一样，看久了会忽略异常 */
+.stat-num.zero { color: #7c818e; }
 .stat-label { margin-top: 6px; font-size: 12.5px; color: #7c818e; }
+
+.mq-row { grid-template-columns: repeat(2, 1fr); margin-bottom: 12px; }
+
+.dlx-chip {
+  display: inline-block;
+  margin: 0 10px 6px 0;
+  padding: 2px 9px;
+  border-radius: 4px;
+  background: var(--paper-2, #f2f0ec);
+  font-size: 12.5px;
+}
+.dlx-chip.bad { color: #b23a2e; font-weight: 600; }
 
 .block-title {
   font-size: 14px;

@@ -8,7 +8,9 @@ import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.QueueInformation;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 将「死信队列积压条数」注册为 Prometheus 指标。
@@ -50,24 +52,52 @@ public class DlxBacklogMetrics {
 
     @PostConstruct
     void register() {
-        businessMetrics.registerDlxBacklog(() -> {
-            long total = 0;
-            int readable = 0;
-            for (String queue : DLX_QUEUES) {
-                try {
-                    QueueInformation info = amqpAdmin.getQueueInfo(queue);
-                    if (info != null) {
-                        total += info.getMessageCount();
-                        readable++;
-                    }
-                } catch (Exception e) {
-                    // 单个队列查询失败不影响其它队列：broker 抖动时也应尽量给出数值，
-                    // 且此处不得向外抛出异常，否则会使整个 /actuator/prometheus 不可用
-                    log.debug("读死信队列深度失败 queue={}: {}", queue, e.getMessage());
-                }
+        businessMetrics.registerDlxBacklog(this::currentBacklog);
+    }
+
+    /**
+     * 死信队列积压总条数；全部队列都读不到时返回 -1（未知）。
+     *
+     * <p>与指标注册共用同一份读取逻辑：管理端展示与 Prometheus 指标必须同源，
+     * 否则两处对「当前积压多少」会给出不同答案。
+     */
+    public long currentBacklog() {
+        long total = 0;
+        int readable = 0;
+        for (String queue : DLX_QUEUES) {
+            long count = readQueue(queue);
+            if (count >= 0) {
+                total += count;
+                readable++;
             }
-            // 全部读取失败时返回 -1（表示未知），而非 0（表示一切正常）
-            return readable == 0 ? -1 : total;
-        });
+        }
+        // 全部读取失败时返回 -1（表示未知），而非 0（表示一切正常）
+        return readable == 0 ? -1 : total;
+    }
+
+    /**
+     * 各队列的积压明细，用于管理端定位「是哪一类消息在堆积」。
+     *
+     * <p>读取失败的队列值为 -1；顺序与 {@link #DLX_QUEUES} 一致，前端按队列名映射展示名。
+     */
+    public Map<String, Long> backlogDetails() {
+        Map<String, Long> details = new LinkedHashMap<>();
+        for (String queue : DLX_QUEUES) {
+            details.put(queue, readQueue(queue));
+        }
+        return details;
+    }
+
+    /** 单个队列的积压条数；读不到返回 -1（与「空队列」区分） */
+    private long readQueue(String queue) {
+        try {
+            QueueInformation info = amqpAdmin.getQueueInfo(queue);
+            return info == null ? -1 : info.getMessageCount();
+        } catch (Exception e) {
+            // 单个队列查询失败不影响其它队列：broker 抖动时也应尽量给出数值，
+            // 且此处不得向外抛出异常，否则会使整个 /actuator/prometheus 不可用
+            log.debug("读死信队列深度失败 queue={}: {}", queue, e.getMessage());
+            return -1;
+        }
     }
 }
