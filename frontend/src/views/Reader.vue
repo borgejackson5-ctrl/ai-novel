@@ -264,9 +264,11 @@ const likeOne = async (row) => {
     ElMessage.warning('登录后即可点赞')
     return
   }
-  await likeComment(row.id)
-  row.liked = true
-  row.likeCount = Number(row.likeCount || 0) + 1
+  // 点赞接口是切换语义，返回值即操作后的状态。
+  // 不能无条件加一：第二次点击服务端已取消，界面却还在递增，刷新后自己点过的赞又消失。
+  const liked = await likeComment(row.id)
+  row.liked = !!liked
+  row.likeCount = Math.max(0, Number(row.likeCount || 0) + (liked ? 1 : -1))
 }
 
 // ================= 阅读位置保存 / 恢复 =================

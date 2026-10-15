@@ -14,6 +14,8 @@ import com.ainovel.module.admin.service.AdminService;
 import com.ainovel.module.admin.service.AiStatsService;
 import com.ainovel.module.ai.service.AiConfigService;
 import com.ainovel.module.coin.domain.vo.RechargeOrderVO;
+import com.ainovel.module.comment.domain.vo.CommentVO;
+import com.ainovel.module.comment.service.CommentService;
 import com.ainovel.module.feedback.domain.form.FeedbackHandleForm;
 import com.ainovel.module.feedback.domain.vo.FeedbackVO;
 import com.ainovel.module.feedback.service.FeedbackService;
@@ -67,6 +69,8 @@ public class AdminController {
     private final SystemMetricsService systemMetricsService;
 
     private final AiStatsService aiStatsService;
+
+    private final CommentService commentService;
 
     @Operation(summary = "AI 用量：调用次数与耗时、失败、降级、缓存命中、当日额度")
     @GetMapping("/ai-stats")
@@ -171,6 +175,26 @@ public class AdminController {
     public ResponseDTO<Void> auditChapterReject(@PathVariable Long id,
                                                 @Valid @RequestBody AuditRejectForm form) {
         adminService.auditChapterReject(id, form.getReason());
+        return ResponseDTO.ok();
+    }
+
+    @Operation(summary = "评论分页（管理端专用：跨作品全量，含书评/章评/回复，type：0书评/1章评）")
+    @GetMapping("/comment/page")
+    public ResponseDTO<PageResult<CommentVO>> commentPage(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "30") int pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer type,
+            @RequestParam(required = false) Long novelId) {
+        return ResponseDTO.ok(commentService.adminPage(pageNum, pageSize, keyword, type, novelId));
+    }
+
+    @AdminLogRecord(module = "COMMENT", action = "DELETE", targetType = "COMMENT",
+            summary = "删除违规评论")
+    @Operation(summary = "删除评论（管理端，不限于本人；顶层评论级联删除其回复）")
+    @DeleteMapping("/comment/{id}")
+    public ResponseDTO<Void> deleteComment(@PathVariable Long id) {
+        commentService.adminDelete(id);
         return ResponseDTO.ok();
     }
 

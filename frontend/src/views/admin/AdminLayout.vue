@@ -4,7 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../../store/user'
 import { getPendingAuditCount, getFeedbackPendingCount } from '../../api'
 import NoticeBell from '../../components/NoticeBell.vue'
-import { ChatDotRound, CircleCheck, Collection, CollectionTag, DataAnalysis, MagicStick, Memo, Odometer, Tickets, TrendCharts, Upload, User } from '@element-plus/icons-vue'
+import { ChatDotRound, ChatLineSquare, CircleCheck, Collection, CollectionTag, DataAnalysis, MagicStick, Memo, Odometer, Tickets, TrendCharts, Upload, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -14,6 +14,7 @@ const titleMap = {
   '/admin/dashboard': '数据看板',
   '/admin/audit': '内容审核',
   '/admin/novels': '小说管理',
+  '/admin/comments': '评论管理',
   '/admin/categories': '分类管理',
   '/admin/users': '用户管理',
   '/admin/orders': '订单管理',
@@ -41,6 +42,7 @@ const MENU_GROUPS = [
     items: [
       { to: '/admin/dashboard', icon: DataAnalysis, label: '数据看板' },
       { to: '/admin/novels', icon: Collection, label: '小说管理' },
+      { to: '/admin/comments', icon: ChatLineSquare, label: '评论管理' },
       { to: '/admin/categories', icon: CollectionTag, label: '分类管理' },
       { to: '/admin/users', icon: User, label: '用户管理' },
       { to: '/admin/orders', icon: Tickets, label: '订单管理' },

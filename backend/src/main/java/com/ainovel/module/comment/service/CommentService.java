@@ -6,9 +6,9 @@ import com.ainovel.module.comment.domain.vo.CommentVO;
 import java.util.List;
 
 /**
- * 评论服务：顶层评论分页 + 回复列表 + 发评论 + 删自己的 + 点赞（一人一赞）
+ * 评论服务：顶层评论分页 + 回复列表 + 发评论 + 删自己的 + 点赞（一人一赞）+ 管理端分页与删除
  *
- * <p>作者昵称 / 回复数均一次批量回填，避免 N+1；点赞走 Redis 永久去重，与小说点赞一致。
+ * <p>作者昵称 / 回复数 / 点赞状态均批量回填，避免 N+1；点赞走 Redis 永久去重，与小说点赞一致。
  */
 public interface CommentService {
 
@@ -35,6 +35,25 @@ public interface CommentService {
 
     /** 删除自己的评论（顶层评论级联删回复，防止孤儿） */
     public void delete(Long id);
+
+    /**
+     * 管理端评论分页：跨作品全量查看，不按可见性过滤，供管理端处置违规内容。
+     *
+     * <p>与读者侧分页的差别：这里**同时返回回复**（违规内容同样会出现在回复里），
+     * 且不受作品是否上架 / 过审影响 —— 已下架作品的评论仍需可查可删。
+     *
+     * @param keyword 按评论内容模糊匹配
+     * @param type    null=全部，0=书评，1=章评
+     * @param novelId 限定某本作品，不传即全部
+     */
+    public PageResult<CommentVO> adminPage(int pageNum, int pageSize, String keyword,
+                                           Integer type, Long novelId);
+
+    /**
+     * 管理端删除任意评论：不校验归属（与 {@link #delete} 的唯一差别），
+     * 其余行为一致 —— 顶层评论级联删回复并清理点赞状态寄存器。
+     */
+    public void adminDelete(Long id);
 
     /**
      * 点赞 / 取消点赞（切换）。

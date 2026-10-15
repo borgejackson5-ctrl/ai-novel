@@ -210,6 +210,10 @@ export const handleFeedback = (id, data) => request.put(`/admin/feedback/${id}/h
 export const getAppealPage = (params) => request.get("/admin/appeal/page", { params });
 export const handleAppeal = (id, data) => request.put(`/admin/appeal/${id}/handle`, data);
 
+// 管理后台 - 评论管理（跨作品全量，含书评 / 章评 / 回复）
+export const getCommentAdminPage = (params) => request.get("/admin/comment/page", { params });
+export const deleteCommentAdmin = (id) => request.delete(`/admin/comment/${id}`);
+
 // 管理后台 - 操作日志（审计追溯）
 export const getAdminLogPage = (params) => request.get("/admin/log/page", { params });
 

@@ -20,13 +20,13 @@ import java.lang.annotation.Target;
 @Documented
 public @interface AdminLogRecord {
 
-    /** 模块：AUDIT / USER / ORDER / FEEDBACK / NOVEL / AI / IMPORT */
+    /** 模块：AUDIT / USER / ORDER / FEEDBACK / NOVEL / COMMENT / AI / IMPORT */
     String module();
 
     /** 动作：PASS / REJECT / IMPORT / STATUS / HANDLE / RESET / SAVE / DELETE */
     String action();
 
-    /** 目标类型：NOVEL / CHAPTER / USER / FEEDBACK / AI_QUOTA，无目标可留空 */
+    /** 目标类型：NOVEL / CHAPTER / USER / FEEDBACK / COMMENT / AI_QUOTA，无目标可留空 */
     String targetType() default "";
 
     /** 操作摘要（人可读，列表直接展示），如「审核通过作品」 */

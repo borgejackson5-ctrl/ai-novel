@@ -33,6 +33,7 @@ const routes = [
       { path: 'dashboard', name: 'AdminDashboard', component: () => import('../views/admin/Dashboard.vue') },
       { path: 'audit', name: 'AdminAudit', component: () => import('../views/admin/AuditAdmin.vue') },
       { path: 'novels', name: 'AdminNovel', component: () => import('../views/admin/NovelAdmin.vue') },
+      { path: 'comments', name: 'AdminComment', component: () => import('../views/admin/AdminComment.vue') },
       { path: 'categories', name: 'AdminCategory', component: () => import('../views/admin/CategoryAdmin.vue') },
       // 管理员复用前台的消息页（同一组件）。管理员被路由守卫限制在 /admin 下，无法进入 /messages，
       // 因此需在此处再挂载一次，否则铃铛中的「全部消息」对其为无效链接。

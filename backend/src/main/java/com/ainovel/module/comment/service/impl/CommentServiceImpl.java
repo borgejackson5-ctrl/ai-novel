@@ -12,27 +12,33 @@ import com.ainovel.module.comment.domain.entity.Comment;
 import com.ainovel.module.comment.domain.form.CommentForm;
 import com.ainovel.module.comment.domain.vo.CommentVO;
 import com.ainovel.module.novel.domain.entity.Chapter;
+import com.ainovel.module.novel.domain.entity.Novel;
 import com.ainovel.common.domain.PageParam;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.ainovel.module.comment.service.CommentService;
 import com.ainovel.module.novel.service.ChapterService;
+import com.ainovel.module.novel.service.NovelService;
 import com.ainovel.module.user.service.UserService;
 
 /**
- * 评论服务：顶层评论分页 + 回复列表 + 发评论 + 删自己的 + 点赞（一人一赞）
+ * 评论服务：顶层评论分页 + 回复列表 + 发评论 + 删自己的 + 点赞（一人一赞）+ 管理端分页与删除
  *
- * <p>作者昵称 / 回复数均一次批量回填，避免 N+1；点赞走 Redis 永久去重，与小说点赞一致。
+ * <p>作者昵称 / 回复数 / 点赞状态均批量回填，避免 N+1；点赞走 Redis 永久去重，与小说点赞一致。
  */
 @Slf4j
 @Service
@@ -44,6 +50,8 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
 
     private final ChapterService chapterService;
+
+    private final NovelService novelService;
 
     private final StringRedisTemplate stringRedisTemplate;
 
@@ -59,6 +67,9 @@ public class CommentServiceImpl implements CommentService {
      * 而一条热评的回复数无天然上界；不设限会一次性将该父评论下的所有行加载进内存。
      */
     private static final int MAX_REPLIES = 200;
+
+    /** 管理端分页的「章评」类型取值（0=书评，为默认分支；仅 1 需要额外条件） */
+    private static final int CHAPTER_TYPE = 1;
 
     /** 书评分页（新→旧）：chapter_id IS NULL，与章评严格分开，避免两边内容互串 */
     public PageResult<CommentVO> page(int pageNum, int pageSize, Long novelId) {
@@ -88,6 +99,7 @@ public class CommentServiceImpl implements CommentService {
                 .toList();
         fillAuthorNames(vos);
         fillReplyCounts(vos);
+        fillLiked(vos);
         return PageResult.of(page.getTotal(), page.getCurrent(), page.getSize(), vos);
     }
 
@@ -104,7 +116,55 @@ public class CommentServiceImpl implements CommentService {
                                 .last("LIMIT " + MAX_REPLIES))
                 .stream().map(c -> BeanUtil.copyProperties(c, CommentVO.class)).toList();
         fillAuthorNames(vos);
+        fillLiked(vos);
         return vos;
+    }
+
+    /**
+     * 管理端评论分页：跨作品全量查看（含回复），供管理端处置违规内容。
+     *
+     * <p>**不过滤 parentId**：读者侧只取顶层评论，这里是唯一能看到回复的地方，
+     * 而违规内容同样会出现在回复里。回复与顶层评论由前端按 {@code parentId} 区分展示。
+     *
+     * <p>**不做可见性过滤**：已下架、未过审作品的评论仍需可查可删，
+     * 否则作品一旦下架，其下违规评论即失去处置入口。
+     */
+    public PageResult<CommentVO> adminPage(int pageNum, int pageSize, String keyword,
+                                           Integer type, Long novelId) {
+        LambdaQueryWrapper<Comment> wrapper = new LambdaQueryWrapper<Comment>()
+                .like(StringUtils.hasText(keyword), Comment::getContent, keyword)
+                .eq(novelId != null, Comment::getNovelId, novelId);
+        if (type != null) {
+            if (type == CHAPTER_TYPE) {
+                wrapper.isNotNull(Comment::getChapterId);
+            } else {
+                wrapper.isNull(Comment::getChapterId);
+            }
+        }
+        Page<Comment> page = commentMapper.selectPage(
+                new Page<>(PageParam.clampPage(pageNum), PageParam.clampSize(pageSize)),
+                wrapper.orderByDesc(Comment::getId));
+        List<CommentVO> vos = page.getRecords().stream()
+                .map(c -> BeanUtil.copyProperties(c, CommentVO.class))
+                .toList();
+        fillAuthorNames(vos);
+        fillNovelTitles(vos);
+        fillChapterNos(vos);
+        return PageResult.of(page.getTotal(), page.getCurrent(), page.getSize(), vos);
+    }
+
+    /**
+     * 管理端删除任意评论（不校验归属）。
+     *
+     * <p>查不到即抛 {@code NOT_FOUND}，而不是静默成功：管理端在列表上点删除，
+     * 若该行已被作者本人删掉，返回「成功」会掩盖一次无效操作。
+     */
+    public void adminDelete(Long id) {
+        Comment c = commentMapper.selectById(id);
+        if (c == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "评论不存在");
+        }
+        deleteCascade(c);
     }
 
     /** 发表评论 / 回复（书评或章评，由 chapterId 决定） */
@@ -145,6 +205,8 @@ public class CommentServiceImpl implements CommentService {
         commentMapper.insert(c);
         CommentVO vo = BeanUtil.copyProperties(c, CommentVO.class);
         vo.setAuthorName(nicknameMap(List.of(userId)).getOrDefault(userId, ""));
+        // 刚发出的评论，当前用户必然未点赞；不填则前端拿到 null，与「未赞」语义相同但不明确
+        vo.setLiked(false);
         return vo;
     }
 
@@ -164,17 +226,31 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    /** 删除自己的评论（顶层评论级联删回复，防止孤儿） */
+    /**
+     * 删除自己的评论（顶层评论级联删回复，防止孤儿）
+     *
+     * <p>归属校验只在此处进行；管理端走 {@link #adminDelete}，两者共用 {@link #deleteCascade}。
+     */
     public void delete(Long id) {
         Long userId = LoginUserUtil.getUserId();
         Comment c = commentMapper.selectById(id);
         if (c == null || !c.getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "评论不存在");
         }
+        deleteCascade(c);
+    }
+
+    /**
+     * 删除评论本体：顶层评论一并删除其回复，并清理各自的点赞状态寄存器。
+     *
+     * <p>删除前先取出回复 id：删除后无法再获知带走了哪些 id，
+     * 这些评论的点赞状态将永久残留在 Redis 中。
+     */
+    private void deleteCascade(Comment c) {
+        Long id = c.getId();
         commentMapper.deleteById(id);
         clearLikeState(id);
         if (c.getParentId() == null) {
-            // 先取回复 id 再删除：删除后无法获知带走了哪些 id，点赞状态寄存器将永久残留在 Redis 中
             List<Long> replyIds = commentMapper.selectList(
                             new LambdaQueryWrapper<Comment>().eq(Comment::getParentId, id))
                     .stream().map(Comment::getId).toList();
@@ -241,5 +317,65 @@ public class CommentServiceImpl implements CommentService {
             return Collections.emptyMap();
         }
         return userService.getNicknameMap(userIds);
+    }
+
+    /**
+     * 批量回填「当前登录用户是否已点赞」。
+     *
+     * <p>点赞状态存在按评论聚合的 Redis Hash 中（{@code comment:like:{评论 id}}，field = 用户 id），
+     * 因此每条评论需要一次 {@code HEXISTS}。回复列表一次最多 200 条，
+     * 逐条往返会把一次列表查询放大成两百次网络往返，故用 pipeline 合并为一次往返。
+     *
+     * <p>未登录（评论列表对游客开放）时不再查询 Redis，统一置为未点赞。
+     *
+     * <p>结果条数不足时按未点赞处理：接口是读者主路径，不应因 Redis 返回异常而整体失败。
+     */
+    private void fillLiked(List<CommentVO> vos) {
+        if (vos.isEmpty()) {
+            return;
+        }
+        Long userId = LoginUserUtil.getUserIdOrNull();
+        if (userId == null) {
+            vos.forEach(v -> v.setLiked(false));
+            return;
+        }
+        byte[] field = String.valueOf(userId).getBytes(StandardCharsets.UTF_8);
+        List<Object> flags = stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            for (CommentVO v : vos) {
+                connection.hashCommands().hExists(
+                        (COMMENT_LIKE_KEY_PREFIX + v.getId()).getBytes(StandardCharsets.UTF_8), field);
+            }
+            return null;
+        });
+        for (int i = 0; i < vos.size(); i++) {
+            vos.get(i).setLiked(flags != null && i < flags.size() && Boolean.TRUE.equals(flags.get(i)));
+        }
+    }
+
+    /** 批量回填作品标题（一次查询，避免 N+1；仅管理端分页使用） */
+    private void fillNovelTitles(List<CommentVO> vos) {
+        if (vos.isEmpty()) {
+            return;
+        }
+        List<Long> novelIds = vos.stream().map(CommentVO::getNovelId)
+                .filter(Objects::nonNull).distinct().toList();
+        if (novelIds.isEmpty()) {
+            return;
+        }
+        Map<Long, String> titles = novelService.listNovels(novelIds).stream()
+                .collect(Collectors.toMap(Novel::getId, Novel::getTitle, (a, b) -> a));
+        vos.forEach(v -> v.setNovelTitle(titles.get(v.getNovelId())));
+    }
+
+    /** 批量回填章号（一次查询，避免 N+1；仅管理端分页使用，书评为 null） */
+    private void fillChapterNos(List<CommentVO> vos) {
+        List<Long> chapterIds = vos.stream().map(CommentVO::getChapterId)
+                .filter(Objects::nonNull).distinct().toList();
+        if (chapterIds.isEmpty()) {
+            return;
+        }
+        Map<Long, Integer> chapterNos = chapterService.listByIds(chapterIds).stream()
+                .collect(Collectors.toMap(Chapter::getId, Chapter::getChapterNo, (a, b) -> a));
+        vos.forEach(v -> v.setChapterNo(chapterNos.get(v.getChapterId())));
     }
 }

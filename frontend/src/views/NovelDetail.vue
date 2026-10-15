@@ -217,8 +217,10 @@ const removeComment = async (comment) => {
 
 const doLikeComment = async (comment) => {
   try {
-    await likeComment(comment.id)
-    comment.likeCount = Number(comment.likeCount || 0) + 1
+    // 与阅读器章评点赞同一处理：接口是切换语义，按返回值渲染状态与计数
+    const liked = await likeComment(comment.id)
+    comment.liked = !!liked
+    comment.likeCount = Math.max(0, Number(comment.likeCount || 0) + (liked ? 1 : -1))
   } catch (e) { /* 已在拦截器提示 */ }
 }
 
@@ -394,7 +396,7 @@ onMounted(() => {
             </div>
             <div class="comment-content">{{ c.content }}</div>
             <div class="comment-ops">
-              <span class="op" @click="doLikeComment(c)">赞 {{ c.likeCount || 0 }}</span>
+              <span class="op" :class="{ on: c.liked }" @click="doLikeComment(c)">{{ c.liked ? '已赞' : '赞' }} {{ c.likeCount || 0 }}</span>
               <span class="op" @click="toggleReply(c)">回复</span>
               <span v-if="isOwn(c)" class="op danger" @click="removeComment(c)">删除</span>
             </div>
@@ -495,6 +497,7 @@ h1 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--
 .op { font-size: 13px; color: var(--muted); cursor: pointer; }
 .op:hover { color: #b23a2e; }
 .op.danger:hover { color: #f56c6c; }
+.op.on { color: #b23a2e; font-weight: 500; }
 .reply-list { margin-top: 10px; background: #f8f8fb; border-radius: 8px; padding: 8px 12px; }
 .reply-item { font-size: 13px; padding: 4px 0; color: #3a3d4a; }
 .reply-author { color: #b23a2e; font-weight: 600; }

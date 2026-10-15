@@ -15,6 +15,7 @@
                 "module.ai",
                 "module.category",
                 "module.coin",
+                "module.comment",
                 "module.feedback",
                 "module.message",
                 "module.monitor",
