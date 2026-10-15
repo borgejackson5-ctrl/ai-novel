@@ -175,6 +175,24 @@ public class ChapterServiceImpl extends ServiceImpl<ChapterMapper, Chapter> impl
     }
 
     /**
+     * 计算某章在作者目录中的页码（见 {@link ChapterService#pageOfChapter}）。
+     *
+     * <p>取「章号不大于目标章的章节数」作为该章的目录序号，再换算页码 —— 而非用章号本身，
+     * 因为删除过的章会留空洞，章号与序号并不相等。
+     */
+    public long pageOfChapter(Long novelId, Long chapterId, long pageSize) {
+        long safePageSize = Math.max(1, pageSize);
+        Chapter target = chapterId == null ? null : getById(chapterId);
+        if (target == null || !novelId.equals(target.getNovelId())) {
+            return 1;
+        }
+        long rank = count(new QueryWrapper<Chapter>()
+                .eq("novel_id", novelId)
+                .le("chapter_no", target.getChapterNo()));
+        return Math.max(1, (rank + safePageSize - 1) / safePageSize);
+    }
+
+    /**
      * 单章元数据（标题/字数/价格），供阅读器锁卡片与当前章展示。
      * 正文接口 {@link #getContent} 对付费章会拒绝返回，故锁章需单独取元数据。
      *

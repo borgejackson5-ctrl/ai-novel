@@ -432,6 +432,36 @@ class ChapterServiceTest {
     }
 
     @Test
+    @DisplayName("章节定位页码 → 按目录序号换算，而不是章号（章号有空洞时两者不同）")
+    void pageOfChapter_usesRank() {
+        Chapter target = new Chapter();
+        target.setId(200L);
+        target.setNovelId(100L);
+        target.setChapterNo(50);
+        when(chapterMapper.selectById(200L)).thenReturn(target);
+        when(chapterMapper.selectCount(any())).thenReturn(21L);
+
+        assertEquals(2L, chapterService.pageOfChapter(100L, 200L, 20),
+                "目录里只有 21 章（章号 50 之前有删除留下的空洞）→ 目标在第 2 页；"
+                        + "若按章号 50 ÷ 20 会算成第 3 页，翻过去那一页没有目标章");
+    }
+
+    @Test
+    @DisplayName("章节定位页码 → 章不存在或不属于该作品时回到第 1 页，不抛错")
+    void pageOfChapter_unknownTargetFallsBackToFirstPage() {
+        when(chapterMapper.selectById(200L)).thenReturn(null);
+        assertEquals(1L, chapterService.pageOfChapter(100L, 200L, 20));
+
+        Chapter other = new Chapter();
+        other.setId(201L);
+        other.setNovelId(999L);
+        other.setChapterNo(3);
+        when(chapterMapper.selectById(201L)).thenReturn(other);
+        assertEquals(1L, chapterService.pageOfChapter(100L, 201L, 20),
+                "不属于该作品的章节不能据此定位，跳转失败不应变成报错");
+    }
+
+    @Test
     @DisplayName("新增章节 → 章序号自增 + 待审 + 发 AI 预审")
     void addChapter_appends() {
         try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {

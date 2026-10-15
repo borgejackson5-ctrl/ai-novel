@@ -38,6 +38,19 @@ public interface ChapterService extends IService<Chapter> {
     public PageResult<ChapterVO> pageAuthorVOByNovel(Long novelId, long pageNum, long pageSize);
 
     /**
+     * 计算某章在作者目录中的页码，供「从 AI 审查问题清单跳到该章」使用。
+     *
+     * <p>由服务端换算，而不是让前端按章号估算：章号可能因删除出现空洞（{@code chapter_no} 不连续），
+     * 按「章号 ÷ 每页条数」估算会落到错误的页，表现为「点了章节链接、翻过去那页却没有它」。
+     *
+     * <p>章不存在或不属于该作品时返回第 1 页而不抛错：跳转定位失败不应变成一次报错弹窗，
+     * 且后续的目录查询本就会按作品维度过滤。
+     *
+     * @param pageSize 每页条数，取值不合法（≤0）时按 1 处理，避免除零
+     */
+    public long pageOfChapter(Long novelId, Long chapterId, long pageSize);
+
+    /**
      * 按作品查章节元数据，**不做归属校验**（与 {@link #pageAuthorVOByNovel} 的唯一差别）。
      *
      * <p>供「数据范围已由调用方限定」的内部调用使用：AI 审查工具运行于 MQ 消费线程，

@@ -59,8 +59,14 @@ public class ChapterController {
     @GetMapping("/author/{novelId}")
     public ResponseDTO<PageResult<ChapterVO>> authorList(@PathVariable Long novelId,
                                                          @RequestParam(defaultValue = "1") long pageNum,
-                                                         @RequestParam(defaultValue = "20") long pageSize) {
-        return ResponseDTO.ok(chapterService.pageAuthorVOByNovel(novelId, pageNum, pageSize));
+                                                         @RequestParam(defaultValue = "20") long pageSize,
+                                                         @RequestParam(required = false) Long focusChapterId) {
+        // 从「AI 审查问题清单」跳过来时定位到该章所在页：页码由服务端换算，
+        // 前端按章号估算会因章号存在空洞而落到错误的页
+        long page = focusChapterId == null
+                ? pageNum
+                : chapterService.pageOfChapter(novelId, focusChapterId, pageSize);
+        return ResponseDTO.ok(chapterService.pageAuthorVOByNovel(novelId, page, pageSize));
     }
 
     @Operation(summary = "新增章节（连载，章序号自增，提交审核）")

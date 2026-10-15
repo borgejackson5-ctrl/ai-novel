@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -22,12 +22,27 @@ import { CircleCheck, CircleClose, Clock, InfoFilled, Refresh } from '@element-p
 const route = useRoute()
 const novelId = route.params.id
 
+// 从「AI 审查问题清单」跳来时带上目标章：首次加载即定位到它所在的那一页并高亮。
+// 页码由服务端按目录序号换算 —— 章号可能因删除留下空洞，前端按章号估算会翻错页。
+const focusChapterId = route.query.focusChapterId ? String(route.query.focusChapterId) : null
+
 const loading = ref(true)
 const novel = ref(null)
 const list = ref([])
 const pageNum = ref(1)
 const pageSize = 20
 const total = ref(0)
+
+/**
+ * 命中的目标章 id，非空时该行高亮。
+ *
+ * <p>统一按字符串保存与比较：后端把 Long 序列化为字符串（防 JS 精度丢失），
+ * 若这里存数字、行数据里是字符串，`===` 永不成立，表现为「跳过来了但没高亮」。
+ */
+const highlightId = ref(null)
+
+/** 目标章所在行加高亮类（样式见 .row-focused），其余行返回空串 */
+const rowClass = ({ row }) => (highlightId.value && String(row.id) === highlightId.value ? 'row-focused' : '')
 
 // 已完结的作品章节全部锁定（服务端也会拦，这里只是把入口关掉）
 const finished = computed(() => novel.value?.serialStatus === 1)
@@ -41,17 +56,23 @@ const chapterAuditMap = {
 }
 const auditOf = (s) => chapterAuditMap[s] || { text: '未知', type: 'info', icon: InfoFilled }
 
-const load = async (page = 1) => {
+const load = async (page = 1, focus = null) => {
   pageNum.value = page
   loading.value = true
   try {
     const [novelRes, chaptersRes] = await Promise.all([
       getNovelDetail(novelId),
-      getAuthorChapters(novelId, { pageNum: page, pageSize })
+      getAuthorChapters(novelId, { pageNum: page, pageSize, ...(focus ? { focusChapterId: focus } : {}) })
     ])
     novel.value = novelRes
     list.value = chaptersRes?.list || []
     total.value = Number(chaptersRes?.total || 0)
+    // 后端已按目录序号换算出目标页，因此命中当页即可直接高亮；翻页时不带 focus，高亮自然清除
+    highlightId.value = focus && list.value.some((c) => String(c.id) === String(focus)) ? String(focus) : null
+    if (highlightId.value) {
+      await nextTick()
+      document.querySelector('.el-table__row.row-focused')?.scrollIntoView({ block: 'center' })
+    }
   } finally {
     loading.value = false
   }
@@ -333,7 +354,7 @@ const remove = async (row) => {
   load(list.value.length === 1 && pageNum.value > 1 ? pageNum.value - 1 : pageNum.value)
 }
 
-onMounted(load)
+onMounted(() => load(1, focusChapterId))
 </script>
 
 <template>
@@ -380,7 +401,7 @@ onMounted(load)
       已发布章节不可删除，仅可修改重审。
     </div>
 
-    <el-table v-loading="loading" :data="list" stripe>
+    <el-table v-loading="loading" :data="list" stripe :row-class-name="rowClass">
       <el-table-column prop="chapterNo" label="章序" width="80" />
       <el-table-column prop="title" label="章节标题" min-width="180">
         <template #default="{ row }">
@@ -620,6 +641,13 @@ onMounted(load)
 </template>
 
 <style scoped>
+/* 从「AI 审查问题清单」跳来时的目标章高亮：左侧一条竖线 + 淡底，避免与斑马纹撞色 */
+:deep(.el-table__row.row-focused) {
+  background: var(--cinnabar-bg, #f6e7e3);
+}
+:deep(.el-table__row.row-focused td:first-child) {
+  box-shadow: inset 3px 0 0 var(--cinnabar, #b23a2e);
+}
 .manage-page {
   max-width: 960px;
   margin: 0 auto;

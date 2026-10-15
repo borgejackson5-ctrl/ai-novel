@@ -235,10 +235,13 @@ const doCancel = async () => {
   }
 }
 
+// 跳到章节管理页并定位到该章：传章 id，由服务端按目录序号换算出所在页。
+// 不传章号作定位依据 —— 章号可能因删除出现空洞，前端按它估算页码会翻错页
+// （章号仍一并带上，供目标页未命中时在界面上提示是第几章）。
 const goChapter = (row) => {
   router.push({
     path: `/novel/${novelId}/manage`,
-    query: { focus: row.chapterNo }
+    query: { focusChapterId: row.chapterId, focusChapterNo: row.chapterNo }
   })
 }
 
