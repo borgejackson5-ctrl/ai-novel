@@ -13,9 +13,11 @@ import java.util.List;
  *
  * <ul>
  *   <li><b>对外分发</b>（{@link #isVisible(Novel)}、{@link #appendTo}）：已上架（status=1）
- *       且审核通过（1）或变更待审（3）。变更待审(3) 属于「已上架、改动待审」，
- *       前台展示的仍是旧内容，因此保持可见。</li>
- *   <li><b>详情与阅读</b>（{@link #isDetailReadable}）：不含上下架判定；未过审仅作者与管理员可读。</li>
+ *       且审核状态属于「此前已通过审核」。变更待审(3) 属于「已上架、改动待审」，
+ *       前台展示的仍是旧内容，因此保持可见；重新上架待审(4) 的 status 仍为下架，
+ *       被 status 条件挡住，不会进入书库 / 榜单 / 搜索。</li>
+ *   <li><b>详情与阅读</b>（{@link #isDetailReadable}）：不含上下架判定；未过审（首次待审 0、
+ *       已拒绝 2）仅作者与管理员可读。</li>
  * </ul>
  *
  * <p><b>收敛的必要性</b>：书库分页、搜索全量重建、索引同步、定时对账依赖分发口径；
@@ -25,9 +27,27 @@ import java.util.List;
  */
 public final class NovelVisibility {
 
-    /** 对外可见的审核状态：通过 / 变更待审 */
-    private static final List<Integer> VISIBLE_AUDIT_STATUSES =
-            List.of(AuditStatusEnum.PASS.getCode(), AuditStatusEnum.MODIFY_WAIT.getCode());
+    /**
+     * 「此前已通过审核」的审核状态：通过(1) / 变更待审(3) / 重新上架待审(4)。
+     *
+     * <p>三者的共同点是**作品曾经通过审核**，读者不应因作者提交变更或申请而失去入口。
+     * 集合被两套口径共用，各自的兜底条件不同，因此取值仍然正确：
+     *
+     * <ul>
+     *   <li>分发口径（{@link #isVisible}、{@link #appendTo}）**另带 {@code status = 上架}** 条件。
+     *       「重新上架待审」期间 {@code status} 保持下架，故不会被分发到书库 / 榜单 / 搜索；</li>
+     *   <li>详情口径（{@link #isDetailReadable}）**不含**上下架判定，故下架作品（含申请重新上架
+     *       审核中）的详情、目录与正文对已解锁读者保持可读。</li>
+     * </ul>
+     *
+     * <p>遗漏「重新上架待审」时的表现：作者提交重新上架申请后，已收藏该书、已解锁章节的读者
+     * 打开详情 / 目录 / 正文一律得到 404，而书架里那条记录仍在、点进去提示「作品不存在」——
+     * 等同于在审核窗口内单方面收回已付费权益。
+     */
+    private static final List<Integer> VISIBLE_AUDIT_STATUSES = List.of(
+            AuditStatusEnum.PASS.getCode(),
+            AuditStatusEnum.MODIFY_WAIT.getCode(),
+            AuditStatusEnum.RESHELVE_WAIT.getCode());
 
     private NovelVisibility() {
     }
@@ -38,11 +58,12 @@ public final class NovelVisibility {
     }
 
     /**
-     * 仅判定「审核维度」：通过(1) / 变更待审(3) 视为可见。
+     * 仅判定「审核维度」：此前已通过审核（通过 1 / 变更待审 3 / 重新上架待审 4）视为通过。
      *
      * <p>与 {@link #isVisible(Novel)} 的区别：**不含上下架判定**。
-     * 「已下架」的判定需先确定审核维度是否通过（通过则称下架，未通过则称未过审），
-     * 因此该维度需可单独查询，但实现同样只能有一份。
+     * 调用方（书架条目、作品详情）以「{@code status = 下架} 且审核维度通过」判定「已下架」；
+     * 审核维度未通过则属「未过审」，两者在界面是不同的话术，因此本维度需可单独查询，
+     * 但实现同样只能有一份。
      */
     public static boolean isAuditVisible(Integer auditStatus) {
         return auditStatus != null && VISIBLE_AUDIT_STATUSES.contains(auditStatus);

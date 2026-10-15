@@ -8,8 +8,13 @@ import lombok.Getter;
  *
  * <p>与 {@link ChapterAuditStatusEnum}（章节级）区分。作品比章节多两种「非首次」的在审态：
  * {@link #MODIFY_WAIT}（修改已有信息）与 {@link #RESHELVE_WAIT}（申请重新上架）。
- * 二者的共同点是**作品此前已通过审核**，因此读者可见性判断（{@link #isVisible}）需将其计入，
+ * 二者的共同点是**作品此前已通过审核**，因此读者可见性判断需将其计入，
  * 否则作者提交变更或申请后，作品会从读者视野中消失。
+ *
+ * <p>可见性的唯一实现是 {@code com.ainovel.module.novel.domain.NovelVisibility}。
+ * 本枚举只提供状态定义，**不再自行实现可见性判定** —— 曾存在第二份实现，两处语义不一致
+ * （一份含「重新上架待审」、另一份不含），而实际生效的是不含的那份，
+ * 导致作品在重新上架审核期间对读者整体不可读。
  */
 @Getter
 @AllArgsConstructor
@@ -43,16 +48,6 @@ public enum AuditStatusEnum {
             }
         }
         return false;
-    }
-
-    /**
-     * 读者可见：审核通过、变更待审、重新上架待审。
-     *
-     * <p>后两者均为「此前已通过审核」的作品，前台按旧值或既有内容展示；是否**对外分发**
-     * （进入书库、榜单、搜索）另看 {@code status}，本方法仅判断详情页能否打开。
-     */
-    public static boolean isVisible(Integer code) {
-        return code != null && (code == PASS.code || code == MODIFY_WAIT.code || code == RESHELVE_WAIT.code);
     }
 
     /** 是否处于待人工处理队列（首次待审 + 变更待审 + 重新上架待审） */
