@@ -591,14 +591,19 @@ public class NovelServiceImpl implements NovelService {
     /**
      * 作者删除作品（逻辑删除，不可逆）。
      *
-     * <p>前置三道：已下架 → 下架满 {@link NovelConstant#DELETE_REQUIRE_OFFLINE_DAYS} 天 →
-     * <b>没有读者为它花过币</b>。最后一条为关键条件：删除会使已购读者的书架条目变为「已删除」、
-     * 已解锁章节不可读，等同于单方面收回已付费权益。作品存在问题可予下架，
-     * 但不应连同他人的付费记录一并删除。
+     * <p>门槛：上架中不可删（需先下架）→ 上架过的作品需下架满
+     * {@link NovelConstant#DELETE_REQUIRE_OFFLINE_DAYS} 天 → 没有读者为它花过币。
+     * 最后一条为关键条件：删除会使已购读者的书架条目变为「已删除」、已解锁章节不可读，
+     * 等同于单方面收回已付费权益。作品存在问题可予下架，但不应连同他人的付费记录一并删除。
+     *
+     * <p>**从未上架过的作品（首次待审 / 已被拒）不受下架时长限制**，理由见
+     * {@link #deleteBlockedReason}。此处不再复用 {@code requireOfflinePassed}：
+     * 它要求「审核状态为通过」，而待审 / 被拒的作品恰恰是最需要能删掉的那类。
      */
     public void deleteByAuthor(Long novelId) {
         Novel novel = requireOwnerNovel(novelId);
-        requireOfflinePassed(novel, "删除");
+        // 门槛全部收敛在 deleteBlockedReason：它同时用于「校验」与「页面下发不可删的原因」，
+        // 两处若各写一套，会出现「按钮显示可删、点了却报错」
         String blocked = deleteBlockedReason(novel, hasPaidReader(novelId));
         if (blocked != null) {
             throw new BusinessException(ErrorCode.PARAM_ERROR, blocked);
@@ -797,8 +802,15 @@ public class NovelServiceImpl implements NovelService {
     /**
      * 将三个自助操作的门槛结果回填到 VO（供列表将按钮置灰并说明原因）。
      *
-     * <p>仅为「按钮可能出现的情形」计算原因：下架按钮仅在上架时出现；
-     * 重新上架与删除仅在下架且无在途申请时出现。前端 {@code :disabled + tooltip} 直接使用这两个字段。
+     * <p>只为「按钮可能出现的情形」计算原因：
+     * <ul>
+     *   <li>下架：仅在上架时出现；</li>
+     *   <li>删除：**任何非上架状态**都可能出现，包括从未上架的待审 / 被拒作品（它们同样可删）。
+     *       若这里只在「已过审」时下发原因，那类作品的删除按钮就不会因新出现的门槛
+     *       （如有申请正在审核中）而置灰；</li>
+     *   <li>重新上架：仅在「已过审但已下架」时出现，未过审的作品没有可恢复的展示状态。</li>
+     * </ul>
+     * 前端 {@code :disabled + tooltip} 直接使用这两个字段。
      */
     private void fillAuthorActions(NovelVO vo, Novel novel, boolean hasPaidReader, boolean appealPending) {
         vo.setSerialStatusText(SerialStatusEnum.textOf(novel.getSerialStatus()));
@@ -811,10 +823,11 @@ public class NovelServiceImpl implements NovelService {
                 && novel.getAuditStatus() != null && novel.getAuditStatus() == AuditStatusEnum.PASS.getCode();
         if (online) {
             vo.setOfflineBlockedReason(unshelveBlockedReason(novel));
-        }
-        if (offlinePassed) {
-            vo.setReshelveBlockedReason(reshelveBlockedReason(novel));
+        } else {
             vo.setDeleteBlockedReason(deleteBlockedReason(novel, hasPaidReader));
+            if (offlinePassed) {
+                vo.setReshelveBlockedReason(reshelveBlockedReason(novel));
+            }
         }
     }
 
@@ -843,16 +856,47 @@ public class NovelServiceImpl implements NovelService {
                 : null;
     }
 
-    /** 删除门槛：已下架满 P 天、且无付费读者。返回 null 表示可删除 */
+    /**
+     * 删除门槛。返回 null 表示可删除，否则返回不可删的原因（同一份判据同时用于校验与页面展示）。
+     *
+     * <p>按作品经历分三种情形：
+     * <ol>
+     *   <li><b>上架中</b>：必须先下架 —— 直接删除会让正在阅读的读者突然失去入口；</li>
+     *   <li><b>上架过、已下架</b>：下架满 {@link NovelConstant#DELETE_REQUIRE_OFFLINE_DAYS} 天才可删，
+     *       这段时间留给已收藏的读者看到「已下架」而不是作品凭空消失；</li>
+     *   <li><b>从未上架</b>（首次待审 / 已被拒）：直接可删。这类作品没有读者收藏过，无需缓冲；
+     *       且它们**无法自助下架**（下架要求作品当前处于上架状态），若也要求「先下架」，
+     *       两条路会互相堵死，作品将永远删不掉。</li>
+     * </ol>
+     *
+     * <p>有变更待审(3) 或重新上架待审(4) 的申请时不放行：删除会在审核队列里留下无处可审的任务。
+     *
+     * <p>任何情形下，只要已有读者付费解锁过就不可删除：删除会使已购读者的书架条目变为「已删除」、
+     * 已解锁章节不可读，等同于单方面收回已付费权益。作品存在问题可予下架，
+     * 但不应连同他人的付费记录一并删除。
+     *
+     * <p>注意「上架中但从未下架过」的作品 {@code offlineTime} 同样为 null，
+     * 因此判断「从未上架」必须结合 {@code status}，不能只看 offlineTime。
+     */
     private static String deleteBlockedReason(Novel novel, boolean hasPaidReader) {
-        if (novel.getOfflineTime() == null) {
+        boolean onShelf = novel.getStatus() != null
+                && novel.getStatus() == CommonStatusEnum.ENABLED.getCode();
+        if (onShelf) {
             return "请先下架作品";
         }
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime canAt = novel.getOfflineTime().plusDays(NovelConstant.DELETE_REQUIRE_OFFLINE_DAYS);
-        if (now.isBefore(canAt)) {
-            return "下架未满 " + NovelConstant.DELETE_REQUIRE_OFFLINE_DAYS + " 天，"
-                    + untilText(now, canAt, "天") + "后可删除";
+        Integer auditStatus = novel.getAuditStatus();
+        if (auditStatus != null && (auditStatus == AuditStatusEnum.MODIFY_WAIT.getCode()
+                || auditStatus == AuditStatusEnum.RESHELVE_WAIT.getCode())) {
+            return "作品有变更或重新上架的申请正在审核中，请等审核结束后再删除";
+        }
+        LocalDateTime offlineTime = novel.getOfflineTime();
+        if (offlineTime != null) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime canAt = offlineTime.plusDays(NovelConstant.DELETE_REQUIRE_OFFLINE_DAYS);
+            if (now.isBefore(canAt)) {
+                return "下架未满 " + NovelConstant.DELETE_REQUIRE_OFFLINE_DAYS + " 天，"
+                        + untilText(now, canAt, "天") + "后可删除";
+            }
         }
         if (hasPaidReader) {
             return "已有读者付费解锁，不能删除（可保持下架）";

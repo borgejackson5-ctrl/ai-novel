@@ -75,7 +75,9 @@ router.beforeEach(async (to) => {
   // 与后端 SaTokenConfig 的游客可读白名单一一对应：后端已放行而前端仍拦截时，等同于未放开
   if (!userStore.token && to.meta?.guest) return true
 
-  if (!userStore.token) return '/login'
+  // 带上去向：登录成功后回到被拦截前想去的页面。此前一律跳首页，
+  // 游客在详情页点「加入书架 / 解锁」被弹到登录页后，刚看的书就丢了
+  if (!userStore.token) return { path: '/login', query: { redirect: to.fullPath } }
 
   // role 可能因本地存储被清理而缺失，进入角色判定前补一次
   if (!userStore.role && !roleProbed) {
@@ -84,7 +86,8 @@ router.beforeEach(async (to) => {
       await userStore.fetchUserInfo()
     } catch (e) {
       userStore.clearSession()
-      return '/login'
+      // 凭证失效同样带上去向：重新登录后回到原页，而不是被丢回首页
+      return { path: '/login', query: { redirect: to.fullPath } }
     }
   }
 

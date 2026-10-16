@@ -3,6 +3,8 @@ package com.ainovel.module.novel.service;
 import com.ainovel.common.code.ErrorCode;
 import com.ainovel.common.constant.MqConstant;
 import com.ainovel.common.exception.BusinessException;
+import com.ainovel.common.enums.AuditStatusEnum;
+import com.ainovel.common.enums.CommonStatusEnum;
 import com.ainovel.common.util.CacheHelper;
 import com.ainovel.common.util.LoginUserUtil;
 import com.ainovel.common.message.AiAuditMessage;
@@ -37,6 +39,7 @@ import com.ainovel.module.user.service.UserService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -232,6 +235,115 @@ class NovelServiceTest {
         novelService.delete(100L);
 
         verify(cacheHelper).evictAfterCommit("novel:detail:100");
+    }
+
+    // ================= 作者删除作品的门槛 =================
+    //
+    // 「从未上架」的作品（首次待审 / 已被拒）没有 offlineTime，而自助下架又要求作品当前处于
+    // 上架状态 —— 两条路互堵会让作品永久删不掉。下面的用例钉住这类作品必须可删，
+    // 同时钉住「上架中但从未下架过」的作品（offlineTime 同样为 null）不能被误放行。
+
+    private static final Long OWNER_ID = 7L;
+
+    /** 从未上架的作品：下架状态、无下架时间（首次待审 / 已被拒都属于这类） */
+    private static Novel neverOnShelf(int auditStatus) {
+        Novel n = new Novel();
+        n.setId(100L);
+        n.setUserId(OWNER_ID);
+        n.setStatus(CommonStatusEnum.DISABLED.getCode());
+        n.setAuditStatus(auditStatus);
+        n.setOfflineTime(null);
+        return n;
+    }
+
+    @Test
+    @DisplayName("从未上架（首次待审）→ 允许删除：它无法自助下架，若也要求「先下架」就永远删不掉")
+    void deleteByAuthor_firstWait_isAllowed() {
+        when(novelMapper.selectById(100L)).thenReturn(neverOnShelf(AuditStatusEnum.WAIT.getCode()));
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            novelService.deleteByAuthor(100L);
+        }
+
+        verify(novelMapper).deleteById(100L);
+    }
+
+    @Test
+    @DisplayName("从未上架（审核被拒）→ 允许删除：被拒的作品更需要能清掉，否则永远躺在作品列表里")
+    void deleteByAuthor_rejected_isAllowed() {
+        when(novelMapper.selectById(100L)).thenReturn(neverOnShelf(AuditStatusEnum.REJECT.getCode()));
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            novelService.deleteByAuthor(100L);
+        }
+
+        verify(novelMapper).deleteById(100L);
+    }
+
+    @Test
+    @DisplayName("上架中（从未下架过，offlineTime 同样为 null）→ 仍然要求先下架，不能误放行")
+    void deleteByAuthor_onShelf_requiresOfflineFirst() {
+        Novel onShelf = neverOnShelf(AuditStatusEnum.PASS.getCode());
+        onShelf.setStatus(CommonStatusEnum.ENABLED.getCode());
+        when(novelMapper.selectById(100L)).thenReturn(onShelf);
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> novelService.deleteByAuthor(100L));
+            assertTrue(ex.getMessage().contains("请先下架"), "实际提示：" + ex.getMessage());
+        }
+
+        verify(novelMapper, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("上架过、下架未满 7 天 → 拒绝删除（给已收藏的读者留缓冲）")
+    void deleteByAuthor_offlineTooShort_rejected() {
+        Novel novel = neverOnShelf(AuditStatusEnum.PASS.getCode());
+        novel.setOfflineTime(LocalDateTime.now().minusDays(1));
+        when(novelMapper.selectById(100L)).thenReturn(novel);
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> novelService.deleteByAuthor(100L));
+            assertTrue(ex.getMessage().contains("下架未满"), "实际提示：" + ex.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("已下架满 7 天、但有读者付费过 → 仍拒绝删除（三条门槛里最关键的一条）")
+    void deleteByAuthor_withPaidReader_rejected() {
+        // 用「已下架满 30 天」的作品：时间门槛已满足，只剩付费读者这一档
+        Novel novel = neverOnShelf(AuditStatusEnum.PASS.getCode());
+        novel.setOfflineTime(LocalDateTime.now().minusDays(30));
+        when(novelMapper.selectById(100L)).thenReturn(novel);
+        when(novelPurchaseProbe.hasPaidReader(100L)).thenReturn(true);
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> novelService.deleteByAuthor(100L));
+            assertTrue(ex.getMessage().contains("付费"), "实际提示：" + ex.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("有改动/重新上架的申请在处理中 → 拒绝删除（否则审核队列里留下无处可审的任务）")
+    void deleteByAuthor_pendingApplication_rejected() {
+        Novel novel = neverOnShelf(AuditStatusEnum.MODIFY_WAIT.getCode());
+        novel.setOfflineTime(LocalDateTime.now().minusDays(30));
+        when(novelMapper.selectById(100L)).thenReturn(novel);
+
+        try (MockedStatic<LoginUserUtil> mocked = mockStatic(LoginUserUtil.class)) {
+            mocked.when(LoginUserUtil::getUserId).thenReturn(OWNER_ID);
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> novelService.deleteByAuthor(100L));
+            assertTrue(ex.getMessage().contains("审核"), "实际提示：" + ex.getMessage());
+        }
     }
 
     @Test

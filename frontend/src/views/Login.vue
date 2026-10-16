@@ -1,12 +1,42 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../store/user'
 import { sendCode, resetPassword } from '../api'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
+
+/**
+ * 被拦截前想去的页面。由路由守卫写入 query.redirect。
+ *
+ * 只接受站内路径：`//evil.com` 这类以双斜杠开头的地址会被浏览器当作协议相对地址，
+ * 拼在当前站点后面会跳到外部站点（开放重定向），因此必须挡掉。
+ */
+const safeRedirect = () => {
+  const target = route.query.redirect
+  return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//')
+    ? target
+    : ''
+}
+
+/**
+ * 登录 / 注册成功后的去向。
+ *
+ * 未登录时点「加入书架 / 解锁」会被弹到登录页，此前一律回首页，
+ * 刚看的书与已填内容全部丢失；现在回到被拦截的那一页。
+ * 管理员被路由守卫限制在后台，只接受指向后台的 redirect。
+ */
+const goAfterAuth = () => {
+  const target = safeRedirect()
+  if (userStore.role === 'admin') {
+    router.push(target.startsWith('/admin') ? target : '/admin')
+    return
+  }
+  router.push(target || '/')
+}
 
 const isRegister = ref(false)
 const isReset = ref(false)
@@ -62,7 +92,7 @@ const handleLogin = async () => {
   try {
     await userStore.login(identifier, password, code || undefined, rememberMe.value)
     ElMessage.success('登录成功')
-    router.push(userStore.role === 'admin' ? '/admin' : '/')
+    goAfterAuth()
   } catch (e) {
     // 错误已在拦截器提示（含「邮箱未注册 → 请获取验证码」）
   } finally {
@@ -96,7 +126,7 @@ const handleRegister = async () => {
   try {
     await userStore.register({ username, email, password, code })
     ElMessage.success('注册成功，已自动登录')
-    router.push(userStore.role === 'admin' ? '/admin' : '/')
+    goAfterAuth()
   } catch (e) {
     // 错误已在拦截器提示
   } finally {

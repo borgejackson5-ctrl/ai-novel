@@ -33,7 +33,11 @@ async function handleUnauthorized() {
   }
   if (!redirecting) {
     redirecting = true
-    router.push('/login')
+    // 带上去向：登录成功后回到触发 401 的那一页（未登录读者在详情页点「解锁 / 点赞」即走这条路径）。
+    // 已在登录页时不再带，否则会拼出 /login?redirect=/login
+    const current = router.currentRoute.value
+    const target = current && current.path !== '/login' ? current.fullPath : ''
+    router.push(target ? { path: '/login', query: { redirect: target } } : '/login')
     setTimeout(() => { redirecting = false }, 1000)
   }
 }

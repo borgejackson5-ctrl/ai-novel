@@ -209,6 +209,19 @@ const commentPage = ref(1)
 const commentLoading = ref(false)
 const commentText = ref('')
 
+/**
+ * 需要登录的动作：未登录时去登录页，并带上「当前这一章」作为去向。
+ *
+ * 只弹一句提示而不跳转的话，读者要自己找登录入口，登录后还会被丢回首页 ——
+ * 读到一半的位置与已写好的评论都丢了。
+ */
+const ensureLoggedIn = (tip) => {
+  if (userStore.token) return true
+  ElMessage.info(tip)
+  router.replace({ path: '/login', query: { redirect: route.fullPath } })
+  return false
+}
+
 const loadComments = async (reset = true) => {
   if (!chapter.value) return
   commentLoading.value = true
@@ -237,10 +250,7 @@ const moreComments = () => {
 }
 
 const submitComment = async () => {
-  if (!userStore.token) {
-    ElMessage.warning('登录后即可发表评论')
-    return
-  }
+  if (!ensureLoggedIn('登录后即可发表评论')) return
   const text = commentText.value.trim()
   if (!text) return
   const vo = await addComment({
@@ -260,10 +270,7 @@ const removeComment = async (row) => {
 }
 
 const likeOne = async (row) => {
-  if (!userStore.token) {
-    ElMessage.warning('登录后即可点赞')
-    return
-  }
+  if (!ensureLoggedIn('登录后即可点赞')) return
   // 点赞接口是切换语义，返回值即操作后的状态。
   // 不能无条件加一：第二次点击服务端已取消，界面却还在递增，刷新后自己点过的赞又消失。
   const liked = await likeComment(row.id)
