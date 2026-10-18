@@ -5,7 +5,9 @@ import {
   getSystemMetrics,
   resetSystemMetrics,
   rebuildSearchIndex,
-  reconcileSearchIndex
+  reconcileSearchIndex,
+  replayDlq,
+  purgeDlq
 } from '../../api'
 
 const loading = ref(true)
@@ -40,6 +42,55 @@ const dlxRows = computed(() =>
     label: DLX_LABEL[queue] || queue
   }))
 )
+
+// ===== 死信处置：重放 / 清空 =====
+// 两个动作的后果差别很大，确认文案必须写清「会发生什么」而不是「有风险」。
+const busy = ref('')
+
+const doReplay = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `会把「${row.label}」里的 ${row.count} 条消息重新投递一次，等于让那些操作重新执行一遍。` +
+      '重复执行是安全的，但会再次消耗对应的资源（例如重新生成一次检索数据）。',
+      '重放消息',
+      { type: 'info', confirmButtonText: '开始重放', cancelButtonText: '取消' }
+    )
+  } catch (e) {
+    return
+  }
+  busy.value = 'replay:' + row.queue
+  try {
+    const r = await replayDlq(row.queue)
+    const parts = [`成功 ${r.replayed} 条`]
+    if (r.failed) parts.push(`失败 ${r.failed} 条（已放回）`)
+    if (r.skipped) parts.push(`跳过 ${r.skipped} 条（缺少原始去向）`)
+    ElMessage.success(parts.join('，'))
+    load()
+  } catch (e) { /* 拦截器已提示 */ } finally {
+    busy.value = ''
+  }
+}
+
+const doPurge = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `会永久丢弃「${row.label}」里的 ${row.count} 条消息，无法恢复。` +
+      '如果这些消息对应的数据仍然存在、只是没有同步成功，丢弃后只能靠手工重建补回。',
+      '清空消息',
+      { type: 'error', confirmButtonText: '确认丢弃', cancelButtonText: '取消' }
+    )
+  } catch (e) {
+    return
+  }
+  busy.value = 'purge:' + row.queue
+  try {
+    const dropped = Number((await purgeDlq(row.queue)) || 0)
+    ElMessage.success(`已丢弃 ${dropped} 条`)
+    load()
+  } catch (e) { /* 拦截器已提示 */ } finally {
+    busy.value = ''
+  }
+}
 
 const load = async () => {
   loading.value = true
@@ -166,16 +217,31 @@ onMounted(load)
         </div>
       </div>
 
-      <div v-if="dlxRows.length" class="ops-result">
-        <span class="ops-sub">按类型：</span>
-        <span v-for="r in dlxRows" :key="r.queue" class="dlx-chip" :class="{ bad: backlogAlert(r.count) }">
-          {{ r.label }} {{ fmtBacklog(r.count) }}
-        </span>
-      </div>
+      <el-table v-if="dlxRows.length" :data="dlxRows" size="small" class="dlx-table">
+        <el-table-column prop="label" label="类型" width="150" />
+        <el-table-column label="积压" width="90" align="right">
+          <template #default="{ row }">
+            <span :class="{ bad: backlogAlert(row.count) }">{{ fmtBacklog(row.count) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="150">
+          <template #default="{ row }">
+            <el-button link type="primary" size="small"
+              :loading="busy === 'replay:' + row.queue"
+              :disabled="!(row.count > 0) || !!busy"
+              @click="doReplay(row)">重放</el-button>
+            <el-button link type="danger" size="small"
+              :loading="busy === 'purge:' + row.queue"
+              :disabled="!(row.count > 0) || !!busy"
+              @click="doPurge(row)">清空</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
 
       <div v-if="backlogAlert(data?.dlxBacklog)" class="ops-result warn">
         有消息反复投递失败并已堆积。继续增长会导致消息服务拒绝写入，
-        届时全站都无法发出消息，请尽快排查。
+        届时全站都无法发出消息，请尽快排查。处置优先用「重放」——
+        它让那次动作重新执行一遍；「清空」会直接丢弃，只在确认对应数据已不存在时使用。
       </div>
     </section>
 
@@ -290,15 +356,7 @@ onMounted(load)
 
 .mq-row { grid-template-columns: repeat(2, 1fr); margin-bottom: 12px; }
 
-.dlx-chip {
-  display: inline-block;
-  margin: 0 10px 6px 0;
-  padding: 2px 9px;
-  border-radius: 4px;
-  background: var(--paper-2, #f2f0ec);
-  font-size: 12.5px;
-}
-.dlx-chip.bad { color: #b23a2e; font-weight: 600; }
+.dlx-table { margin-bottom: 12px; }
 
 .block-title {
   font-size: 14px;

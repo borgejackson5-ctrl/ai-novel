@@ -34,10 +34,14 @@ import java.util.Map;
 public class DlxBacklogMetrics {
 
     /**
-     * 全部死信队列。**新增死信队列时需同步添加到此列表**，这是唯一的清单，
-     * 遗漏的后果是该队列的积压永远不会出现在指标中（而它恰是无人关注的队列）。
+     * 全部死信队列。**新增死信队列时需同步添加到此列表**，这是唯一的清单：
+     * 指标采集与「重放 / 清空」两个处置动作都以它为白名单，
+     * 遗漏的后果是该队列既不会出现在指标中、也无法在管理端处置（而它恰是无人关注的队列）。
+     *
+     * <p>处置动作必须走这份白名单：队列名由前端传入，不做校验时一个写错的参数
+     * 就能把业务队列整个清空。
      */
-    static final List<String> DLX_QUEUES = List.of(
+    public static final List<String> DLX_QUEUES = List.of(
             MqConstant.AI_AUDIT_DLX_QUEUE,
             MqConstant.AI_REVIEW_DLX_QUEUE,
             MqConstant.SEARCH_SYNC_DLX_QUEUE,

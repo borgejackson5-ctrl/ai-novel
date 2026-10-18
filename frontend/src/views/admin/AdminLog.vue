@@ -5,15 +5,16 @@ import { fmtTime } from '../../utils/format'
 
 const MODULE_LABEL = {
   AUDIT: '内容审核', USER: '用户', ORDER: '订单', FEEDBACK: '反馈', APPEAL: '作品申请',
-  NOVEL: '小说', COMMENT: '评论', AI: 'AI 额度', IMPORT: '公版书导入'
+  NOVEL: '小说', COMMENT: '评论', AI: 'AI 额度', IMPORT: '公版书导入', MQ: '消息投递'
 }
 const ACTION_LABEL = {
   PASS: '通过', REJECT: '拒绝', STATUS: '状态变更', HANDLE: '处理',
-  RESET: '重置', SAVE: '保存', DELETE: '删除', IMPORT: '导入'
+  RESET: '重置', SAVE: '保存', DELETE: '删除', IMPORT: '导入',
+  REPLAY: '重放', PURGE: '清空'
 }
 const TARGET_LABEL = {
   NOVEL: '作品', CHAPTER: '章节', USER: '用户', FEEDBACK: '反馈',
-  NOVEL_APPEAL: '作品申请', COMMENT: '评论', AI_QUOTA: 'AI 额度'
+  NOVEL_APPEAL: '作品申请', COMMENT: '评论', AI_QUOTA: 'AI 额度', DLQ: '失败消息'
 }
 
 const moduleOptions = Object.entries(MODULE_LABEL).map(([value, label]) => ({ value, label }))

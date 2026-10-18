@@ -227,3 +227,9 @@ export const resetSystemMetrics = () => request.post("/admin/system/metrics/rese
 // 管理后台 - 检索数据运维（原为两个无前端入口的接口，只能手工发起请求）
 export const rebuildSearchIndex = () => request.post("/novel/reindex");
 export const reconcileSearchIndex = () => request.post("/admin/search/reconcile");
+
+// 管理后台 - 死信消息处置（重放 = 让那次业务动作重做一遍；清空 = 丢弃，不可恢复）
+export const replayDlq = (queue) =>
+  request.post("/admin/mq/dlq/replay", null, { params: { queue } });
+export const purgeDlq = (queue) =>
+  request.delete("/admin/mq/dlq/messages", { params: { queue } });

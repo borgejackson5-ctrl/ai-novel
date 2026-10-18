@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import com.ainovel.common.annotation.AdminLogRecord;
 import com.ainovel.common.domain.PageResult;
 import com.ainovel.common.domain.ResponseDTO;
+import com.ainovel.common.mq.DlxOpsService;
 import com.ainovel.module.admin.domain.form.AuditRejectForm;
 import com.ainovel.module.admin.domain.vo.AdminLogVO;
 import com.ainovel.module.admin.domain.vo.AiStatsVO;
@@ -71,6 +72,8 @@ public class AdminController {
     private final AiStatsService aiStatsService;
 
     private final CommentService commentService;
+
+    private final DlxOpsService dlxOpsService;
 
     @Operation(summary = "AI 用量：调用次数与耗时、失败、降级、缓存命中、当日额度")
     @GetMapping("/ai-stats")
@@ -321,5 +324,27 @@ public class AdminController {
             @RequestParam(defaultValue = "false") boolean onlyFailed) {
         return ResponseDTO.ok(adminLogService.page(pageNum, pageSize, module, action,
                 adminId, keyword, startDate, endDate, onlyFailed));
+    }
+
+    // ==================== 死信消息处置 ====================
+    //
+    // 运行状态页能看到积压条数，但此前没有任何处置手段，只能登录服务器执行 rabbitmqctl。
+    // 两个动作语义差别很大：重放 = 让那次业务动作重做一遍（消费者幂等，安全）；
+    // 清空 = 直接丢弃、不可恢复（仅在确认消息指向的数据已不存在时才用）。
+
+    @AdminLogRecord(module = "MQ", action = "REPLAY", targetType = "DLQ", targetIdIndex = -1,
+            summary = "重放死信消息", detail = "#p0")
+    @Operation(summary = "重放指定死信队列的消息（投回原 exchange / routing key，消费者幂等）")
+    @PostMapping("/mq/dlq/replay")
+    public ResponseDTO<DlxOpsService.ReplayResult> replayDlq(@RequestParam String queue) {
+        return ResponseDTO.ok(dlxOpsService.replay(queue));
+    }
+
+    @AdminLogRecord(module = "MQ", action = "PURGE", targetType = "DLQ", targetIdIndex = -1,
+            summary = "清空死信队列", detail = "#p0")
+    @Operation(summary = "清空指定死信队列（丢弃全部消息，不可恢复）")
+    @DeleteMapping("/mq/dlq/messages")
+    public ResponseDTO<Integer> purgeDlq(@RequestParam String queue) {
+        return ResponseDTO.ok(dlxOpsService.purge(queue));
     }
 }
